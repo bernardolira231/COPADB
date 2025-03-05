@@ -1,0 +1,104 @@
+CREATE TABLE student (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    lastname_f TEXT NOT NULL,
+    lastname_m TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    blood_type VARCHAR(5),
+    allergies TEXT,
+    scholar_ship BOOLEAN DEFAULT FALSE,  -- Cambiado a booleano
+    chapel VARCHAR(100),        
+    school_campus TEXT,
+    family_id INT REFERENCES family(id) ON DELETE SET NULL,
+    permission TEXT,
+    reg_date DATE NOT NULL DEFAULT CURRENT_DATE
+);
+
+
+
+
+CREATE TABLE family (
+    id SERIAL PRIMARY KEY,
+    tutor_name TEXT NOT NULL,
+    tutor_lastname_f TEXT NOT NULL,
+    tutor_lastname_m TEXT NOT NULL,
+    phone_number VARCHAR(50) NOT NULL,
+    email_address TEXT UNIQUE NOT NULL,
+    emergency_phone_number VARCHAR(50) NOT NULL
+);
+
+
+
+CREATE TABLE professor (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    lastname_f TEXT NOT NULL,
+    lastname_m TEXT NOT NULL
+);
+
+
+
+CREATE TABLE class (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE
+);
+
+
+
+CREATE TABLE "group" (
+    id SERIAL PRIMARY KEY,
+    grade VARCHAR(50) NOT NULL,
+    class_id INT NOT NULL REFERENCES class(id) ON DELETE CASCADE,
+    professor_id INT NOT NULL REFERENCES professor(id) ON DELETE SET NULL
+);
+
+
+
+CREATE TABLE history (
+    id SERIAL PRIMARY KEY,
+    student_id INT NOT NULL REFERENCES student(id) ON DELETE CASCADE,
+    group_id INT NOT NULL REFERENCES "group"(id) ON DELETE CASCADE,
+    status VARCHAR(50) NOT NULL
+);
+
+
+
+
+CREATE TABLE notes (
+    id SERIAL PRIMARY KEY,
+    student_id INT NOT NULL REFERENCES student(id) ON DELETE CASCADE,
+    grade_id INT NOT NULL,
+    class_participation BOOLEAN DEFAULT FALSE,
+    exercises DECIMAL(5,2),
+    homework DECIMAL(5,2),
+    exams DECIMAL(5,2),
+    church_class DECIMAL(5,2),
+    finall DECIMAL(5,2)
+);
+
+
+CREATE TABLE attendance (
+    id SERIAL PRIMARY KEY,
+    student_id INT NOT NULL REFERENCES student(id) ON DELETE CASCADE,
+    status BOOLEAN NOT NULL DEFAULT FALSE,
+    fecha TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    grade_id INT NOT NULL
+);
+
+
+
+CREATE TABLE roles (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE
+);
+
+
+
+CREATE TABLE usuarios (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    lastname TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    rol INT REFERENCES roles(id) ON DELETE SET NULL
+);
