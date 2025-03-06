@@ -6,11 +6,11 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   return (
-    <div>
+    <main>
       <h1>Header</h1>
       {children}
       <h1>Footer</h1>
-    </div>
+    </main>
   );
 }
 
