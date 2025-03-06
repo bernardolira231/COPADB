@@ -1,14 +1,6 @@
-import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
+import Index from '../pages/index'
 
 export const Route = createFileRoute('/Home')({
-  component: AboutComponent,
+  component: Index,
 })
-
-function AboutComponent() {
-  return (
-    <div className="p-2">
-      <h3>About</h3>
-    </div>
-  )
-}
