@@ -1,4 +1,12 @@
+import { useNavigate } from "@tanstack/react-router";
+
 const Login = () => {
+  const navigate = useNavigate();
+
+  const handleLogin = () => {
+    navigate({ to: "/Home" });
+  };
+
   return (
     <main className="bg-login-bg h-screen flex justify-center items-center">
       <div className="w-[448px] bg-white rounded-xl shadow-lg overflow-hidden">
@@ -31,7 +39,10 @@ const Login = () => {
               className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
-          <button className="w-full bg-blue-800 text-white py-2 rounded-md hover:bg-blue-900 transition">
+          <button
+            onClick={handleLogin}
+            className="w-full bg-blue-800 text-white py-2 rounded-md hover:bg-blue-900 transition"
+          >
             Iniciar Sesión
           </button>
 
