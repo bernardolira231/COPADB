@@ -64,7 +64,7 @@ def ver_usuarios():
         conn = get_db_connection()
         cur = conn.cursor()
 
-        cur.execute("SELECT id, name, lastname, email, rol FROM usuarios;")
+        cur.execute("SELECT * FROM usuarios WHERE email = 'admin@cedb.com';")
         usuarios = cur.fetchall()
 
         cur.close()
