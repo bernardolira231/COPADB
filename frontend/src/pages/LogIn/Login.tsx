@@ -35,7 +35,10 @@ const Login = () => {
     login(
       { email, password },
       {
-        onSuccess: () => navigate({ to: "/Home" }),
+        onSuccess: (data) => {
+          localStorage.setItem("token", data.token);
+          navigate({ to: "/Home" });
+        },
         onError: (err) => {
           setErrors((prev) => ({
             ...prev,
@@ -69,7 +72,7 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="name@cedb.com"
-              className="w-full border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className={`w-full border ${errors.email ? "border-red-500" : "border-gray-300"} rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400`}
             />
             {errors.email && (
               <p className="text-red-500 text-sm mt-1">{errors.email}</p>
@@ -82,7 +85,7 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="contraseña"
-              className="w-full border ${errors.password ? 'border-red-500' : 'border-gray-300'} rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className={`w-full border ${errors.password ? "border-red-500" : "border-gray-300"} rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400`}
             />
             {errors.password && (
               <p className="text-red-500 text-sm mt-1">{errors.password}</p>
