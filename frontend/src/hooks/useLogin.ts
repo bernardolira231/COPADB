@@ -1,44 +1,20 @@
 import { useMutation } from "@tanstack/react-query";
 
-const mockUsers = [
-  {
-    id: 1,
-    name: "Administrador",
-    lastname: "General",
-    email: "admin@cedb.com",
-    password: "123456",
-    rol: 1,
-  },
-  {
-    id: 2,
-    name: "Juan",
-    lastname: "Pérez",
-    email: "user@cedb.com",
-    password: "password",
-    rol: 2,
-  },
-];
+const API_URL = (import.meta as any).env?.VITE_API_URL || "http://localhost:5000/api/login";
 
-const makeTime = (time: number) =>
-  new Promise((resolve) => setTimeout(resolve, time));
+const loginUser = async (email: string, password: string) => {
+  const response = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
 
-const mockLogin = async (email: string, password: string) => {
-  await makeTime(1000);
-
-  const user = mockUsers.find(
-    (u) => u.email === email && u.password === password
-  );
-  if (!user) {
-    throw new Error("Credenciales incorrectas");
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Error al iniciar sesión");
   }
 
-  return {
-    id: user.id,
-    name: user.name,
-    lastname: user.lastname,
-    email: user.email,
-    rol: user.rol,
-  };
+  return response.json(); // Devuelve la respuesta con los datos del usuario
 };
 
 export const LOGIN_KEY = "LOGIN";
@@ -46,7 +22,7 @@ export const LOGIN_KEY = "LOGIN";
 const useLogin = () => {
   const mutation = useMutation({
     mutationFn: ({ email, password }: { email: string; password: string }) =>
-      mockLogin(email, password),
+      loginUser(email, password),
     retry: false,
   });
 
