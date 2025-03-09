@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 
-const API_URL = (import.meta as any).env?.VITE_API_URL || "http://localhost:5000/api/login";
+const API_URL = "http://localhost:5000/api/login";
 
 const loginUser = async (email: string, password: string) => {
   const response = await fetch(API_URL, {
@@ -14,7 +14,9 @@ const loginUser = async (email: string, password: string) => {
     throw new Error(errorData.message || "Error al iniciar sesión");
   }
 
-  return response.json(); // Devuelve la respuesta con los datos del usuario
+  const data = await response.json();
+  localStorage.setItem("token", data.token); // Guardar el token
+  return data;
 };
 
 export const LOGIN_KEY = "LOGIN";
