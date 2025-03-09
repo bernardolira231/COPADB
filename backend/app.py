@@ -46,7 +46,7 @@ def login():
         cur = conn.cursor()
 
         # Buscar usuario en la base de datos
-        cur.execute("SELECT id, name, email, password FROM users WHERE email = %s", (email,))
+        cur.execute("SELECT id, name, email, password FROM usuarios WHERE email = %s", (email,))
         user = cur.fetchone()
 
         cur.close()
