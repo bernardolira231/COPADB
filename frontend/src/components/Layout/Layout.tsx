@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 
@@ -7,6 +7,23 @@ interface LayoutProps {
 }
 
 const Layout = ({ children }: LayoutProps) => {
+
+  useEffect(() => {
+    const checkToken = () => {
+      if (!localStorage.getItem("token")) {
+        window.location.replace("/login");
+      }
+    };
+
+    checkToken();
+
+    window.addEventListener("storage", checkToken);
+
+    return () => {
+      window.removeEventListener("storage", checkToken);
+    };
+  }, []);
+
   return (
     <div className="h-screen flex">
       <Sidebar />

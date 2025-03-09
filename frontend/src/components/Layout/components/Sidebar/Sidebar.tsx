@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import {
   LuClipboardList,
   LuLogOut,
@@ -14,10 +14,10 @@ interface SidebarProps {
 }
 
 const Sidebar = () => {
-  const navigate = useNavigate();
 
   const handleLogout = () => {
-    navigate({ to: "/" });
+    localStorage.removeItem("token");
+    window.location.href = "/";
   };
   return (
     <aside className="w-64 bg-white border-r border-border-color flex flex-col justify-between">
