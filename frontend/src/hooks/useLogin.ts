@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 
-const API_URL = "http://localhost:8080/api/login";
+const API_URL = "http://localhost:5328/api/login";
 
 const loginUser = async (email: string, password: string) => {
   const response = await fetch(API_URL, {
