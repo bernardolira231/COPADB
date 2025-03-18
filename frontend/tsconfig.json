@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "typeRoots": ["vite/client", "node_modules/@types"],
     "strict": true,
     "esModuleInterop": true,
     "jsx": "react-jsx",

@@ -26,3 +26,8 @@ dist-ssr
 backend/venv
 **/env/
 **/env/*
+
+.env
+**/.env
+**/.env.*
+backend/.env

@@ -6,6 +6,11 @@ export const Route = createRootRoute({
 })
 
 function RootComponent() {
+  const token = localStorage.getItem('token')
+  if (!token && window.location.pathname !== "/") {
+    window.location.href = "/"
+    return null
+  }
   return (
     <>
       <Outlet />
