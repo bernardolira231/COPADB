@@ -10,7 +10,7 @@ const useClasses = () => {
   return useQuery({
     queryKey: ["classes"],
     queryFn: fetchClasses,
-    staleTime: 1000 * 60 * 5,
+    staleTime: Infinity,
   });
 };
 

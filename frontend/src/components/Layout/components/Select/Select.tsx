@@ -7,7 +7,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import useSx from "./sx";
-import useClasses from "../../../../hooks/useClasses"; 
+import useClasses from "../../../../hooks/useClasses";
 
 const SelectComponent: React.FC = () => {
   const { data: clases, isLoading, error } = useClasses();
@@ -31,11 +31,13 @@ const SelectComponent: React.FC = () => {
         <MenuItem value="" disabled>
           <em>{isLoading ? "Cargando..." : "Selecciona una clase"}</em>
         </MenuItem>
-        {!isLoading && clases?.map((clase, index) => (
-          <MenuItem key={index} value={clase}>
-            {clase}
-          </MenuItem>
-        ))}
+        <MenuItem value="Todas">Todas</MenuItem>
+        {!isLoading &&
+          clases?.map((clase, index) => (
+            <MenuItem key={index} value={clase}>
+              {clase}
+            </MenuItem>
+          ))}
       </Select>
     </FormControl>
   );
