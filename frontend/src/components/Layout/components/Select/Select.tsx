@@ -6,36 +6,37 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import { useState } from "react";
-import useSx from "./sx";
-import useClasses from "../../../../hooks/useClasses";
+import useGroups from "../../../../hooks/useGroups";
 
-const SelectComponent: React.FC = () => {
-  const { data: clases, isLoading, error } = useClasses();
-  const [selectedClass, setSelectedClass] = useState<string>("");
-  const sx = useSx();
+const professorId = "123";
+
+const SelectGroup: React.FC<{
+  onGroupChange: (groupId: string | null) => void;
+}> = ({ onGroupChange }) => {
+  const { data: groups, isLoading } = useGroups(professorId);
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
 
   const handleChange = (event: SelectChangeEvent<string>) => {
-    setSelectedClass(event.target.value as string);
+    const groupId = event.target.value === "all" ? null : event.target.value;
+    setSelectedGroup(groupId);
+    onGroupChange(groupId);
   };
 
   return (
-    <FormControl sx={sx.root} size="small">
+    <FormControl sx={{ minWidth: 250 }} size="small">
       <Select
-        value={selectedClass}
+        value={selectedGroup || "all"}
         onChange={handleChange}
         displayEmpty
         input={<OutlinedInput />}
-        sx={sx.select}
-        disabled={isLoading || !!error}
       >
-        <MenuItem value="" disabled>
-          <em>{isLoading ? "Cargando..." : "Selecciona una clase"}</em>
+        <MenuItem value="all">
+          <em>Todos los grupos</em>
         </MenuItem>
-        <MenuItem value="*">Todas</MenuItem>
         {!isLoading &&
-          clases?.map((clase, index) => (
-            <MenuItem key={index} value={clase}>
-              {clase}
+          groups?.map((group) => (
+            <MenuItem key={group.id} value={group.id}>
+              {group.name}
             </MenuItem>
           ))}
       </Select>
@@ -43,4 +44,4 @@ const SelectComponent: React.FC = () => {
   );
 };
 
-export default SelectComponent;
+export default SelectGroup;
