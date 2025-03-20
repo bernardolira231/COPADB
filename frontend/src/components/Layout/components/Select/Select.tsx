@@ -31,7 +31,7 @@ const SelectComponent: React.FC = () => {
         <MenuItem value="" disabled>
           <em>{isLoading ? "Cargando..." : "Selecciona una clase"}</em>
         </MenuItem>
-        <MenuItem value="Todas">Todas</MenuItem>
+        <MenuItem value="*">Todas</MenuItem>
         {!isLoading &&
           clases?.map((clase, index) => (
             <MenuItem key={index} value={clase}>
