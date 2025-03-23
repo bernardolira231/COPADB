@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import {
-  LuClipboardList,
+  LuUsers,
   LuLogOut,
   LuGraduationCap,
   LuFileText,
@@ -14,7 +14,6 @@ interface SidebarProps {
 }
 
 const Sidebar = () => {
-
   const handleLogout = () => {
     localStorage.removeItem("token");
     window.location.href = "/";
@@ -42,7 +41,7 @@ const Sidebar = () => {
             color="text-blue-500"
           />
           <SideBarLink
-            icon={<LuClipboardList />}
+            icon={<LuUsers />}
             title="Asistencia"
             to="/asistencia"
             color="text-emerald-500"

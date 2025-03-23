@@ -6,7 +6,7 @@ import {
   LuCalculator,
   LuFlaskConical,
   LuUsers,
-  LuAward,
+  LuFileText,
 } from "react-icons/lu";
 import useSubjects from "../../../../hooks/useSubject";
 import useGroups from "../../../../hooks/useGroups";
@@ -53,7 +53,7 @@ const SubjectsList: React.FC<{ groupId: string | null }> = ({ groupId }) => {
       {groupedSubjects &&
         Object.entries(groupedSubjects).map(([groupId, groupSubjects]) => (
           <Grid item xs={12} key={groupId}>
-            <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
               {groupNames?.[groupId] || "Grupo desconocido"}
             </Typography>
             <Grid container spacing={2}>
@@ -99,6 +99,8 @@ const SubjectsList: React.FC<{ groupId: string | null }> = ({ groupId }) => {
                             px: 2,
                             py: 1,
                             borderRadius: 2,
+                            color: "#00B26A",
+                            borderColor: "#00B26A",
                           }}
                           onClick={() =>
                             navigate({ to: `/asistencia/${subject.id}` })
@@ -107,16 +109,17 @@ const SubjectsList: React.FC<{ groupId: string | null }> = ({ groupId }) => {
                           Asistencia
                         </Button>
                         <Button
-                          variant="contained"
-                          startIcon={<LuAward />}
+                          variant="outlined"
+                          startIcon={<LuFileText />}
                           sx={{
                             textTransform: "none",
                             fontSize: "0.85rem",
                             px: 2,
                             py: 1,
                             borderRadius: 2,
-                            bgcolor: "black",
-                            color: "white",
+                            // bgcolor: "black",
+                            color: "#FF5200",
+                            borderColor: "#FF5200",
                           }}
                           onClick={() =>
                             navigate({ to: `/calificaciones/${subject.id}` })
