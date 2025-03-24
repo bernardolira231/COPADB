@@ -1,4 +1,11 @@
-import { Card, CardContent, Typography, Button, Box, Skeleton } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  Box,
+  Skeleton,
+} from "@mui/material";
 import Grid from "@mui/material/Grid";
 import { useNavigate } from "@tanstack/react-router";
 import {
@@ -10,6 +17,7 @@ import {
 } from "react-icons/lu";
 import useSubjects from "../../../../hooks/useSubject";
 import useGroups from "../../../../hooks/useGroups";
+import useSx from "./sx";
 
 const professorId = "123";
 
@@ -25,24 +33,18 @@ const getSubjectIcon = (subjectName: string) => {
 const SubjectsList: React.FC<{ groupId: string | null }> = ({ groupId }) => {
   const { data: subjects, isLoading } = useSubjects(groupId);
   const { data: groups } = useGroups(professorId);
+  const sx = useSx();
   const navigate = useNavigate();
 
   if (isLoading) {
     return (
-      <Grid container spacing={3} sx={{ mt: 3 }}>
+      <Grid container spacing={3} sx={sx.gridMain}>
         {[...Array(3)].map((_, i) => (
           <Grid item xs={12} sm={4} key={i}>
-            <Card sx={{ borderRadius: 2, overflow: "hidden", boxShadow: 2 }}>
-              <Box sx={{ bgcolor: "grey.300", height: 60 }} />
+            <Card sx={sx.skeletonCard}>
+              <Box sx={sx.skeletonBox} />
               <CardContent>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    gap: 1,
-                    mt: 1,
-                  }}
-                >
+                <Box sx={sx.skeletonBox2}>
                   <Skeleton variant="rectangular" width={100} height={36} />
                   <Skeleton variant="rectangular" width={100} height={36} />
                 </Box>
@@ -74,59 +76,29 @@ const SubjectsList: React.FC<{ groupId: string | null }> = ({ groupId }) => {
   );
 
   return (
-    <Grid container spacing={3} sx={{ mt: 3 }}>
+    <Grid container spacing={3} sx={sx.gridMain}>
       {groupedSubjects &&
         Object.entries(groupedSubjects).map(([groupId, groupSubjects]) => (
           <Grid item xs={12} key={groupId}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
+            <Typography variant="h6" sx={sx.typographyMain}>
               {groupNames?.[groupId] || "Grupo desconocido"}
             </Typography>
             <Grid container spacing={2}>
               {groupSubjects.map((subject) => (
                 <Grid item xs={12} sm={4} key={subject.id}>
-                  <Card
-                    sx={{
-                      borderRadius: 2,
-                      overflow: "hidden",
-                      boxShadow: 2,
-                      textAlign: "center",
-                    }}
-                  >
-                    <Box sx={{ bgcolor: "primary.main", color: "white", p: 2 }}>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontWeight: "bold",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
+                  <Card sx={sx.cardMain}>
+                    <Box sx={sx.boxMain}>
+                      <Typography variant="h6" sx={sx.typographySubjectMain}>
                         {getSubjectIcon(subject.name)}
                         {subject.name}
                       </Typography>
                     </Box>
                     <CardContent>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "center",
-                          gap: 1,
-                          mt: 1,
-                        }}
-                      >
+                      <Box sx={sx.box2Main}>
                         <Button
                           variant="outlined"
                           startIcon={<LuUsers />}
-                          sx={{
-                            textTransform: "none",
-                            fontSize: "0.85rem",
-                            px: 2,
-                            py: 1,
-                            borderRadius: 2,
-                            color: "#00B26A",
-                            borderColor: "#00B26A",
-                          }}
+                          sx={sx.asistenciaButtonMain}
                           onClick={() =>
                             navigate({ to: `/asistencia/${subject.id}` })
                           }
@@ -136,16 +108,7 @@ const SubjectsList: React.FC<{ groupId: string | null }> = ({ groupId }) => {
                         <Button
                           variant="outlined"
                           startIcon={<LuFileText />}
-                          sx={{
-                            textTransform: "none",
-                            fontSize: "0.85rem",
-                            px: 2,
-                            py: 1,
-                            borderRadius: 2,
-                            // bgcolor: "black",
-                            color: "#FF5200",
-                            borderColor: "#FF5200",
-                          }}
+                          sx={sx.calificacionesButtonMain}
                           onClick={() =>
                             navigate({ to: `/calificaciones/${subject.id}` })
                           }
