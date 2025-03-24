@@ -51,6 +51,11 @@ const useSx = () => ({
     borderRadius: 2,
     color: "#00B26A",
     borderColor: "#00B26A",
+
+    "&:hover": {
+      backgroundColor: "#00B26A",
+      color: "white",
+    },
   },
   calificacionesButtonMain: {
     textTransform: "none",
@@ -60,6 +65,11 @@ const useSx = () => ({
     borderRadius: 2,
     color: "#FF5200",
     borderColor: "#FF5200",
+
+    "&:hover": {
+      backgroundColor: "#FF5200",
+      color: "white",
+    },
   },
 });
 
