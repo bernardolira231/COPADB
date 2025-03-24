@@ -1,4 +1,4 @@
-import { Card, CardContent, Typography, Button, Box } from "@mui/material";
+import { Card, CardContent, Typography, Button, Box, Skeleton } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import { useNavigate } from "@tanstack/react-router";
 import {
@@ -27,7 +27,32 @@ const SubjectsList: React.FC<{ groupId: string | null }> = ({ groupId }) => {
   const { data: groups } = useGroups(professorId);
   const navigate = useNavigate();
 
-  if (isLoading) return <Typography>Cargando materias...</Typography>;
+  if (isLoading) {
+    return (
+      <Grid container spacing={3} sx={{ mt: 3 }}>
+        {[...Array(3)].map((_, i) => (
+          <Grid item xs={12} sm={4} key={i}>
+            <Card sx={{ borderRadius: 2, overflow: "hidden", boxShadow: 2 }}>
+              <Box sx={{ bgcolor: "grey.300", height: 60 }} />
+              <CardContent>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    gap: 1,
+                    mt: 1,
+                  }}
+                >
+                  <Skeleton variant="rectangular" width={100} height={36} />
+                  <Skeleton variant="rectangular" width={100} height={36} />
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    );
+  }
 
   const groupNames = groups?.reduce(
     (acc, group) => {
