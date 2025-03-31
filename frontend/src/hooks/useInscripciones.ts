@@ -35,14 +35,58 @@ const useInscripcionesForm = () => {
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!isFormValid()) {
-      alert('Por favor, completa todos los campos obligatorios.');
+      alert("Por favor, completa todos los campos obligatorios.");
       return;
+    }
+
+    const estudianteData = {
+      nombre,
+      apellidoPaterno,
+      apellidoMaterno,
+      email,
+      tipoSangre,
+      alergias,
+      beca,
+      capilla,
+      campusEscolar,
+      tutorNombre,
+      tutorApellidoPaterno,
+      tutorApellidoMaterno,
+      telefono,
+      emailTutor,
+      telefonoEmergencia,
+      permiso,
+      fechaRegistro,
+    };
+
+    try {
+      const response = await fetch("http://localhost:5328/api/inscripciones", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(estudianteData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert("✅ Registro exitoso");
+      } else {
+        alert("❌ Error al registrar: " + result.message);
+        console.error(result.error);
+      }
+    } catch (error) {
+      console.error("Error al enviar solicitud:", error);
+      alert("Error de red al enviar el formulario.");
     }
   };
 
+  // ⬇️⬇️⬇️ Esto es lo que te faltaba ⬇️⬇️⬇️
   return {
     nombre,
     setNombre,

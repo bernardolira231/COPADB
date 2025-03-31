@@ -71,6 +71,80 @@ def login():
 
     except Exception as e:
         return jsonify({"message": "Error en el servidor", "error": str(e)}), 500
+    
+    
+
+
+
+@app.route("/api/inscripciones", methods=["POST"])
+def registrar_estudiante():
+    try:
+        data = request.get_json()
+
+        conn = get_db_connection()
+        cur = conn.cursor()
+
+        # Insertar tutor primero en la tabla 'family'
+        cur.execute("""
+            INSERT INTO family (
+                tutor_name, tutor_lastname_F, tutor_lastname_M,
+                phone_number, email_address, emergency_phone_number
+            ) VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING id;
+        """, (
+            data["tutorNombre"],
+            data["tutorApellidoPaterno"],
+            data["tutorApellidoMaterno"],
+            data["telefono"],
+            data["emailTutor"],
+            data["telefonoEmergencia"]
+        ))
+
+        family_id = cur.fetchone()
+
+        if family_id is None:
+            raise ValueError("No se pudo obtener el family_id después de insertar en family.")
+        
+        family_id = family_id["id"]
+
+        # Insertar estudiante y vincular con el tutor
+        cur.execute("""
+            INSERT INTO student (
+                name, lastname_F, lastname_M, email, blood_type,
+                allergies, scholar_ship, chapel, school_campus,
+                family_id, permission, reg_date
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+        """, (
+            data["nombre"],
+            data["apellidoPaterno"],
+            data["apellidoMaterno"],
+            data["email"],
+            data["tipoSangre"],
+            data["alergias"],
+            True if data["beca"] else False,
+            data["capilla"],
+            data["campusEscolar"],
+            family_id,
+            data["permiso"],
+            data["fechaRegistro"]
+        ))
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return jsonify({"message": "Estudiante registrado exitosamente"}), 201
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()  # Esto imprimirá el error completo en consola
+        return jsonify({"message": "Error al registrar estudiante", "error": str(e)}), 500
+
+
+    
+    
+    
+    
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5328)
