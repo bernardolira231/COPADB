@@ -57,6 +57,10 @@ def crear_admin():
         conn.close()
     except Exception as e:
         print(f"❌ Error al crear usuario admin: {e}")
+        
+        
+        
+        
 
 def ver_usuarios():
     """Muestra todos los usuarios de la base de datos."""
@@ -76,6 +80,65 @@ def ver_usuarios():
 
     except Exception as e:
         print(f"❌ Error al obtener usuarios: {e}")
+        
+        
+        
+        
+
+def ver_tablas():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';")
+    tablas = cur.fetchall()
+    print("📦 Tablas en la base de datos:")
+    for tabla in tablas:
+        print("-", tabla[0])
+    cur.close()
+    conn.close()
+
+def ver_estudiantes():
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM student LIMIT 10;")
+    estudiantes = cur.fetchall()
+    colnames = [desc[0] for desc in cur.description]  # 🧠 obtiene los nombres de columnas
+
+    print("\n👨‍🎓 Columnas de la tabla student:")
+    print(colnames)
+
+    print("\n👨‍🎓 Primeros estudiantes registrados:")
+    for est in estudiantes:
+        print(est)
+
+    cur.close()
+    conn.close()
+    
+def ver_family():
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    # Ver nombres de columnas
+    cur.execute("SELECT * FROM family LIMIT 10;")
+    registros = cur.fetchall()
+    colnames = [desc[0] for desc in cur.description]
+
+    print("\n👨‍👩‍👧‍👦 Columnas de la tabla family:")
+    print(colnames)
+
+    print("\n📦 Primeros registros en la tabla family:")
+    for row in registros:
+        print(row)
+
+    cur.close()
+    conn.close()
+
+
+
+# Llama a las funciones que quieras probar
+ver_tablas()
+ver_estudiantes()
+ver_family()
 
 # Asegurar que el rol existe antes de crear el usuario
 # asegurar_rol_admin()

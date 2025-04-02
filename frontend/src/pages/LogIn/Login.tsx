@@ -49,6 +49,12 @@ const Login = () => {
     );
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleLogin();
+    }
+  };
+
   return (
     <main className="bg-login-bg h-screen flex justify-center items-center">
       <div className="w-[448px] bg-white rounded-xl shadow-lg overflow-hidden">
@@ -84,6 +90,7 @@ const Login = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={handleKeyDown}
               placeholder="contraseña"
               className={`w-full border ${errors.password ? "border-red-500" : "border-gray-300"} rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400`}
             />

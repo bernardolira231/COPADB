@@ -11,10 +11,17 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as InscripcionesImport } from './routes/inscripciones';
 import { Route as HomeImport } from './routes/Home'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
+
+const InscripcionesRoute = InscripcionesImport.update({
+  id: '/inscripciones',
+  path: '/inscripciones',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const HomeRoute = HomeImport.update({
   id: '/Home',
@@ -46,6 +53,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HomeImport
       parentRoute: typeof rootRoute
     }
+    '/inscripciones': {
+      id: '/inscripciones'
+      path: '/inscripciones'
+      fullPath: '/inscripciones'
+      preLoaderRoute: typeof InscripcionesImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -54,36 +68,41 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/Home': typeof HomeRoute
+  '/inscripciones': typeof InscripcionesRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/Home': typeof HomeRoute
+  '/inscripciones': typeof InscripcionesRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/Home': typeof HomeRoute
+  '/inscripciones': typeof InscripcionesRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/Home'
+  fullPaths: '/' | '/Home' | '/inscripciones'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/Home'
-  id: '__root__' | '/' | '/Home'
+  to: '/' | '/Home' | '/inscripciones'
+  id: '__root__' | '/' | '/Home' | '/inscripciones'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   HomeRoute: typeof HomeRoute
+  InscripcionesRoute: typeof InscripcionesRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   HomeRoute: HomeRoute,
+  InscripcionesRoute: InscripcionesRoute,
 }
 
 export const routeTree = rootRoute
@@ -97,7 +116,8 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/Home"
+        "/Home",
+        "/inscripciones"
       ]
     },
     "/": {
@@ -105,6 +125,9 @@ export const routeTree = rootRoute
     },
     "/Home": {
       "filePath": "Home.tsx"
+    },
+    "/inscripciones": {
+      "filePath": "inscripciones.tsx"
     }
   }
 }
