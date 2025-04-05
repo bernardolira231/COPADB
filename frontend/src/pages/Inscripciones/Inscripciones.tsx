@@ -50,12 +50,14 @@ const Inscripciones = () => {
 
           <PermissionSection
             permiso={additionalInfo.permiso}
-            setPermiso={(value) => updateAdditionalInfo('permiso', value)}
+            setPermiso={(value) => updateAdditionalInfo("permiso", value)}
           />
 
           <RegistrationDateSection
             fechaRegistro={additionalInfo.fechaRegistro}
-            setFechaRegistro={(value) => updateAdditionalInfo('fechaRegistro', value)}
+            setFechaRegistro={(value) =>
+              updateAdditionalInfo("fechaRegistro", value)
+            }
           />
 
           <FormButtons isFormValid={isFormValid()} onReset={resetForm} />
