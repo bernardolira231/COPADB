@@ -17,6 +17,7 @@ const Inscripciones = () => {
     updateAcademicInfo,
     updateFamilyInfo,
     updateAdditionalInfo,
+    resetForm,
     handleSubmit,
     isFormValid,
   } = useInscripcionesForm();
@@ -57,7 +58,7 @@ const Inscripciones = () => {
             setFechaRegistro={(value) => updateAdditionalInfo('fechaRegistro', value)}
           />
 
-          <FormButtons isFormValid={isFormValid()} />
+          <FormButtons isFormValid={isFormValid()} onReset={resetForm} />
         </form>
       </div>
     </Layout>

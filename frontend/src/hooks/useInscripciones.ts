@@ -7,35 +7,40 @@ import {
 } from "../types/estudiante";
 
 const useInscripcionesForm = () => {
-  const [personalInfo, setPersonalInfo] = useState<EstudiantePersonalInfo>({
+  // Valores iniciales para cada grupo de estados
+  const initialPersonalInfo: EstudiantePersonalInfo = {
     nombre: "",
     apellidoPaterno: "",
     apellidoMaterno: "",
     email: "",
     tipoSangre: "",
     alergias: "",
-  });
+  };
 
-  const [academicInfo, setAcademicInfo] = useState<EstudianteAcademicInfo>({
+  const initialAcademicInfo: EstudianteAcademicInfo = {
     beca: false,
     capilla: "",
     campusEscolar: "",
-  });
+  };
 
-  const [familyInfo, setFamilyInfo] = useState<EstudianteFamilyInfo>({
+  const initialFamilyInfo: EstudianteFamilyInfo = {
     tutorNombre: "",
     tutorApellidoPaterno: "",
     tutorApellidoMaterno: "",
     telefono: "",
     emailTutor: "",
     telefonoEmergencia: "",
-  });
+  };
 
-  const [additionalInfo, setAdditionalInfo] =
-    useState<EstudianteAdditionalInfo>({
-      permiso: "",
-      fechaRegistro: "",
-    });
+  const initialAdditionalInfo: EstudianteAdditionalInfo = {
+    permiso: "",
+    fechaRegistro: "",
+  };
+
+  const [personalInfo, setPersonalInfo] = useState<EstudiantePersonalInfo>(initialPersonalInfo);
+  const [academicInfo, setAcademicInfo] = useState<EstudianteAcademicInfo>(initialAcademicInfo);
+  const [familyInfo, setFamilyInfo] = useState<EstudianteFamilyInfo>(initialFamilyInfo);
+  const [additionalInfo, setAdditionalInfo] = useState<EstudianteAdditionalInfo>(initialAdditionalInfo);
 
   const updatePersonalInfo = (
     field: keyof EstudiantePersonalInfo,
@@ -63,6 +68,14 @@ const useInscripcionesForm = () => {
     value: string
   ) => {
     setAdditionalInfo((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // Función para reiniciar todos los campos del formulario
+  const resetForm = () => {
+    setPersonalInfo(initialPersonalInfo);
+    setAcademicInfo(initialAcademicInfo);
+    setFamilyInfo(initialFamilyInfo);
+    setAdditionalInfo(initialAdditionalInfo);
   };
 
   const isFormValid = () => {
@@ -109,6 +122,7 @@ const useInscripcionesForm = () => {
 
       if (response.ok) {
         alert("✅ Registro exitoso");
+        resetForm();
       } else {
         alert("❌ Error al registrar: " + result.message);
         console.error(result.error);
@@ -129,6 +143,7 @@ const useInscripcionesForm = () => {
     updateAcademicInfo,
     updateFamilyInfo,
     updateAdditionalInfo,
+    resetForm,
 
     handleSubmit,
     isFormValid,
