@@ -1,37 +1,96 @@
-import { useState } from 'react';
+import { useState } from "react";
+import {
+  EstudiantePersonalInfo,
+  EstudianteAcademicInfo,
+  EstudianteFamilyInfo,
+  EstudianteAdditionalInfo
+} from "../types/estudiante";
 
 const useInscripcionesForm = () => {
-  const [nombre, setNombre] = useState('');
-  const [apellidoPaterno, setApellidoPaterno] = useState('');
-  const [apellidoMaterno, setApellidoMaterno] = useState('');
-  const [email, setEmail] = useState('');
-  const [tipoSangre, setTipoSangre] = useState('');
-  const [alergias, setAlergias] = useState('');
-  const [beca, setBeca] = useState(false);
-  const [capilla, setCapilla] = useState('');
-  const [campusEscolar, setCampusEscolar] = useState('');
-  const [tutorNombre, setTutorNombre] = useState('');
-  const [tutorApellidoPaterno, setTutorApellidoPaterno] = useState('');
-  const [tutorApellidoMaterno, setTutorApellidoMaterno] = useState('');
-  const [telefono, setTelefono] = useState('');
-  const [emailTutor, setEmailTutor] = useState('');
-  const [telefonoEmergencia, setTelefonoEmergencia] = useState('');
-  const [permiso, setPermiso] = useState('');
-  const [fechaRegistro, setFechaRegistro] = useState('');
+  // Valores iniciales para cada grupo de estados
+  const initialPersonalInfo: EstudiantePersonalInfo = {
+    nombre: "",
+    apellidoPaterno: "",
+    apellidoMaterno: "",
+    email: "",
+    tipoSangre: "",
+    alergias: "",
+  };
+
+  const initialAcademicInfo: EstudianteAcademicInfo = {
+    beca: false,
+    capilla: "",
+    campusEscolar: "",
+  };
+
+  const initialFamilyInfo: EstudianteFamilyInfo = {
+    tutorNombre: "",
+    tutorApellidoPaterno: "",
+    tutorApellidoMaterno: "",
+    telefono: "",
+    emailTutor: "",
+    telefonoEmergencia: "",
+  };
+
+  const initialAdditionalInfo: EstudianteAdditionalInfo = {
+    permiso: "",
+    fechaRegistro: "",
+  };
+
+  const [personalInfo, setPersonalInfo] = useState<EstudiantePersonalInfo>(initialPersonalInfo);
+  const [academicInfo, setAcademicInfo] = useState<EstudianteAcademicInfo>(initialAcademicInfo);
+  const [familyInfo, setFamilyInfo] = useState<EstudianteFamilyInfo>(initialFamilyInfo);
+  const [additionalInfo, setAdditionalInfo] = useState<EstudianteAdditionalInfo>(initialAdditionalInfo);
+
+  const updatePersonalInfo = (
+    field: keyof EstudiantePersonalInfo,
+    value: string
+  ) => {
+    setPersonalInfo((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const updateAcademicInfo = (
+    field: keyof EstudianteAcademicInfo,
+    value: any
+  ) => {
+    setAcademicInfo((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const updateFamilyInfo = (
+    field: keyof EstudianteFamilyInfo,
+    value: string
+  ) => {
+    setFamilyInfo((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const updateAdditionalInfo = (
+    field: keyof EstudianteAdditionalInfo,
+    value: string
+  ) => {
+    setAdditionalInfo((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // Función para reiniciar todos los campos del formulario
+  const resetForm = () => {
+    setPersonalInfo(initialPersonalInfo);
+    setAcademicInfo(initialAcademicInfo);
+    setFamilyInfo(initialFamilyInfo);
+    setAdditionalInfo(initialAdditionalInfo);
+  };
 
   const isFormValid = () => {
     return (
-      nombre.trim() !== '' &&
-      apellidoPaterno.trim() !== '' &&
-      apellidoMaterno.trim() !== '' &&
-      tipoSangre.trim() !== '' &&
-      tutorNombre.trim() !== '' &&
-      tutorApellidoPaterno.trim() !== '' &&
-      tutorApellidoMaterno.trim() !== '' &&
-      telefono.trim() !== '' &&
-      emailTutor.trim() !== '' &&
-      telefonoEmergencia.trim() !== '' &&
-      fechaRegistro.trim() !== ''
+      personalInfo.nombre.trim() !== "" &&
+      personalInfo.apellidoPaterno.trim() !== "" &&
+      personalInfo.apellidoMaterno.trim() !== "" &&
+      personalInfo.tipoSangre.trim() !== "" &&
+      familyInfo.tutorNombre.trim() !== "" &&
+      familyInfo.tutorApellidoPaterno.trim() !== "" &&
+      familyInfo.tutorApellidoMaterno.trim() !== "" &&
+      familyInfo.telefono.trim() !== "" &&
+      familyInfo.emailTutor.trim() !== "" &&
+      familyInfo.telefonoEmergencia.trim() !== "" &&
+      additionalInfo.fechaRegistro.trim() !== ""
     );
   };
 
@@ -44,23 +103,10 @@ const useInscripcionesForm = () => {
     }
 
     const estudianteData = {
-      nombre,
-      apellidoPaterno,
-      apellidoMaterno,
-      email,
-      tipoSangre,
-      alergias,
-      beca,
-      capilla,
-      campusEscolar,
-      tutorNombre,
-      tutorApellidoPaterno,
-      tutorApellidoMaterno,
-      telefono,
-      emailTutor,
-      telefonoEmergencia,
-      permiso,
-      fechaRegistro,
+      ...personalInfo,
+      ...academicInfo,
+      ...familyInfo,
+      ...additionalInfo,
     };
 
     try {
@@ -76,6 +122,7 @@ const useInscripcionesForm = () => {
 
       if (response.ok) {
         alert("✅ Registro exitoso");
+        resetForm();
       } else {
         alert("❌ Error al registrar: " + result.message);
         console.error(result.error);
@@ -86,42 +133,18 @@ const useInscripcionesForm = () => {
     }
   };
 
-  // ⬇️⬇️⬇️ Esto es lo que te faltaba ⬇️⬇️⬇️
   return {
-    nombre,
-    setNombre,
-    apellidoPaterno,
-    setApellidoPaterno,
-    apellidoMaterno,
-    setApellidoMaterno,
-    email,
-    setEmail,
-    tipoSangre,
-    setTipoSangre,
-    alergias,
-    setAlergias,
-    beca,
-    setBeca,
-    capilla,
-    setCapilla,
-    campusEscolar,
-    setCampusEscolar,
-    tutorNombre,
-    setTutorNombre,
-    tutorApellidoPaterno,
-    setTutorApellidoPaterno,
-    tutorApellidoMaterno,
-    setTutorApellidoMaterno,
-    telefono,
-    setTelefono,
-    emailTutor,
-    setEmailTutor,
-    telefonoEmergencia,
-    setTelefonoEmergencia,
-    permiso,
-    setPermiso,
-    fechaRegistro,
-    setFechaRegistro,
+    personalInfo,
+    academicInfo,
+    familyInfo,
+    additionalInfo,
+
+    updatePersonalInfo,
+    updateAcademicInfo,
+    updateFamilyInfo,
+    updateAdditionalInfo,
+    resetForm,
+
     handleSubmit,
     isFormValid,
   };
