@@ -3,7 +3,7 @@ from flask_cors import CORS
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from flask_bcrypt import Bcrypt
-from flask_jwt_extended import JWTManager, create_access_token
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from dotenv import load_dotenv
 import os
 
@@ -16,6 +16,10 @@ bcrypt = Bcrypt(app)
 
 # Clave secreta para JWT (debería estar en variables de entorno en producción)
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "supersecretkey")
+# Configuración adicional de JWT
+app.config["JWT_TOKEN_LOCATION"] = ["headers"]
+app.config["JWT_HEADER_NAME"] = "Authorization"
+app.config["JWT_HEADER_TYPE"] = "Bearer"
 jwt = JWTManager(app)
 
 load_dotenv()
@@ -60,7 +64,9 @@ def login():
         conn.close()
 
         if user and bcrypt.check_password_hash(user["password"], password):
-            access_token = create_access_token(identity={"id": user["id"], "email": user["email"]})
+            user_id_str = str(user["id"])
+            access_token = create_access_token(identity=user_id_str)
+            
             return jsonify({
                 "message": "Login exitoso",
                 "token": access_token,
@@ -72,10 +78,6 @@ def login():
     except Exception as e:
         return jsonify({"message": "Error en el servidor", "error": str(e)}), 500
     
-    
-
-
-
 @app.route("/api/inscripciones", methods=["POST"])
 def registrar_estudiante():
     try:
@@ -84,7 +86,6 @@ def registrar_estudiante():
         conn = get_db_connection()
         cur = conn.cursor()
 
-        # Insertar tutor primero en la tabla 'family'
         cur.execute("""
             INSERT INTO family (
                 tutor_name, tutor_lastname_F, tutor_lastname_M,
@@ -106,8 +107,6 @@ def registrar_estudiante():
             raise ValueError("No se pudo obtener el family_id después de insertar en family.")
         
         family_id = family_id["id"]
-
-        # Insertar estudiante y vincular con el tutor
         cur.execute("""
             INSERT INTO student (
                 name, lastname_F, lastname_M, email, blood_type,
@@ -137,14 +136,58 @@ def registrar_estudiante():
 
     except Exception as e:
         import traceback
-        traceback.print_exc()  # Esto imprimirá el error completo en consola
+        traceback.print_exc()
         return jsonify({"message": "Error al registrar estudiante", "error": str(e)}), 500
 
 
+@app.route("/api/user/profile", methods=["GET", "OPTIONS"])
+def get_user_profile():
+    if request.method == "OPTIONS":
+        response = jsonify({"message": "CORS preflight OK"})
+        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3001")
+        response.headers.add("Access-Control-Allow-Methods", "GET, OPTIONS")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+        return response, 204
+        
+    auth_header = request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return jsonify({"message": "Token no proporcionado o formato incorrecto"}), 401
+        
+    token = auth_header.split(' ')[1]
     
-    
-    
-    
+    try:
+        from flask_jwt_extended import decode_token
+        
+        decoded_token = decode_token(token)
+        user_id_str = decoded_token["sub"]
+        user_id = int(user_id_str)
+        
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        cur.execute("""
+            SELECT id, name, email
+            FROM usuarios
+            WHERE id = %s
+        """, (user_id,))
+        
+        user_data = cur.fetchone()
+        
+        cur.close()
+        conn.close()
+        
+        if not user_data:
+            return jsonify({"message": "Usuario no encontrado"}), 404
+            
+        return jsonify({
+            "user": user_data
+        }), 200
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"message": "Error al obtener perfil", "error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5328)

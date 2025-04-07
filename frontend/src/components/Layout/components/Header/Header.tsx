@@ -1,4 +1,22 @@
+import { useAuth } from "../../../../context/AuthContext";
+import { Link } from "@tanstack/react-router";
+
 const Header = () => {
+  const { user } = useAuth();
+
+  // Obtener las iniciales del usuario
+  const getUserInitials = () => {
+    if (!user || !user.name) return "U";
+    
+    const nameParts = user.name.split(" ");
+    if (nameParts.length === 1) {
+      return nameParts[0].charAt(0).toUpperCase();
+    }
+    
+    // Si hay nombre y apellido, tomar la primera letra de cada uno
+    return (nameParts[0].charAt(0) + nameParts[1].charAt(0)).toUpperCase();
+  };
+
   return (
     <header className="h-[82px] bg-white border-b border-border-color flex items-center px-6">
       <div className="flex-1"></div>
@@ -15,9 +33,11 @@ const Header = () => {
 
         {/* <FaBell className="text-gray-600 cursor-pointer" /> */}
 
-        <div className="w-8 h-8 bg-purple-200 rounded-full flex items-center justify-center cursor-pointer">
-          A {/* Aquí puedes poner inicial o imagen de perfil */}
-        </div>
+        <Link to="/perfil">
+          <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center cursor-pointer">
+            {getUserInitials()}
+          </div>
+        </Link>
       </div>
     </header>
   );

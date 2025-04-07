@@ -11,11 +11,18 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as InscripcionesImport } from './routes/inscripciones';
+import { Route as PerfilImport } from './routes/perfil'
+import { Route as InscripcionesImport } from './routes/inscripciones'
 import { Route as HomeImport } from './routes/Home'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
+
+const PerfilRoute = PerfilImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const InscripcionesRoute = InscripcionesImport.update({
   id: '/inscripciones',
@@ -60,6 +67,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InscripcionesImport
       parentRoute: typeof rootRoute
     }
+    '/perfil': {
+      id: '/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof PerfilImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -69,12 +83,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/Home': typeof HomeRoute
   '/inscripciones': typeof InscripcionesRoute
+  '/perfil': typeof PerfilRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/Home': typeof HomeRoute
   '/inscripciones': typeof InscripcionesRoute
+  '/perfil': typeof PerfilRoute
 }
 
 export interface FileRoutesById {
@@ -82,14 +98,15 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/Home': typeof HomeRoute
   '/inscripciones': typeof InscripcionesRoute
+  '/perfil': typeof PerfilRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/Home' | '/inscripciones'
+  fullPaths: '/' | '/Home' | '/inscripciones' | '/perfil'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/Home' | '/inscripciones'
-  id: '__root__' | '/' | '/Home' | '/inscripciones'
+  to: '/' | '/Home' | '/inscripciones' | '/perfil'
+  id: '__root__' | '/' | '/Home' | '/inscripciones' | '/perfil'
   fileRoutesById: FileRoutesById
 }
 
@@ -97,12 +114,14 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   HomeRoute: typeof HomeRoute
   InscripcionesRoute: typeof InscripcionesRoute
+  PerfilRoute: typeof PerfilRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   HomeRoute: HomeRoute,
   InscripcionesRoute: InscripcionesRoute,
+  PerfilRoute: PerfilRoute,
 }
 
 export const routeTree = rootRoute
@@ -117,7 +136,8 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/Home",
-        "/inscripciones"
+        "/inscripciones",
+        "/perfil"
       ]
     },
     "/": {
@@ -128,6 +148,9 @@ export const routeTree = rootRoute
     },
     "/inscripciones": {
       "filePath": "inscripciones.tsx"
+    },
+    "/perfil": {
+      "filePath": "perfil.tsx"
     }
   }
 }
