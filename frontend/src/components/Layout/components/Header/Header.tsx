@@ -7,13 +7,15 @@ const Header = () => {
   // Obtener las iniciales del usuario
   const getUserInitials = () => {
     if (!user) return "U";
-    
+
     const firstInitial = user.name ? user.name.charAt(0).toUpperCase() : "";
-    const lastInitial = user.lastname ? user.lastname.charAt(0).toUpperCase() : "";
-    
+    const lastInitial = user.lastname_m
+      ? user.lastname_m.charAt(0).toUpperCase()
+      : "";
+
     if (!firstInitial && !lastInitial) return "U";
     if (!lastInitial) return firstInitial;
-    
+
     return firstInitial + lastInitial;
   };
 
@@ -28,10 +30,7 @@ const Header = () => {
             placeholder="Buscar"
             className="border rounded-lg pl-3 pr-10 py-1"
           />
-          {/* <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" /> */}
         </div>
-
-        {/* <FaBell className="text-gray-600 cursor-pointer" /> */}
 
         <Link to="/perfil">
           <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center cursor-pointer">

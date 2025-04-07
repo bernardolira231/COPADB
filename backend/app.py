@@ -167,7 +167,7 @@ def get_user_profile():
         cur = conn.cursor()
         
         cur.execute("""
-            SELECT id, name, lastname, email
+            SELECT id, name, lastname_m, lastname_f, email
             FROM usuarios
             WHERE id = %s
         """, (user_id,))
