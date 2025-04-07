@@ -4,6 +4,19 @@ import { useAuth } from "../../context/AuthContext";
 const Profile = () => {
   const { user, loading, error } = useAuth();
 
+  // Obtener las iniciales del usuario para el avatar
+  const getUserInitials = () => {
+    if (!user) return "U";
+    
+    const firstInitial = user.name ? user.name.charAt(0).toUpperCase() : "";
+    const lastInitial = user.lastname ? user.lastname.charAt(0).toUpperCase() : "";
+    
+    if (!firstInitial && !lastInitial) return "U";
+    if (!lastInitial) return firstInitial;
+    
+    return firstInitial + lastInitial;
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -42,31 +55,63 @@ const Profile = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen p-6">
-        <header className="p-6 rounded-lg shadow-md mb-6">
-          <h1 className="text-primary text-2xl font-bold">Mi Perfil</h1>
+      <div className="min-h-screen bg-gray-50 p-6">
+        <header className="bg-white p-6 rounded-lg shadow-sm mb-6 flex items-center">
+          <h1 className="text-primary text-2xl font-bold flex-1">Mi Perfil</h1>
+          <button className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors">
+            Editar Perfil
+          </button>
         </header>
 
-        <div className="p-6 rounded-lg shadow-md">
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-4">Información Personal</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="text-gray-600">Nombre:</p>
-                <p className="font-medium">{user.name}</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Columna izquierda con avatar */}
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="flex flex-col items-center">
+              <div className="w-32 h-32 bg-primary text-white rounded-full flex items-center justify-center text-4xl font-bold mb-4">
+                {getUserInitials()}
               </div>
-              <div>
-                <p className="text-gray-600">Correo electrónico:</p>
-                <p className="font-medium">{user.email}</p>
-              </div>
-              <div>
-                <p className="text-gray-600">ID de Usuario:</p>
-                <p className="font-medium">{user.id}</p>
+              <h2 className="text-xl font-semibold text-center">
+                {user.name} {user.lastname}
+              </h2>
+              <p className="text-gray-500 text-center mt-1">{user.email}</p>
+              <div className="mt-4 w-full border-t border-gray-200 pt-4">
+                <p className="text-gray-600 text-sm text-center">ID de Usuario: {user.id}</p>
               </div>
             </div>
           </div>
 
-          {/* Puedes agregar más secciones según los datos disponibles */}
+          {/* Columna derecha con información */}
+          <div className="bg-white p-6 rounded-lg shadow-sm md:col-span-2">
+            <h2 className="text-xl font-semibold mb-6 pb-2 border-b border-gray-200">Información Personal</h2>
+            
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Nombre</label>
+                  <div className="bg-gray-50 p-3 rounded-md">{user.name || "-"}</div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Apellido</label>
+                  <div className="bg-gray-50 p-3 rounded-md">{user.lastname || "-"}</div>
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Correo Electrónico</label>
+                <div className="bg-gray-50 p-3 rounded-md">{user.email}</div>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-medium mb-3 mt-6">Seguridad de la Cuenta</h3>
+                <div className="bg-gray-50 p-4 rounded-md flex justify-between items-center">
+                  <div>
+                    <p className="font-medium">Contraseña</p>
+                  </div>
+                  <button className="text-primary hover:underline">Cambiar</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </Layout>

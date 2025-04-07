@@ -6,15 +6,15 @@ const Header = () => {
 
   // Obtener las iniciales del usuario
   const getUserInitials = () => {
-    if (!user || !user.name) return "U";
+    if (!user) return "U";
     
-    const nameParts = user.name.split(" ");
-    if (nameParts.length === 1) {
-      return nameParts[0].charAt(0).toUpperCase();
-    }
+    const firstInitial = user.name ? user.name.charAt(0).toUpperCase() : "";
+    const lastInitial = user.lastname ? user.lastname.charAt(0).toUpperCase() : "";
     
-    // Si hay nombre y apellido, tomar la primera letra de cada uno
-    return (nameParts[0].charAt(0) + nameParts[1].charAt(0)).toUpperCase();
+    if (!firstInitial && !lastInitial) return "U";
+    if (!lastInitial) return firstInitial;
+    
+    return firstInitial + lastInitial;
   };
 
   return (
