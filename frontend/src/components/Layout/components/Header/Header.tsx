@@ -9,8 +9,8 @@ const Header = () => {
     if (!user) return "U";
 
     const firstInitial = user.name ? user.name.charAt(0).toUpperCase() : "";
-    const lastInitial = user.lastname_m
-      ? user.lastname_m.charAt(0).toUpperCase()
+    const lastInitial = user.lastname_f
+      ? user.lastname_f.charAt(0).toUpperCase()
       : "";
 
     if (!firstInitial && !lastInitial) return "U";

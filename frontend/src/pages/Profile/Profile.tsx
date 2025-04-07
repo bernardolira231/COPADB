@@ -9,8 +9,8 @@ const Profile = () => {
     if (!user) return "U";
 
     const firstInitial = user.name ? user.name.charAt(0).toUpperCase() : "";
-    const lastInitial = user.lastname_m
-      ? user.lastname_m.charAt(0).toUpperCase()
+    const lastInitial = user.lastname_f
+      ? user.lastname_f.charAt(0).toUpperCase()
       : "";
 
     if (!firstInitial && !lastInitial) return "U";
@@ -75,6 +75,13 @@ const Profile = () => {
                 {user.name} {user.lastname_m} {user.lastname_f}
               </h2>
               <p className="text-gray-500 text-center mt-1">{user.email}</p>
+              <small className="text-gray-500 text-center mt-1">
+                {user.rol === 1
+                  ? "Administrador"
+                  : user.rol === 2
+                    ? "Administrativo"
+                    : "Profesor"}
+              </small>
               <div className="mt-4 w-full border-t border-gray-200 pt-4">
                 <p className="text-gray-600 text-sm text-center">
                   ID de Usuario: {user.id}
@@ -104,7 +111,7 @@ const Profile = () => {
                     Apellido
                   </label>
                   <div className="bg-gray-50 p-3 rounded-md">
-                    {user.lastname_m || "-"} {user.lastname_f || "-"}
+                    {user.lastname_f || "-"} {user.lastname_m || "-"}
                   </div>
                 </div>
               </div>
