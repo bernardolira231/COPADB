@@ -58,9 +58,6 @@ const Profile = () => {
       <div className="min-h-screen bg-gray-50 p-6">
         <header className="bg-white p-6 rounded-lg shadow-sm mb-6 flex items-center">
           <h1 className="text-primary text-2xl font-bold flex-1">Mi Perfil</h1>
-          <button className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors">
-            Editar Perfil
-          </button>
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
