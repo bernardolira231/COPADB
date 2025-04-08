@@ -11,11 +11,18 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as InscripcionesImport } from './routes/inscripciones';
+import { Route as ProfesoresImport } from './routes/profesores'
+import { Route as InscripcionesImport } from './routes/inscripciones'
 import { Route as HomeImport } from './routes/Home'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
+
+const ProfesoresRoute = ProfesoresImport.update({
+  id: '/profesores',
+  path: '/profesores',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const InscripcionesRoute = InscripcionesImport.update({
   id: '/inscripciones',
@@ -60,6 +67,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InscripcionesImport
       parentRoute: typeof rootRoute
     }
+    '/profesores': {
+      id: '/profesores'
+      path: '/profesores'
+      fullPath: '/profesores'
+      preLoaderRoute: typeof ProfesoresImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -69,12 +83,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/Home': typeof HomeRoute
   '/inscripciones': typeof InscripcionesRoute
+  '/profesores': typeof ProfesoresRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/Home': typeof HomeRoute
   '/inscripciones': typeof InscripcionesRoute
+  '/profesores': typeof ProfesoresRoute
 }
 
 export interface FileRoutesById {
@@ -82,14 +98,15 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/Home': typeof HomeRoute
   '/inscripciones': typeof InscripcionesRoute
+  '/profesores': typeof ProfesoresRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/Home' | '/inscripciones'
+  fullPaths: '/' | '/Home' | '/inscripciones' | '/profesores'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/Home' | '/inscripciones'
-  id: '__root__' | '/' | '/Home' | '/inscripciones'
+  to: '/' | '/Home' | '/inscripciones' | '/profesores'
+  id: '__root__' | '/' | '/Home' | '/inscripciones' | '/profesores'
   fileRoutesById: FileRoutesById
 }
 
@@ -97,12 +114,14 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   HomeRoute: typeof HomeRoute
   InscripcionesRoute: typeof InscripcionesRoute
+  ProfesoresRoute: typeof ProfesoresRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   HomeRoute: HomeRoute,
   InscripcionesRoute: InscripcionesRoute,
+  ProfesoresRoute: ProfesoresRoute,
 }
 
 export const routeTree = rootRoute
@@ -117,7 +136,8 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/Home",
-        "/inscripciones"
+        "/inscripciones",
+        "/profesores"
       ]
     },
     "/": {
@@ -128,6 +148,9 @@ export const routeTree = rootRoute
     },
     "/inscripciones": {
       "filePath": "inscripciones.tsx"
+    },
+    "/profesores": {
+      "filePath": "profesores.tsx"
     }
   }
 }

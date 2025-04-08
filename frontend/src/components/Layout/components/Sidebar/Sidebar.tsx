@@ -6,6 +6,10 @@ import {
   LuFileText,
   LuSettings,
   LuLayoutDashboard,
+  LuBook,
+  LuBookKey,
+  LuBookOpenCheck,
+  LuApple,
 } from "react-icons/lu";
 import SideBarLink from "../SideBarLink";
 
@@ -58,6 +62,12 @@ const Sidebar = () => {
             title="Calificaciones"
             to="/calificaciones"
             color="text-orange-500"
+          />
+          <SideBarLink
+            icon={<LuApple />}
+            title="Profesores"
+            to="/profesores"
+            color="text-red-500"
           />
           <SideBarLink
             icon={<LuSettings />}
