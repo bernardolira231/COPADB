@@ -2,9 +2,8 @@ import Layout from "../../components/Layout";
 import { useAuth } from "../../context/AuthContext";
 
 const Profile = () => {
-  const { user, loading, error } = useAuth();
+  const { user, loading, initializing, error } = useAuth();
 
-  // Obtener las iniciales del usuario para el avatar
   const getUserInitials = () => {
     if (!user) return "U";
 
@@ -18,6 +17,18 @@ const Profile = () => {
 
     return firstInitial + lastInitial;
   };
+
+  // Si todavía está inicializando, mostramos un indicador de carga
+  if (initializing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-gray-600">Inicializando aplicación...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
