@@ -35,7 +35,7 @@ const Header: React.FC<HeaderProps> = ({ onGroupChange = () => {} }) => {
       <div className="flex items-center gap-4">
         <SelectComponent onGroupChange={onGroupChange} />
         <Link to="/perfil">
-          <div className="w-8 h-8 bg-purple-200 rounded-full flex items-center justify-center cursor-pointer">
+          <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center cursor-pointer">
             {getUserInitials()}
           </div>
         </Link>
