@@ -56,73 +56,50 @@ const SubjectsList: React.FC<{ groupId: string | null }> = ({ groupId }) => {
     );
   }
 
-  const groupNames = groups?.reduce(
-    (acc, group) => {
-      acc[group.id] = group.name;
-      return acc;
-    },
-    {} as Record<string, string>
-  );
-
-  const groupedSubjects = subjects?.reduce(
-    (acc, subject) => {
-      if (!acc[subject.group_id]) {
-        acc[subject.group_id] = [];
-      }
-      acc[subject.group_id].push(subject);
-      return acc;
-    },
-    {} as Record<string, typeof subjects>
-  );
+  const singleGroup = groups && groups.length > 0 ? groups[0] : null;
+  const groupSubjects = singleGroup && subjects ? subjects.filter(s => s.group_id === singleGroup.id) : [];
 
   return (
     <Grid container spacing={3} sx={sx.gridMain}>
-      {groupedSubjects &&
-        Object.entries(groupedSubjects).map(([groupId, groupSubjects]) => (
-          <Grid item xs={12} key={groupId}>
-            <Typography variant="h6" sx={sx.typographyMain}>
-              {groupNames?.[groupId] || "Grupo desconocido"}
-            </Typography>
-            <Grid container spacing={2}>
-              {groupSubjects.map((subject) => (
-                <Grid item xs={12} sm={4} key={subject.id}>
-                  <Card sx={sx.cardMain}>
-                    <Box sx={sx.boxMain}>
-                      <Typography variant="h6" sx={sx.typographySubjectMain}>
-                        {getSubjectIcon(subject.name)}
-                        {subject.name}
-                      </Typography>
-                    </Box>
-                    <CardContent>
-                      <Box sx={sx.box2Main}>
-                        <Button
-                          variant="outlined"
-                          startIcon={<LuUsers />}
-                          sx={sx.asistenciaButtonMain}
-                          onClick={() =>
-                            navigate({ to: `/asistencia/${subject.id}` })
-                          }
-                        >
-                          Asistencia
-                        </Button>
-                        <Button
-                          variant="outlined"
-                          startIcon={<LuFileText />}
-                          sx={sx.calificacionesButtonMain}
-                          onClick={() =>
-                            navigate({ to: `/calificaciones/${subject.id}` })
-                          }
-                        >
-                          Calificaciones
-                        </Button>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
+      <Grid item xs={12}>
+        <Typography variant="h5" sx={sx.typographyMain} align="center" gutterBottom>
+          {singleGroup ? singleGroup.name : "Grupo desconocido"}
+        </Typography>
+        <Grid container spacing={2} justifyContent="center">
+          {groupSubjects.map((subject) => (
+            <Grid item xs={12} sm={4} md={3} key={subject.id}>
+              <Card sx={sx.cardMain}>
+                <Box sx={sx.boxMain}>
+                  <Typography variant="h6" sx={sx.typographySubjectMain}>
+                    {getSubjectIcon(subject.name)}
+                    {subject.name}
+                  </Typography>
+                </Box>
+                <CardContent>
+                  <Box sx={sx.box2Main}>
+                    <Button
+                      variant="outlined"
+                      startIcon={<LuUsers />}
+                      sx={sx.asistenciaButtonMain}
+                      onClick={() => navigate({ to: `/asistencia/${subject.id}` })}
+                    >
+                      Asistencia
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      startIcon={<LuFileText />}
+                      sx={sx.calificacionesButtonMain}
+                      onClick={() => navigate({ to: `/calificaciones/${subject.id}` })}
+                    >
+                      Calificaciones
+                    </Button>
+                  </Box>
+                </CardContent>
+              </Card>
             </Grid>
-          </Grid>
-        ))}
+          ))}
+        </Grid>
+      </Grid>
     </Grid>
   );
 };
