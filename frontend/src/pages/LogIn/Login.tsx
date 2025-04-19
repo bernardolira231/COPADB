@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import useLogin from "../../hooks/useLogin";
+import { useAuth } from "../../context/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
   const { login, isPending, isError, error } = useLogin();
+  const { setUserAfterLogin } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,21 +34,16 @@ const Login = () => {
 
     if (newErrors.email || newErrors.password) return;
 
-    login(
-      { email, password },
-      {
-        onSuccess: (data) => {
-          localStorage.setItem("token", data.token);
-          navigate({ to: "/Home" });
-        },
-        onError: (err) => {
-          setErrors((prev) => ({
-            ...prev,
-            password: "Credenciales incorrectas.",
-          }));
-        },
-      }
-    );
+    login({ email, password }, {
+      onSuccess: (data) => {
+        localStorage.setItem("token", data.token);
+        setUserAfterLogin(data.user);
+        navigate({ to: "/Home" });
+      },
+      onError: (err) => {
+        setErrors((prev) => ({ ...prev, password: "Credenciales incorrectas." }));
+      },
+    });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

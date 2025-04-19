@@ -1,4 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
+import { useAuth } from "../context/AuthContext";
 
 const API_URL = "http://localhost:5328/api/login";
 
@@ -16,17 +17,24 @@ const loginUser = async (email: string, password: string) => {
   }
 
   const data = await response.json();
-  localStorage.setItem("token", data.token); // Guardar el token
+  localStorage.setItem("token", data.token);
   return data;
 };
 
 export const LOGIN_KEY = "LOGIN";
 
 const useLogin = () => {
+  const { setUserAfterLogin } = useAuth();
+
   const mutation = useMutation({
     mutationFn: ({ email, password }: { email: string; password: string }) =>
       loginUser(email, password),
     retry: false,
+    onSuccess: (data) => {
+      if (data && data.user) {
+        setUserAfterLogin(data.user);
+      }
+    },
   });
 
   return {

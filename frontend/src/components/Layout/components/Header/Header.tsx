@@ -1,3 +1,5 @@
+import { useAuth } from "../../../../context/AuthContext";
+import { Link } from "@tanstack/react-router";
 import SelectComponent from "../Select";
 
 interface HeaderProps {
@@ -5,16 +7,38 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ onGroupChange = () => {} }) => {
+  const { user, initializing } = useAuth();
+
+  // Si todavía está inicializando, no mostramos el header completo
+  if (initializing) {
+    return (
+      <header className="h-[82px] bg-white border-b border-border-color flex items-center px-6">
+        <div className="flex-1"></div>
+        <div className="animate-pulse w-8 h-8 bg-gray-200 rounded-full"></div>
+      </header>
+    );
+  }
+
+  // Obtener las iniciales del usuario
+  const getUserInitials = () => {
+    if (!user) return "U";
+    const firstInitial = user.name ? user.name.charAt(0).toUpperCase() : "";
+    const lastInitial = user.lastname_f ? user.lastname_f.charAt(0).toUpperCase() : "";
+    if (!firstInitial && !lastInitial) return "U";
+    if (!lastInitial) return firstInitial;
+    return firstInitial + lastInitial;
+  };
+
   return (
     <header className="h-[82px] bg-white border-b border-border-color flex items-center px-6">
       <div className="flex-1"></div>
-
       <div className="flex items-center gap-4">
         <SelectComponent onGroupChange={onGroupChange} />
-
-        <div className="w-8 h-8 bg-purple-200 rounded-full flex items-center justify-center cursor-pointer">
-          A {/* Aquí puedes poner inicial o imagen de perfil */}
-        </div>
+        <Link to="/perfil">
+          <div className="w-8 h-8 bg-purple-200 rounded-full flex items-center justify-center cursor-pointer">
+            {getUserInitials()}
+          </div>
+        </Link>
       </div>
     </header>
   );
