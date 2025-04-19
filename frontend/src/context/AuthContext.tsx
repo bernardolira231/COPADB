@@ -224,6 +224,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     await fetchUserData(true);
     // Una vez completos los datos, permitir navegación
     setInitializing(false);
+
+    // Configurar el intervalo de refresco después del login
     // Configurar refresco periódico
     setupRefreshInterval();
   };
@@ -237,7 +239,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Refrescar cada 15 minutos (900000 ms)
     const intervalId = window.setInterval(() => {
-      console.log("Refrescando datos de usuario automáticamente");
+      // console.log("Refrescando datos de usuario automáticamente");
       fetchUserData(false);
     }, 900000);
 
