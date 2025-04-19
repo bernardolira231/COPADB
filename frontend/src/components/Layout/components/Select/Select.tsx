@@ -1,47 +1,44 @@
-import {
-  FormControl,
-  Select,
-  OutlinedInput,
-  MenuItem,
-  SelectChangeEvent,
-} from "@mui/material";
-import { useState } from "react";
-import useGroups from "../../../../hooks/useGroups";
+import { FormControl, Select, OutlinedInput, MenuItem, SelectChangeEvent } from "@mui/material";
+import { Materia } from "../../../../context/MateriaContext";
+import useSx from "./sx"
 
-const professorId = "123";
+interface Props {
+  materias: Materia[];
+  materiaSeleccionada: Materia | null;
+  onMateriaChange: (materia: Materia | null) => void;
+}
 
-const SelectGroup: React.FC<{
-  onGroupChange: (groupId: string | null) => void;
-}> = ({ onGroupChange }) => {
-  const { data: groups, isLoading } = useGroups(professorId);
-  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
-
+const SelectComponent: React.FC<Props> = ({ materias, materiaSeleccionada, onMateriaChange }) => {
+  const sx = useSx();
   const handleChange = (event: SelectChangeEvent<string>) => {
-    const groupId = event.target.value === "all" ? null : event.target.value;
-    setSelectedGroup(groupId);
-    onGroupChange(groupId);
+    const materiaId = event.target.value;
+    if (materiaId === "all") {
+      onMateriaChange(null);
+    } else {
+      const materia = materias.find((m) => m.id === materiaId) || null;
+      onMateriaChange(materia);
+    }
   };
 
   return (
-    <FormControl sx={{ minWidth: 250 }} size="small">
+    <FormControl sx={sx.root} size="small">
       <Select
-        value={selectedGroup || "all"}
+        value={materiaSeleccionada ? materiaSeleccionada.id : "all"}
         onChange={handleChange}
         displayEmpty
         input={<OutlinedInput />}
       >
-        <MenuItem value="all">
-          <em>Todos los grupos</em>
+        <MenuItem value="all" sx={sx.select}>
+          <em>Todas las materias</em>
         </MenuItem>
-        {!isLoading &&
-          groups?.map((group) => (
-            <MenuItem key={group.id} value={group.id}>
-              {group.name}
-            </MenuItem>
-          ))}
+        {materias.map((materia) => (
+          <MenuItem key={materia.id} value={materia.id} sx={sx.select}>
+            {materia.name}
+          </MenuItem>
+        ))}
       </Select>
     </FormControl>
   );
 };
 
-export default SelectGroup;
+export default SelectComponent;

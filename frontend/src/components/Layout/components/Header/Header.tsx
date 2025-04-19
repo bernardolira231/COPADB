@@ -1,13 +1,14 @@
 import { useAuth } from "../../../../context/AuthContext";
 import { Link } from "@tanstack/react-router";
+import { useMateria } from "../../../../context/MateriaContext";
 import SelectComponent from "../Select";
 
 interface HeaderProps {
-  onGroupChange?: (groupId: string | null) => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onGroupChange = () => {} }) => {
+const Header: React.FC<HeaderProps> = () => {
   const { user, initializing } = useAuth();
+  const { materias, materiaSeleccionada, setMateriaSeleccionada } = useMateria();
 
   // Si todavía está inicializando, no mostramos el header completo
   if (initializing) {
@@ -33,7 +34,11 @@ const Header: React.FC<HeaderProps> = ({ onGroupChange = () => {} }) => {
     <header className="h-[82px] bg-white border-b border-border-color flex items-center px-6">
       <div className="flex-1"></div>
       <div className="flex items-center gap-4">
-        <SelectComponent onGroupChange={onGroupChange} />
+        <SelectComponent
+          materias={materias}
+          materiaSeleccionada={materiaSeleccionada}
+          onMateriaChange={setMateriaSeleccionada}
+        />
         <Link to="/perfil">
           <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center cursor-pointer">
             {getUserInitials()}

@@ -7,6 +7,9 @@ const useSx = () => ({
 
   select: {
     fontSize: "0.9rem",
+    "&:hover": {
+      backgroundColor: "#e5e5e5",
+    },
   },
 });
 
