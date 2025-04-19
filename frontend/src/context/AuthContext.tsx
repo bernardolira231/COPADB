@@ -162,7 +162,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       // Si es la carga inicial y los datos no están completos, intentamos nuevamente
       if (isInitialFetch && !dataComplete && retryCount < MAX_RETRIES) {
-        // console.log(`Datos de usuario incompletos, reintentando (${retryCount + 1}/${MAX_RETRIES})...`);
+        console.log(
+          `Datos de usuario incompletos, reintentando (${retryCount + 1}/${MAX_RETRIES})...`
+        );
         setRetryCount((prev) => prev + 1);
 
         // Esperar 1 segundo antes de reintentar
@@ -213,26 +215,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     await fetchUserData(false);
   };
 
-  const setUserAfterLogin = (userData: User) => {
-    // Verificar si los datos están completos
-    if (!isUserDataComplete(userData)) {
-      // console.log("Datos de usuario incompletos después del login, intentando obtener datos completos...");
-      setUser(userData); // Establecemos los datos parciales
-
-      // Intentar obtener datos completos
-      setTimeout(() => {
-        fetchUserData(true);
-      }, 500);
-
-      return;
-    }
-
+  const setUserAfterLogin = async (userData: User) => {
+    // Bloquear navegación mientras se cargan datos completos
+    setInitializing(true);
     setUser(userData);
     setError(null);
-    setLoading(false);
+    // Obtener datos completos del usuario y esperar a que termine
+    await fetchUserData(true);
+    // Una vez completos los datos, permitir navegación
     setInitializing(false);
 
     // Configurar el intervalo de refresco después del login
+    // Configurar refresco periódico
     setupRefreshInterval();
   };
 

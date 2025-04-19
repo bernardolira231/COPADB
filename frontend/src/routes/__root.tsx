@@ -7,7 +7,7 @@ export const Route = createRootRoute({
 });
 
 function RootComponent() {
-  const { initializing } = useAuth();
+  const { initializing, user } = useAuth();
 
   if (initializing) {
     return (
@@ -20,8 +20,7 @@ function RootComponent() {
     );
   }
 
-  const token = localStorage.getItem("token");
-  if (!token && window.location.pathname !== "/") {
+  if (!user && window.location.pathname !== "/") {
     window.location.href = "/";
     return null;
   }
