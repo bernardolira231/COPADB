@@ -42,15 +42,20 @@ interface AuthProviderProps {
 // Función para verificar si un token JWT ha expirado
 const isTokenExpired = (token: string): boolean => {
   try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map(function (c) {
+          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join("")
+    );
+
     const { exp } = JSON.parse(jsonPayload);
     const currentTime = Math.floor(Date.now() / 1000);
-    
+
     return exp < currentTime;
   } catch (e) {
     console.error("Error al verificar expiración del token:", e);
@@ -61,17 +66,23 @@ const isTokenExpired = (token: string): boolean => {
 // Función para verificar si los datos del usuario están completos
 const isUserDataComplete = (userData: User | null): boolean => {
   if (!userData) return false;
-  
+
   // Verificar que todos los campos esenciales existan y no sean undefined o null
-  const requiredFields: (keyof User)[] = ['id', 'name', 'lastname_f', 'email', 'rol'];
-  
+  const requiredFields: (keyof User)[] = [
+    "id",
+    "name",
+    "lastname_f",
+    "email",
+    "rol",
+  ];
+
   for (const field of requiredFields) {
     if (userData[field] === undefined || userData[field] === null) {
       console.log(`Campo incompleto en datos de usuario: ${field}`);
       return false;
     }
   }
-  
+
   return true;
 };
 
@@ -80,7 +91,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [initializing, setInitializing] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [refreshIntervalId, setRefreshIntervalId] = useState<number | null>(null);
+  const [refreshIntervalId, setRefreshIntervalId] = useState<number | null>(
+    null
+  );
   const [retryCount, setRetryCount] = useState(0);
   const MAX_RETRIES = 3;
 
@@ -90,7 +103,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       clearInterval(refreshIntervalId);
       setRefreshIntervalId(null);
     }
-    
+
     localStorage.removeItem("token");
     setUser(null);
     setInitializing(false);
@@ -100,7 +113,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Función para obtener datos del usuario
   const fetchUserData = async (isInitialFetch = false) => {
     setLoading(true);
-    
+
     const token = localStorage.getItem("token");
     if (!token) {
       setLoading(false);
@@ -135,52 +148,59 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       if (!response.ok) {
-        throw new Error(`Error al obtener datos del usuario: ${response.status}`);
+        throw new Error(
+          `Error al obtener datos del usuario: ${response.status}`
+        );
       }
 
       const data = await response.json();
       setUser(data.user);
       setError(null);
-      
+
       // Verificar si los datos están completos
       const dataComplete = isUserDataComplete(data.user);
-      
+
       // Si es la carga inicial y los datos no están completos, intentamos nuevamente
       if (isInitialFetch && !dataComplete && retryCount < MAX_RETRIES) {
-        console.log(`Datos de usuario incompletos, reintentando (${retryCount + 1}/${MAX_RETRIES})...`);
-        setRetryCount(prev => prev + 1);
-        
+        console.log(
+          `Datos de usuario incompletos, reintentando (${retryCount + 1}/${MAX_RETRIES})...`
+        );
+        setRetryCount((prev) => prev + 1);
+
         // Esperar 1 segundo antes de reintentar
         setTimeout(() => {
           fetchUserData(true);
         }, 1000);
-        
+
         return;
       }
-      
+
       // Si hemos llegado al máximo de reintentos o los datos están completos
       if (isInitialFetch) {
         setInitializing(false);
         setRetryCount(0);
       }
-      
     } catch (err) {
       console.error("Error al cargar datos del usuario:", err);
-      setError("Error de conexión con el servidor. Verifica que el backend esté en ejecución.");
-      
+      setError(
+        "Error de conexión con el servidor. Verifica que el backend esté en ejecución."
+      );
+
       // Si es la carga inicial y aún no hemos alcanzado el máximo de reintentos
       if (isInitialFetch && retryCount < MAX_RETRIES) {
-        console.log(`Error al cargar datos, reintentando (${retryCount + 1}/${MAX_RETRIES})...`);
-        setRetryCount(prev => prev + 1);
-        
+        console.log(
+          `Error al cargar datos, reintentando (${retryCount + 1}/${MAX_RETRIES})...`
+        );
+        setRetryCount((prev) => prev + 1);
+
         // Esperar 1 segundo antes de reintentar
         setTimeout(() => {
           fetchUserData(true);
         }, 1000);
-        
+
         return;
       }
-      
+
       // Si hemos llegado al máximo de reintentos
       if (isInitialFetch) {
         setInitializing(false);
@@ -195,26 +215,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     await fetchUserData(false);
   };
 
-  const setUserAfterLogin = (userData: User) => {
-    // Verificar si los datos están completos
-    if (!isUserDataComplete(userData)) {
-      console.log("Datos de usuario incompletos después del login, intentando obtener datos completos...");
-      setUser(userData); // Establecemos los datos parciales
-      
-      // Intentar obtener datos completos
-      setTimeout(() => {
-        fetchUserData(true);
-      }, 500);
-      
-      return;
-    }
-    
+  const setUserAfterLogin = async (userData: User) => {
+    // Bloquear navegación mientras se cargan datos completos
+    setInitializing(true);
     setUser(userData);
     setError(null);
-    setLoading(false);
+    // Obtener datos completos del usuario y esperar a que termine
+    await fetchUserData(true);
+    // Una vez completos los datos, permitir navegación
     setInitializing(false);
-    
-    // Configurar el intervalo de refresco después del login
+    // Configurar refresco periódico
     setupRefreshInterval();
   };
 
@@ -224,13 +234,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (refreshIntervalId) {
       clearInterval(refreshIntervalId);
     }
-    
+
     // Refrescar cada 15 minutos (900000 ms)
     const intervalId = window.setInterval(() => {
       console.log("Refrescando datos de usuario automáticamente");
       fetchUserData(false);
     }, 900000);
-    
+
     setRefreshIntervalId(intervalId);
   };
 
@@ -238,19 +248,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     // Cargar datos del usuario con la bandera de inicialización
     fetchUserData(true);
-    
+
     // Configurar intervalo de refresco si hay un token
     if (localStorage.getItem("token")) {
       setupRefreshInterval();
     }
-    
+
     // Limpiar el intervalo cuando el componente se desmonte
     return () => {
       if (refreshIntervalId) {
         clearInterval(refreshIntervalId);
       }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Solo se ejecuta una vez al montar el componente
 
   // Escuchar eventos de almacenamiento para sincronizar múltiples pestañas
@@ -277,7 +287,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => {
       window.removeEventListener("storage", handleStorageChange);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Solo se ejecuta una vez al montar el componente
 
   const value = {
