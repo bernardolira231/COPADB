@@ -15,7 +15,7 @@ const SelectComponent: React.FC<Props> = ({ materias, materiaSeleccionada, onMat
     if (materiaId === "all") {
       onMateriaChange(null);
     } else {
-      const materia = materias.find((m) => m.id === materiaId) || null;
+      const materia = materias.find((m) => m.group_id.toString() === materiaId) || null;
       onMateriaChange(materia);
     }
   };
@@ -23,7 +23,7 @@ const SelectComponent: React.FC<Props> = ({ materias, materiaSeleccionada, onMat
   return (
     <FormControl sx={sx.root} size="small">
       <Select
-        value={materiaSeleccionada ? materiaSeleccionada.id : "all"}
+        value={materiaSeleccionada ? materiaSeleccionada.group_id.toString() : "all"}
         onChange={handleChange}
         displayEmpty
         input={<OutlinedInput />}
@@ -32,8 +32,8 @@ const SelectComponent: React.FC<Props> = ({ materias, materiaSeleccionada, onMat
           <em>Todas las materias</em>
         </MenuItem>
         {materias.map((materia) => (
-          <MenuItem key={materia.id} value={materia.id} sx={sx.select}>
-            {materia.name}
+          <MenuItem key={materia.group_id} value={materia.group_id.toString()} sx={sx.select}>
+            {materia.class_name} - {materia.grado}
           </MenuItem>
         ))}
       </Select>
