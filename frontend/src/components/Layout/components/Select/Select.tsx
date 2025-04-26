@@ -1,4 +1,4 @@
-import { FormControl, Select, OutlinedInput, MenuItem, SelectChangeEvent, Typography, Box } from "@mui/material";
+import { FormControl, Select, OutlinedInput, MenuItem, SelectChangeEvent, Typography } from "@mui/material";
 import { Materia } from "../../../../context/MateriaContext";
 import useSx from "./sx"
 
