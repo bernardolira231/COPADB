@@ -1,5 +1,6 @@
-import React from 'react';
-import FormInput from '../../../components/Form/FormInput';
+import React, { useState } from 'react';
+import { Typography, TextField, Grid } from '@mui/material';
+import { LuCalendar } from 'react-icons/lu';
 import { EstudianteAdditionalInfo } from '../../../types/estudiante';
 
 interface RegistrationDateSectionProps {
@@ -11,20 +12,43 @@ const RegistrationDateSection: React.FC<RegistrationDateSectionProps> = ({
   fechaRegistro,
   setFechaRegistro,
 }) => {
+  // Estado para rastrear si el campo ha sido tocado
+  const [touched, setTouched] = useState(false);
+
+  const handleBlur = () => {
+    setTouched(true);
+  };
+
+  // Obtener la fecha actual en formato YYYY-MM-DD para el placeholder
+  const today = new Date().toISOString().split('T')[0];
+
   return (
-    <section className="mb-6">
-      <h2 className="text-primary text-xl font-semibold mb-2">
+    <section>
+      <Typography variant="h5" color="primary" gutterBottom fontWeight="medium" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <LuCalendar size={24} />
         Fecha de Registro
-      </h2>
-      <div className="space-y-4">
-        <FormInput
-          label="Fecha de Registro"
-          type="date"
-          value={fechaRegistro}
-          onChange={(e) => setFechaRegistro(e.target.value)}
-          required
-        />
-      </div>
+      </Typography>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={6}>
+          <TextField
+            label="Fecha de Registro"
+            type="date"
+            value={fechaRegistro}
+            onChange={(e) => setFechaRegistro(e.target.value)}
+            onBlur={handleBlur}
+            required
+            fullWidth
+            variant="outlined"
+            margin="normal"
+            placeholder={today}
+            error={touched && fechaRegistro === ''}
+            helperText={touched && fechaRegistro === '' ? 'La fecha de registro es requerida' : ''}
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
+        </Grid>
+      </Grid>
     </section>
   );
 };

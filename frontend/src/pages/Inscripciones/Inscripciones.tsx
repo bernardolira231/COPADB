@@ -6,6 +6,7 @@ import FamilyInfoSection from "./components/FamilyInfoSection";
 import PermissionSection from "./components/PermissionSection";
 import RegistrationDateSection from "./components/RegistrationDateSection";
 import FormButtons from "./components/FormButtons";
+import { Paper, Typography, Container, Box, Card } from "@mui/material";
 
 const Inscripciones = () => {
   const {
@@ -22,47 +23,68 @@ const Inscripciones = () => {
     isFormValid,
   } = useInscripcionesForm();
 
+  const steps = [
+    "Información Personal",
+    "Información Académica",
+    "Información Familiar",
+    "Permisos y Fecha",
+  ];
+
   return (
     <Layout>
-      <div className="min-h-screen p-6">
-        <header className="bg-white shadow-md p-4 rounded-lg mb-6">
-          <h1 className="text-primary text-2xl font-bold">Inscripciones</h1>
-        </header>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
+          <Typography
+            variant="h4"
+            component="h1"
+            color="primary"
+            fontWeight="bold"
+          >
+            Inscripciones
+          </Typography>
+        </Paper>
 
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white p-6 rounded-lg shadow-md"
-        >
-          <PersonalInfoSection
-            personalInfo={personalInfo}
-            updatePersonalInfo={updatePersonalInfo}
-          />
+        <form onSubmit={handleSubmit}>
+          <Card elevation={3} sx={{ p: 4, mb: 4 }}>
+            <PersonalInfoSection
+              personalInfo={personalInfo}
+              updatePersonalInfo={updatePersonalInfo}
+            />
+          </Card>
 
-          <AcademicInfoSection
-            academicInfo={academicInfo}
-            updateAcademicInfo={updateAcademicInfo}
-          />
+          <Card elevation={3} sx={{ p: 4, mb: 4 }}>
+            <AcademicInfoSection
+              academicInfo={academicInfo}
+              updateAcademicInfo={updateAcademicInfo}
+            />
+          </Card>
 
-          <FamilyInfoSection
-            familyInfo={familyInfo}
-            updateFamilyInfo={updateFamilyInfo}
-          />
+          <Card elevation={3} sx={{ p: 4, mb: 4 }}>
+            <FamilyInfoSection
+              familyInfo={familyInfo}
+              updateFamilyInfo={updateFamilyInfo}
+            />
+          </Card>
 
-          <PermissionSection
-            permiso={additionalInfo.permiso}
-            setPermiso={(value) => updateAdditionalInfo("permiso", value)}
-          />
+          <Card elevation={3} sx={{ p: 4, mb: 4 }}>
+            <Box sx={{ mb: 3 }}>
+              <PermissionSection
+                permiso={additionalInfo.permiso}
+                setPermiso={(value) => updateAdditionalInfo("permiso", value)}
+              />
+            </Box>
 
-          <RegistrationDateSection
-            fechaRegistro={additionalInfo.fechaRegistro}
-            setFechaRegistro={(value) =>
-              updateAdditionalInfo("fechaRegistro", value)
-            }
-          />
+            <RegistrationDateSection
+              fechaRegistro={additionalInfo.fechaRegistro}
+              setFechaRegistro={(value) =>
+                updateAdditionalInfo("fechaRegistro", value)
+              }
+            />
+          </Card>
 
           <FormButtons isFormValid={isFormValid()} onReset={resetForm} />
         </form>
-      </div>
+      </Container>
     </Layout>
   );
 };

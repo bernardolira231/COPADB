@@ -1,4 +1,6 @@
 import React from "react";
+import { Button, Box } from "@mui/material";
+import { LuSave, LuX } from "react-icons/lu";
 
 interface FormButtonsProps {
   isFormValid: boolean;
@@ -7,28 +9,39 @@ interface FormButtonsProps {
 
 const FormButtons: React.FC<FormButtonsProps> = ({ isFormValid, onReset }) => {
   return (
-    <div className="flex flex-col md:flex-row gap-4 mt-8">
-      <button
+    <Box sx={{ 
+      display: 'flex', 
+      flexDirection: { xs: 'column', md: 'row' }, 
+      gap: 2, 
+      mt: 4 
+    }}>
+      <Button
         type="submit"
-        className={`flex-1 p-3 rounded-lg text-white font-medium transition-colors ${
-          isFormValid
-            ? "bg-primary hover:bg-primary-dark"
-            : "bg-gray-400 cursor-not-allowed"
-        }`}
+        variant="contained"
+        color="primary"
         disabled={!isFormValid}
+        fullWidth
+        size="large"
+        startIcon={<LuSave />}
+        sx={{ py: 1.5 }}
       >
         Registrar Estudiante
-      </button>
-      <button
+      </Button>
+      <Button
         type="button"
-        className="flex-1 p-3 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-colors"
+        variant="contained"
+        color="error"
+        fullWidth
+        size="large"
+        startIcon={<LuX />}
+        sx={{ py: 1.5 }}
         onClick={() => {
           window.location.href = "/home";
         }}
       >
         Cancelar
-      </button>
-    </div>
+      </Button>
+    </Box>
   );
 };
 
