@@ -1,13 +1,17 @@
 import React from "react";
 import { Button, Box } from "@mui/material";
+import { useNavigate } from "@tanstack/react-router";
 import { LuSave, LuX } from "react-icons/lu";
 
 interface FormButtonsProps {
   isFormValid: boolean;
-  onReset?: () => void;
 }
 
-const FormButtons: React.FC<FormButtonsProps> = ({ isFormValid, onReset }) => {
+const FormButtons: React.FC<FormButtonsProps> = ({ isFormValid }) => {
+  const navigate = useNavigate();
+  const handleCancel = () => {
+    navigate({ to: "/alumnos" });
+  };
   return (
     <Box sx={{ 
       display: 'flex', 
@@ -35,9 +39,7 @@ const FormButtons: React.FC<FormButtonsProps> = ({ isFormValid, onReset }) => {
         size="large"
         startIcon={<LuX />}
         sx={{ py: 1.5 }}
-        onClick={() => {
-          window.location.href = "/home";
-        }}
+        onClick={handleCancel}
       >
         Cancelar
       </Button>

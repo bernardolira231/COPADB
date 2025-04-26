@@ -1,5 +1,6 @@
 import Layout from "../../../components/Layout";
-import { Container, Typography } from "@mui/material";
+import { Box, Container, Typography } from "@mui/material";
+import Actions from "./components/Actions";
 
 const ListStudent = () => {
   return (
@@ -13,6 +14,9 @@ const ListStudent = () => {
         >
           Listado de Estudiantes
         </Typography>
+        <Box sx={{ mt: 3 }}>
+          <Actions />
+        </Box>
       </Container>
     </Layout>
   );

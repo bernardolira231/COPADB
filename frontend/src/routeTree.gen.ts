@@ -12,21 +12,16 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as PerfilImport } from './routes/perfil'
-import { Route as AlumnosImport } from './routes/alumnos'
 import { Route as HomeImport } from './routes/Home'
 import { Route as IndexImport } from './routes/index'
+import { Route as AlumnosIndexImport } from './routes/alumnos/index'
+import { Route as AlumnosAgregarImport } from './routes/alumnos/agregar'
 
 // Create/Update Routes
 
 const PerfilRoute = PerfilImport.update({
   id: '/perfil',
   path: '/perfil',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const AlumnosRoute = AlumnosImport.update({
-  id: '/alumnos',
-  path: '/alumnos',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -39,6 +34,18 @@ const HomeRoute = HomeImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AlumnosIndexRoute = AlumnosIndexImport.update({
+  id: '/alumnos/',
+  path: '/alumnos/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AlumnosAgregarRoute = AlumnosAgregarImport.update({
+  id: '/alumnos/agregar',
+  path: '/alumnos/agregar',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -60,18 +67,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HomeImport
       parentRoute: typeof rootRoute
     }
-    '/alumnos': {
-      id: '/alumnos'
-      path: '/alumnos'
-      fullPath: '/alumnos'
-      preLoaderRoute: typeof AlumnosImport
-      parentRoute: typeof rootRoute
-    }
     '/perfil': {
       id: '/perfil'
       path: '/perfil'
       fullPath: '/perfil'
       preLoaderRoute: typeof PerfilImport
+      parentRoute: typeof rootRoute
+    }
+    '/alumnos/agregar': {
+      id: '/alumnos/agregar'
+      path: '/alumnos/agregar'
+      fullPath: '/alumnos/agregar'
+      preLoaderRoute: typeof AlumnosAgregarImport
+      parentRoute: typeof rootRoute
+    }
+    '/alumnos/': {
+      id: '/alumnos/'
+      path: '/alumnos'
+      fullPath: '/alumnos'
+      preLoaderRoute: typeof AlumnosIndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -82,46 +96,51 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/Home': typeof HomeRoute
-  '/alumnos': typeof AlumnosRoute
   '/perfil': typeof PerfilRoute
+  '/alumnos/agregar': typeof AlumnosAgregarRoute
+  '/alumnos': typeof AlumnosIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/Home': typeof HomeRoute
-  '/alumnos': typeof AlumnosRoute
   '/perfil': typeof PerfilRoute
+  '/alumnos/agregar': typeof AlumnosAgregarRoute
+  '/alumnos': typeof AlumnosIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/Home': typeof HomeRoute
-  '/alumnos': typeof AlumnosRoute
   '/perfil': typeof PerfilRoute
+  '/alumnos/agregar': typeof AlumnosAgregarRoute
+  '/alumnos/': typeof AlumnosIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/Home' | '/alumnos' | '/perfil'
+  fullPaths: '/' | '/Home' | '/perfil' | '/alumnos/agregar' | '/alumnos'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/Home' | '/alumnos' | '/perfil'
-  id: '__root__' | '/' | '/Home' | '/alumnos' | '/perfil'
+  to: '/' | '/Home' | '/perfil' | '/alumnos/agregar' | '/alumnos'
+  id: '__root__' | '/' | '/Home' | '/perfil' | '/alumnos/agregar' | '/alumnos/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   HomeRoute: typeof HomeRoute
-  AlumnosRoute: typeof AlumnosRoute
   PerfilRoute: typeof PerfilRoute
+  AlumnosAgregarRoute: typeof AlumnosAgregarRoute
+  AlumnosIndexRoute: typeof AlumnosIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   HomeRoute: HomeRoute,
-  AlumnosRoute: AlumnosRoute,
   PerfilRoute: PerfilRoute,
+  AlumnosAgregarRoute: AlumnosAgregarRoute,
+  AlumnosIndexRoute: AlumnosIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -136,8 +155,9 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/Home",
-        "/alumnos",
-        "/perfil"
+        "/perfil",
+        "/alumnos/agregar",
+        "/alumnos/"
       ]
     },
     "/": {
@@ -146,11 +166,14 @@ export const routeTree = rootRoute
     "/Home": {
       "filePath": "Home.tsx"
     },
-    "/alumnos": {
-      "filePath": "alumnos.tsx"
-    },
     "/perfil": {
       "filePath": "perfil.tsx"
+    },
+    "/alumnos/agregar": {
+      "filePath": "alumnos/agregar.tsx"
+    },
+    "/alumnos/": {
+      "filePath": "alumnos/index.tsx"
     }
   }
 }
