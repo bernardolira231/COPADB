@@ -18,7 +18,6 @@ const Inscripciones = () => {
     updateAcademicInfo,
     updateFamilyInfo,
     updateAdditionalInfo,
-    resetForm,
     handleSubmit,
     isFormValid,
   } = useInscripcionesForm();
@@ -75,7 +74,7 @@ const Inscripciones = () => {
             />
           </Card>
 
-          <FormButtons isFormValid={isFormValid()} onReset={resetForm} />
+          <FormButtons isFormValid={isFormValid()} />
         </form>
       </Container>
     </Layout>
