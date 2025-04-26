@@ -3,7 +3,7 @@ from flask_cors import CORS
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from flask_bcrypt import Bcrypt
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
 from dotenv import load_dotenv
 import os
 
@@ -157,8 +157,6 @@ def get_user_profile():
     token = auth_header.split(' ')[1]
     
     try:
-        from flask_jwt_extended import decode_token
-        
         decoded_token = decode_token(token)
         user_id_str = decoded_token["sub"]
         user_id = int(user_id_str)
@@ -188,6 +186,59 @@ def get_user_profile():
         import traceback
         traceback.print_exc()
         return jsonify({"message": "Error al obtener perfil", "error": str(e)}), 500
+
+@app.route("/api/profesor/materias", methods=["GET"])
+@jwt_required()
+def get_profesor_materias():
+    try:
+        # Obtener el ID del usuario del token JWT
+        user_id_str = get_jwt_identity()
+        user_id = int(user_id_str)
+        
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # Verificar si el usuario es un profesor
+        cur.execute("SELECT rol FROM usuarios WHERE id = %s", (user_id,))
+        user_role = cur.fetchone()
+        
+        # Temporalmente desactivar la verificación de rol para pruebas
+        # if not user_role or user_role['rol'] != 2:  # Asumiendo que 2 es el rol de profesor
+        #     return jsonify({"message": "El usuario no es un profesor"}), 403
+        
+        # Obtener las materias del profesor
+        cur.execute("""
+            SELECT 
+                g.id        AS group_id,
+                g.grade     AS grado,
+                c.id        AS class_id,
+                c.name      AS class_name
+            FROM "group" g
+            JOIN class c
+                ON c.id = g.class_id
+            WHERE g.professor_id = %s
+        """, (user_id,))
+        
+        materias = []
+        for row in cur.fetchall():
+            materias.append({
+                "group_id": row['group_id'],
+                "grado": row['grado'],
+                "class_id": row['class_id'],
+                "class_name": row['class_name']
+            })
+        
+        cur.close()
+        conn.close()
+        
+        return jsonify({
+            "materias": materias
+        }), 200
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"message": "Error al obtener materias", "error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5328)

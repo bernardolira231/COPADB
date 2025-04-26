@@ -3,10 +3,11 @@ import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 
 interface LayoutProps {
+  onGroupChange?: (groupId: string | null) => void;
   children: ReactNode;
 }
 
-const Layout = ({ children }: LayoutProps) => {
+const Layout = ({ onGroupChange ,children }: LayoutProps) => {
 
   useEffect(() => {
     const checkToken = () => {
@@ -28,7 +29,7 @@ const Layout = ({ children }: LayoutProps) => {
     <div className="h-screen flex">
       <Sidebar />
       <div className="flex-1 flex flex-col bg-gray-100">
-        <Header />
+        <Header onGroupChange={onGroupChange}/>
         <div className="p-6 flex-1 overflow-auto">{children}</div>
       </div>
     </div>
