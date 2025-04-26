@@ -4,7 +4,7 @@
 
 ```
 backend/
-│── app_new.py        # Aplicación principal con estructura modular
+│── app.py            # Aplicación principal con estructura modular
 │── run.py            # Archivo para ejecutar instrucciones en la base de datos
 │── requirements.txt  # Dependencias necesarias para ejecutar el backend
 │── .env              # Variables de entorno (configuración de la base de datos y JWT)
@@ -84,7 +84,7 @@ JWT_SECRET_KEY=supersecretkey
 Para iniciar el backend y permitir que el frontend se comunique con la API, ejecuta:
 
 ```bash
-python app_new.py
+python app.py
 ```
 
 El servidor Flask correrá en `http://localhost:5328`.
