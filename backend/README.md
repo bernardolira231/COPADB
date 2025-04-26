@@ -14,12 +14,6 @@ backend/
 │   │── __init__.py
 │   └── config.py     # Configuración de la aplicación y base de datos
 │
-├── models/           # Modelos de datos (estructura)
-│   │── __init__.py
-│   │── user.py       # Modelo de usuario
-│   │── subject.py    # Modelo de materias
-│   └── student.py    # Modelo de estudiante y familia
-│
 ├── routes/           # Rutas de la API organizadas por funcionalidad
 │   │── __init__.py   # Registro de blueprints
 │   │── auth_routes.py    # Rutas de autenticación (/api/login, /api/user/profile)
