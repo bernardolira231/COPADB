@@ -9,16 +9,21 @@ interface FormButtonsProps {
 
 const FormButtons: React.FC<FormButtonsProps> = ({ isFormValid }) => {
   const navigate = useNavigate();
+  const handleSave = () => {
+    navigate({ to: "/alumnos" });
+  };
   const handleCancel = () => {
     navigate({ to: "/alumnos" });
   };
   return (
-    <Box sx={{ 
-      display: 'flex', 
-      flexDirection: { xs: 'column', md: 'row' }, 
-      gap: 2, 
-      mt: 4 
-    }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: { xs: "column", md: "row" },
+        gap: 2,
+        mt: 4,
+      }}
+    >
       <Button
         type="submit"
         variant="contained"
@@ -28,6 +33,7 @@ const FormButtons: React.FC<FormButtonsProps> = ({ isFormValid }) => {
         size="large"
         startIcon={<LuSave />}
         sx={{ py: 1.5 }}
+        onClick={handleSave}
       >
         Registrar Estudiante
       </Button>
