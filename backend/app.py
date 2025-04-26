@@ -1,244 +1,35 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-import psycopg2
-from psycopg2.extras import RealDictCursor
-from flask_bcrypt import Bcrypt
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
-from dotenv import load_dotenv
-import os
+from flask import Flask
+from config.config import Config
+from utils.error_handler import register_error_handlers
+from routes import register_blueprints
+from extensions import bcrypt, jwt, cors
 
-app = Flask(__name__)
-
-# Configuración de CORS para permitir solicitudes desde el frontend en el puerto correcto
-CORS(app, supports_credentials=True, resources={r"/*": {"origins": "http://localhost:3001"}})
-
-bcrypt = Bcrypt(app)
-
-# Clave secreta para JWT (debería estar en variables de entorno en producción)
-app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "supersecretkey")
-# Configuración adicional de JWT
-app.config["JWT_TOKEN_LOCATION"] = ["headers"]
-app.config["JWT_HEADER_NAME"] = "Authorization"
-app.config["JWT_HEADER_TYPE"] = "Bearer"
-jwt = JWTManager(app)
-
-load_dotenv()
-
-DB_CONFIG = {
-    "host": os.getenv("DB_HOST"),
-    "port": os.getenv("DB_PORT"),
-    "dbname": os.getenv("DB_NAME"),
-    "user": os.getenv("DB_USER"),
-    "password": os.getenv("DB_PASSWORD"),
-}
-
-def get_db_connection():
-    return psycopg2.connect(**DB_CONFIG, cursor_factory=RealDictCursor)
-
-@app.route("/api/login", methods=["POST", "OPTIONS"])
-def login():
-    if request.method == "OPTIONS":
-        response = jsonify({"message": "CORS preflight OK"})
-        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3001")
-        response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
-        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
-        response.headers.add("Access-Control-Allow-Credentials", "true")
-        return response, 204
-
-    data = request.get_json()
-
-    if not data or "email" not in data or "password" not in data:
-        return jsonify({"message": "Email y contraseña requeridos"}), 400
-
-    email = data["email"]
-    password = data["password"]
-
-    try:
-        conn = get_db_connection()
-        cur = conn.cursor()
-
-        cur.execute("SELECT id, name, email, password FROM usuarios WHERE email = %s", (email,))
-        user = cur.fetchone()
-
-        cur.close()
-        conn.close()
-
-        if user and bcrypt.check_password_hash(user["password"], password):
-            user_id_str = str(user["id"])
-            access_token = create_access_token(identity=user_id_str)
-            
-            return jsonify({
-                "message": "Login exitoso",
-                "token": access_token,
-                "user": {"id": user["id"], "name": user["name"], "email": user["email"]}
-            }), 200
-        else:
-            return jsonify({"message": "Credenciales incorrectas"}), 401
-
-    except Exception as e:
-        return jsonify({"message": "Error en el servidor", "error": str(e)}), 500
+def create_app(config_class=Config):
+    """
+    Crea y configura la aplicación Flask.
     
-@app.route("/api/inscripciones", methods=["POST"])
-def registrar_estudiante():
-    try:
-        data = request.get_json()
-
-        conn = get_db_connection()
-        cur = conn.cursor()
-
-        cur.execute("""
-            INSERT INTO family (
-                tutor_name, tutor_lastname_F, tutor_lastname_M,
-                phone_number, email_address, emergency_phone_number
-            ) VALUES (%s, %s, %s, %s, %s, %s)
-            RETURNING id;
-        """, (
-            data["tutorNombre"],
-            data["tutorApellidoPaterno"],
-            data["tutorApellidoMaterno"],
-            data["telefono"],
-            data["emailTutor"],
-            data["telefonoEmergencia"]
-        ))
-
-        family_id = cur.fetchone()
-
-        if family_id is None:
-            raise ValueError("No se pudo obtener el family_id después de insertar en family.")
+    Args:
+        config_class: Clase de configuración a utilizar
         
-        family_id = family_id["id"]
-        cur.execute("""
-            INSERT INTO student (
-                name, lastname_F, lastname_M, email, blood_type,
-                allergies, scholar_ship, chapel, school_campus,
-                family_id, permission, reg_date
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
-        """, (
-            data["nombre"],
-            data["apellidoPaterno"],
-            data["apellidoMaterno"],
-            data["email"],
-            data["tipoSangre"],
-            data["alergias"],
-            True if data["beca"] else False,
-            data["capilla"],
-            data["campusEscolar"],
-            family_id,
-            data["permiso"],
-            data["fechaRegistro"]
-        ))
-
-        conn.commit()
-        cur.close()
-        conn.close()
-
-        return jsonify({"message": "Estudiante registrado exitosamente"}), 201
-
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return jsonify({"message": "Error al registrar estudiante", "error": str(e)}), 500
-
-
-@app.route("/api/user/profile", methods=["GET", "OPTIONS"])
-def get_user_profile():
-    if request.method == "OPTIONS":
-        response = jsonify({"message": "CORS preflight OK"})
-        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3001")
-        response.headers.add("Access-Control-Allow-Methods", "GET, OPTIONS")
-        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
-        response.headers.add("Access-Control-Allow-Credentials", "true")
-        return response, 204
-        
-    auth_header = request.headers.get('Authorization')
-    if not auth_header or not auth_header.startswith('Bearer '):
-        return jsonify({"message": "Token no proporcionado o formato incorrecto"}), 401
-        
-    token = auth_header.split(' ')[1]
+    Returns:
+        Flask: Instancia configurada de la aplicación Flask
+    """
+    app = Flask(__name__)
+    app.config.from_object(config_class)
     
-    try:
-        decoded_token = decode_token(token)
-        user_id_str = decoded_token["sub"]
-        user_id = int(user_id_str)
-        
-        conn = get_db_connection()
-        cur = conn.cursor()
-        
-        cur.execute("""
-            SELECT id, name, lastname_m, lastname_f, email, rol
-            FROM usuarios
-            WHERE id = %s
-        """, (user_id,))
-        
-        user_data = cur.fetchone()
-        
-        cur.close()
-        conn.close()
-        
-        if not user_data:
-            return jsonify({"message": "Usuario no encontrado"}), 404
-            
-        return jsonify({
-            "user": user_data
-        }), 200
-        
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return jsonify({"message": "Error al obtener perfil", "error": str(e)}), 500
-
-@app.route("/api/profesor/materias", methods=["GET"])
-@jwt_required()
-def get_profesor_materias():
-    try:
-        # Obtener el ID del usuario del token JWT
-        user_id_str = get_jwt_identity()
-        user_id = int(user_id_str)
-        
-        conn = get_db_connection()
-        cur = conn.cursor()
-        
-        # Verificar si el usuario es un profesor
-        cur.execute("SELECT rol FROM usuarios WHERE id = %s", (user_id,))
-        user_role = cur.fetchone()
-        
-        # Temporalmente desactivar la verificación de rol para pruebas
-        # if not user_role or user_role['rol'] != 2:  # Asumiendo que 2 es el rol de profesor
-        #     return jsonify({"message": "El usuario no es un profesor"}), 403
-        
-        # Obtener las materias del profesor
-        cur.execute("""
-            SELECT 
-                g.id        AS group_id,
-                g.grade     AS grado,
-                c.id        AS class_id,
-                c.name      AS class_name
-            FROM "group" g
-            JOIN class c
-                ON c.id = g.class_id
-            WHERE g.professor_id = %s
-        """, (user_id,))
-        
-        materias = []
-        for row in cur.fetchall():
-            materias.append({
-                "group_id": row['group_id'],
-                "grado": row['grado'],
-                "class_id": row['class_id'],
-                "class_name": row['class_name']
-            })
-        
-        cur.close()
-        conn.close()
-        
-        return jsonify({
-            "materias": materias
-        }), 200
-        
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return jsonify({"message": "Error al obtener materias", "error": str(e)}), 500
+    # Inicializar extensiones
+    cors.init_app(app, supports_credentials=True, resources={r"/*": {"origins": app.config['CORS_ORIGIN']}})
+    jwt.init_app(app)
+    bcrypt.init_app(app)
+    
+    # Registrar blueprints
+    register_blueprints(app)
+    
+    # Registrar manejadores de errores
+    register_error_handlers(app)
+    
+    return app
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5328)
+    app = create_app()
+    app.run(debug=app.config['DEBUG'], host=app.config['HOST'], port=app.config['PORT'])
