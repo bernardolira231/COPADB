@@ -1,5 +1,5 @@
-import Layout from "../../components/Layout";
-import useInscripcionesForm from "../../hooks/useInscripciones";
+import Layout from "../../../components/Layout";
+import useInscripcionesForm from "../../../hooks/useInscripciones";
 import PersonalInfoSection from "./components/PersonalInfoSection";
 import AcademicInfoSection from "./components/AcademicInfoSection";
 import FamilyInfoSection from "./components/FamilyInfoSection";
@@ -22,13 +22,6 @@ const Inscripciones = () => {
     handleSubmit,
     isFormValid,
   } = useInscripcionesForm();
-
-  const steps = [
-    "Información Personal",
-    "Información Académica",
-    "Información Familiar",
-    "Permisos y Fecha",
-  ];
 
   return (
     <Layout>

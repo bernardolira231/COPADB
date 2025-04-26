@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Typography, TextField, Grid } from "@mui/material";
 import { LuFileText } from "react-icons/lu";
-import { EstudianteAdditionalInfo } from "../../../types/estudiante";
+import { EstudianteAdditionalInfo } from "../../../../types/estudiante";
 
 interface PermissionSectionProps {
   permiso: string;

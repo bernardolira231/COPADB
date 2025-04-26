@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Typography, TextField, Grid } from '@mui/material';
 import { LuCalendar } from 'react-icons/lu';
-import { EstudianteAdditionalInfo } from '../../../types/estudiante';
+import { EstudianteAdditionalInfo } from '../../../../types/estudiante';
 
 interface RegistrationDateSectionProps {
   fechaRegistro: string;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { EstudianteFamilyInfo } from '../../../types/estudiante';
+import { EstudianteFamilyInfo } from '../../../../types/estudiante';
 import { 
   Typography, 
   Grid, 
