@@ -12,7 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as PerfilImport } from './routes/perfil'
-import { Route as InscripcionesImport } from './routes/inscripciones'
+import { Route as AlumnosImport } from './routes/alumnos'
 import { Route as HomeImport } from './routes/Home'
 import { Route as IndexImport } from './routes/index'
 
@@ -24,9 +24,9 @@ const PerfilRoute = PerfilImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const InscripcionesRoute = InscripcionesImport.update({
-  id: '/inscripciones',
-  path: '/inscripciones',
+const AlumnosRoute = AlumnosImport.update({
+  id: '/alumnos',
+  path: '/alumnos',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -60,11 +60,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HomeImport
       parentRoute: typeof rootRoute
     }
-    '/inscripciones': {
-      id: '/inscripciones'
-      path: '/inscripciones'
-      fullPath: '/inscripciones'
-      preLoaderRoute: typeof InscripcionesImport
+    '/alumnos': {
+      id: '/alumnos'
+      path: '/alumnos'
+      fullPath: '/alumnos'
+      preLoaderRoute: typeof AlumnosImport
       parentRoute: typeof rootRoute
     }
     '/perfil': {
@@ -82,14 +82,14 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/Home': typeof HomeRoute
-  '/inscripciones': typeof InscripcionesRoute
+  '/alumnos': typeof AlumnosRoute
   '/perfil': typeof PerfilRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/Home': typeof HomeRoute
-  '/inscripciones': typeof InscripcionesRoute
+  '/alumnos': typeof AlumnosRoute
   '/perfil': typeof PerfilRoute
 }
 
@@ -97,30 +97,30 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/Home': typeof HomeRoute
-  '/inscripciones': typeof InscripcionesRoute
+  '/alumnos': typeof AlumnosRoute
   '/perfil': typeof PerfilRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/Home' | '/inscripciones' | '/perfil'
+  fullPaths: '/' | '/Home' | '/alumnos' | '/perfil'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/Home' | '/inscripciones' | '/perfil'
-  id: '__root__' | '/' | '/Home' | '/inscripciones' | '/perfil'
+  to: '/' | '/Home' | '/alumnos' | '/perfil'
+  id: '__root__' | '/' | '/Home' | '/alumnos' | '/perfil'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   HomeRoute: typeof HomeRoute
-  InscripcionesRoute: typeof InscripcionesRoute
+  AlumnosRoute: typeof AlumnosRoute
   PerfilRoute: typeof PerfilRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   HomeRoute: HomeRoute,
-  InscripcionesRoute: InscripcionesRoute,
+  AlumnosRoute: AlumnosRoute,
   PerfilRoute: PerfilRoute,
 }
 
@@ -136,7 +136,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/Home",
-        "/inscripciones",
+        "/alumnos",
         "/perfil"
       ]
     },
@@ -146,8 +146,8 @@ export const routeTree = rootRoute
     "/Home": {
       "filePath": "Home.tsx"
     },
-    "/inscripciones": {
-      "filePath": "inscripciones.tsx"
+    "/alumnos": {
+      "filePath": "alumnos.tsx"
     },
     "/perfil": {
       "filePath": "perfil.tsx"

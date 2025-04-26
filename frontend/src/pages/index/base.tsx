@@ -8,7 +8,9 @@ const Index = () => {
   return (
     <Layout onGroupChange={setSelectedGroup}>
       <Container sx={{ mt: 3 }}>
-        <Typography variant="h4">Materias</Typography>
+        <Typography variant="h4" color="primary" fontWeight="bold">
+          Materias
+        </Typography>
         <SubjectsList groupId={selectedGroup} />
       </Container>
     </Layout>

@@ -48,8 +48,8 @@ const Sidebar = () => {
           />
           <SideBarLink
             icon={<LuGraduationCap />}
-            title="Inscripciones"
-            to="/inscripciones"
+            title="Listado de Alumnos"
+            to="/alumnos"
             color="text-pink-500"
           />
           <SideBarLink

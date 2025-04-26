@@ -52,13 +52,21 @@ const SubjectSkeletonLoader = () => {
   );
 };
 
-const SubjectsList: React.FC = () => {
+interface SubjectsListProps {
+  groupId?: string | null;
+}
+
+const SubjectsList: React.FC<SubjectsListProps> = ({ groupId }) => {
   const { materias, materiaSeleccionada, setMateriaSeleccionada, loading, error } = useMateria();
   const sx = useSx();
   const navigate = useNavigate();
 
-  // Mostrar solo la materia seleccionada o todas si no hay ninguna seleccionada
-  const materiasAMostrar = materiaSeleccionada ? [materiaSeleccionada] : materias;
+  // Filtrar materias según el groupId si está presente
+  const materiasAMostrar = groupId 
+    ? materias.filter(materia => materia.group_id.toString() === groupId)
+    : materiaSeleccionada 
+      ? [materiaSeleccionada] 
+      : materias;
 
   // Mostrar skeleton loader durante la carga
   if (loading) {
