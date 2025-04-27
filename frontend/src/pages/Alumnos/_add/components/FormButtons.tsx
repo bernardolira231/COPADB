@@ -8,6 +8,7 @@ interface FormButtonsProps {
   cancelButtonText?: string;
   onSubmit?: () => void;
   onCancel?: () => void;
+  disabled?: boolean;
 }
 
 const FormButtons: React.FC<FormButtonsProps> = ({ 
@@ -15,7 +16,8 @@ const FormButtons: React.FC<FormButtonsProps> = ({
   submitButtonText = "Registrar Estudiante",
   cancelButtonText = "Cancelar",
   onSubmit,
-  onCancel
+  onCancel,
+  disabled = false
 }) => {
   const handleSubmit = () => {
     if (onSubmit) {
@@ -42,7 +44,7 @@ const FormButtons: React.FC<FormButtonsProps> = ({
         type="submit"
         variant="contained"
         color="primary"
-        disabled={!isFormValid}
+        disabled={!isFormValid || disabled}
         fullWidth
         size="large"
         startIcon={<LuSave />}

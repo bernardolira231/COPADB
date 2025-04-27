@@ -6,7 +6,10 @@ import FamilyInfoSection from "./components/FamilyInfoSection";
 import PermissionSection from "./components/PermissionSection";
 import RegistrationDateSection from "./components/RegistrationDateSection";
 import FormButtons from "./components/FormButtons";
-import { Paper, Typography, Container, Box, Card } from "@mui/material";
+import SuccessModal from "./components/SuccessModal";
+import { Paper, Typography, Container, Box, Card, Button } from "@mui/material";
+import { LuArrowLeft } from "react-icons/lu";
+import { Link } from "@tanstack/react-router";
 
 const Inscripciones = () => {
   const {
@@ -14,27 +17,59 @@ const Inscripciones = () => {
     academicInfo,
     familyInfo,
     additionalInfo,
+    loading,
+    isSuccessModalOpen,
     updatePersonalInfo,
     updateAcademicInfo,
     updateFamilyInfo,
     updateAdditionalInfo,
     handleSubmit,
     isFormValid,
+    handleCancel,
+    handleCloseSuccessModal,
   } = useInscripcionesForm();
 
   return (
     <Layout>
       <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
-          <Typography
-            variant="h4"
-            component="h1"
-            color="primary"
-            fontWeight="bold"
-          >
-            Inscripciones
-          </Typography>
-        </Paper>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 3,
+          }}
+        >
+          <Paper elevation={3} sx={{ p: 3, mb: 0, flexGrow: 1 }}>
+            <Typography
+              variant="h4"
+              component="h1"
+              color="primary"
+              fontWeight="bold"
+            >
+              Inscripciones
+            </Typography>
+          </Paper>
+        </Box>
+        <Button
+          component={Link}
+          to="/alumnos"
+          variant="outlined"
+          color="primary"
+          startIcon={<LuArrowLeft />}
+          sx={{
+            ml: 2,
+            mb: 3,
+            height: "fit-content",
+            borderRadius: 0,
+            borderWidth: 2,
+            "&:hover": {
+              borderWidth: 2,
+            },
+          }}
+        >
+          Volver a la lista
+        </Button>
 
         <form onSubmit={handleSubmit}>
           <Card elevation={3} sx={{ p: 4, mb: 4 }}>
@@ -74,8 +109,20 @@ const Inscripciones = () => {
             />
           </Card>
 
-          <FormButtons isFormValid={isFormValid()} />
+          <FormButtons
+            isFormValid={isFormValid()}
+            onCancel={handleCancel}
+            submitButtonText={
+              loading ? "Registrando..." : "Registrar Estudiante"
+            }
+            disabled={loading}
+          />
         </form>
+
+        <SuccessModal
+          open={isSuccessModalOpen}
+          onClose={handleCloseSuccessModal}
+        />
       </Container>
     </Layout>
   );
