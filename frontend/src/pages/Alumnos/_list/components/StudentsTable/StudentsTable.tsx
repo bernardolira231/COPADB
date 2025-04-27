@@ -69,16 +69,27 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
 
   const handleSaveStudent = async (updatedStudent: Estudiante) => {
     try {
-      const response = await fetch(`http://localhost:5328/estudiantes/${updatedStudent.id}`, {
+      // Asegurarse de que todos los campos necesarios estén presentes
+      const studentData = {
+        ...updatedStudent,
+        // Asegurarse de que estos campos estén presentes y con el formato correcto
+        scholar_ship: !!updatedStudent.scholar_ship,
+        reg_date: updatedStudent.reg_date || new Date().toISOString()
+      };
+
+      const response = await fetch(`http://localhost:5328/api/estudiantes/${updatedStudent.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          // Agregar headers CORS si son necesarios
+          'Accept': 'application/json'
         },
-        body: JSON.stringify(updatedStudent),
+        body: JSON.stringify(studentData),
       });
 
       if (!response.ok) {
-        throw new Error(`Error al actualizar el estudiante (${response.status})`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Error al actualizar el estudiante (${response.status}): ${errorData.message || ''}`);
       }
 
       // Mostrar mensaje de éxito
@@ -92,7 +103,7 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
       return Promise.resolve();
     } catch (error) {
       console.error('Error al guardar estudiante:', error);
-      setSnackbarMessage('Error al actualizar el estudiante');
+      setSnackbarMessage(`Error al actualizar el estudiante: ${error instanceof Error ? error.message : 'Error de conexión'}`);
       setSnackbarOpen(true);
       return Promise.reject(error);
     }

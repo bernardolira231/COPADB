@@ -1,22 +1,54 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, make_response, Response
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from config.config import Config
+from functools import wraps
 
 student_bp = Blueprint('student', __name__, url_prefix='/api')
 
 def get_db_connection():
     return psycopg2.connect(**Config.DB_CONFIG, cursor_factory=RealDictCursor)
 
+def cors_decorator(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if request.method == 'OPTIONS':
+            response = make_response()
+            response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3001')
+            response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+            response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept')
+            response.headers.add('Access-Control-Allow-Credentials', 'true')
+            return response, 204
+        
+        # Ejecutar la función original para métodos no-OPTIONS
+        result = f(*args, **kwargs)
+        
+        # Si el resultado es una tupla (response, status_code)
+        if isinstance(result, tuple):
+            response, status_code = result
+            if isinstance(response, dict):
+                response = jsonify(response)
+        else:
+            # Si solo es una respuesta
+            response = result if not isinstance(result, dict) else jsonify(result)
+            status_code = 200
+            
+        # Agregar headers CORS a la respuesta
+        if hasattr(response, 'headers'):
+            response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3001')
+            response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+            response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept')
+            response.headers.add('Access-Control-Allow-Credentials', 'true')
+            
+        return response, status_code if isinstance(result, tuple) else status_code
+    
+    return decorated_function
+
 @student_bp.route('/inscripciones', methods=['POST', 'OPTIONS'])
+@cors_decorator
 def registrar_estudiante():
     if request.method == "OPTIONS":
-        response = jsonify({"message": "CORS preflight OK"})
-        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3001")
-        response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
-        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
-        response.headers.add("Access-Control-Allow-Credentials", "true")
-        return response, 204
+        return jsonify({"message": "CORS preflight OK"}), 204
         
     try:
         data = request.get_json()
@@ -78,14 +110,10 @@ def registrar_estudiante():
         return jsonify({"message": "Error al registrar estudiante", "error": str(e)}), 500
 
 @student_bp.route('/estudiantes', methods=['GET', 'OPTIONS'])
+@cors_decorator
 def get_estudiantes():
     if request.method == "OPTIONS":
-        response = jsonify({"message": "CORS preflight OK"})
-        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3001")
-        response.headers.add("Access-Control-Allow-Methods", "GET, OPTIONS")
-        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
-        response.headers.add("Access-Control-Allow-Credentials", "true")
-        return response, 204
+        return jsonify({"message": "CORS preflight OK"}), 204
         
     try:
         conn = get_db_connection()
@@ -171,14 +199,10 @@ def get_estudiantes():
         return jsonify({"message": "Error al obtener estudiantes", "error": str(e)}), 500
 
 @student_bp.route('/estudiantes/<int:id>', methods=['DELETE', 'OPTIONS'])
+@cors_decorator
 def delete_estudiante(id):
     if request.method == "OPTIONS":
-        response = jsonify({"message": "CORS preflight OK"})
-        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3001")
-        response.headers.add("Access-Control-Allow-Methods", "DELETE, OPTIONS")
-        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
-        response.headers.add("Access-Control-Allow-Credentials", "true")
-        return response, 204
+        return jsonify({"message": "CORS preflight OK"}), 204
         
     try:
         conn = get_db_connection()
@@ -207,14 +231,10 @@ def delete_estudiante(id):
         return jsonify({"message": "Error al eliminar estudiante", "error": str(e)}), 500
 
 @student_bp.route('/estudiantes/<int:id>', methods=['PUT', 'OPTIONS'])
+@cors_decorator
 def update_estudiante(id):
     if request.method == "OPTIONS":
-        response = jsonify({"message": "CORS preflight OK"})
-        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3001")
-        response.headers.add("Access-Control-Allow-Methods", "PUT, OPTIONS")
-        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
-        response.headers.add("Access-Control-Allow-Credentials", "true")
-        return response, 204
+        return jsonify({"message": "CORS preflight OK"}), 204
         
     try:
         data = request.get_json()
