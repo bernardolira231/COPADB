@@ -41,6 +41,4 @@ export interface Estudiante {
   family_id: number;
   permission: string;
   reg_date: string;
-  created_at?: string;
-  updated_at?: string;
 }

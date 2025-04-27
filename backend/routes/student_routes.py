@@ -76,3 +76,132 @@ def registrar_estudiante():
         import traceback
         traceback.print_exc()
         return jsonify({"message": "Error al registrar estudiante", "error": str(e)}), 500
+
+@student_bp.route('/estudiantes', methods=['GET', 'OPTIONS'])
+def get_estudiantes():
+    if request.method == "OPTIONS":
+        response = jsonify({"message": "CORS preflight OK"})
+        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3001")
+        response.headers.add("Access-Control-Allow-Methods", "GET, OPTIONS")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+        return response, 204
+        
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # Obtener parámetros de consulta para filtrado y paginación
+        page = request.args.get('page', default=1, type=int)
+        per_page = request.args.get('per_page', default=10, type=int)
+        search = request.args.get('search', default='', type=str)
+        
+        # Calcular offset para paginación
+        offset = (page - 1) * per_page
+        
+        # Construir la consulta base
+        query = """
+            SELECT 
+                id, name, lastname_f, lastname_m, email, 
+                blood_type, allergies, scholar_ship, chapel, 
+                school_campus, family_id, permission, 
+                reg_date
+            FROM public.student
+        """
+        
+        params = []
+        
+        # Añadir filtro de búsqueda si se proporciona
+        if search:
+            query += """
+                WHERE 
+                    name ILIKE %s OR 
+                    lastname_f ILIKE %s OR 
+                    lastname_m ILIKE %s OR 
+                    email ILIKE %s
+            """
+            search_param = f'%{search}%'
+            params.extend([search_param, search_param, search_param, search_param])
+        
+        # Añadir ordenamiento y paginación
+        query += """
+            ORDER BY id
+            LIMIT %s OFFSET %s
+        """
+        params.extend([per_page, offset])
+        
+        # Ejecutar la consulta principal
+        cur.execute(query, params)
+        estudiantes = cur.fetchall()
+        
+        # Obtener el conteo total para la paginación
+        count_query = "SELECT COUNT(*) FROM public.student"
+        if search:
+            count_query += """
+                WHERE 
+                    name ILIKE %s OR 
+                    lastname_f ILIKE %s OR 
+                    lastname_m ILIKE %s OR 
+                    email ILIKE %s
+            """
+            cur.execute(count_query, [search_param, search_param, search_param, search_param])
+        else:
+            cur.execute(count_query)
+            
+        total_count = cur.fetchone()['count']
+        
+        cur.close()
+        conn.close()
+        
+        # Preparar la respuesta con metadatos de paginación
+        response = {
+            "estudiantes": estudiantes,
+            "pagination": {
+                "total": total_count,
+                "page": page,
+                "per_page": per_page,
+                "total_pages": (total_count + per_page - 1) // per_page
+            }
+        }
+        
+        return jsonify(response), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"message": "Error al obtener estudiantes", "error": str(e)}), 500
+
+@student_bp.route('/estudiantes/<int:id>', methods=['DELETE', 'OPTIONS'])
+def delete_estudiante(id):
+    if request.method == "OPTIONS":
+        response = jsonify({"message": "CORS preflight OK"})
+        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3001")
+        response.headers.add("Access-Control-Allow-Methods", "DELETE, OPTIONS")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+        return response, 204
+        
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # Verificar si el estudiante existe
+        cur.execute("SELECT id FROM student WHERE id = %s", (id,))
+        estudiante = cur.fetchone()
+        
+        if not estudiante:
+            cur.close()
+            conn.close()
+            return jsonify({"message": f"Estudiante con ID {id} no encontrado"}), 404
+        
+        # Eliminar el estudiante
+        cur.execute("DELETE FROM student WHERE id = %s", (id,))
+        conn.commit()
+        
+        cur.close()
+        conn.close()
+        
+        return jsonify({"message": f"Estudiante con ID {id} eliminado correctamente"}), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"message": "Error al eliminar estudiante", "error": str(e)}), 500

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box, Typography } from "@mui/material";
-import Actions from '../Actions';
 
 const PageHeader: React.FC = () => {
   return (
@@ -13,9 +12,6 @@ const PageHeader: React.FC = () => {
       >
         Listado de Estudiantes
       </Typography>
-      <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-        <Actions />
-      </Box>
     </>
   );
 };

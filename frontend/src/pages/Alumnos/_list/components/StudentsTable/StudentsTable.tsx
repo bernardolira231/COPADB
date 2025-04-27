@@ -24,6 +24,7 @@ interface StudentsTableProps {
   error: string | null;
   page: number;
   rowsPerPage: number;
+  totalCount: number;
   handleChangePage: (_event: unknown, newPage: number) => void;
   handleChangeRowsPerPage: (event: React.ChangeEvent<HTMLInputElement>) => void;
   handleDelete: (id: number) => Promise<void>;
@@ -35,6 +36,7 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
   error,
   page,
   rowsPerPage,
+  totalCount,
   handleChangePage,
   handleChangeRowsPerPage,
   handleDelete
@@ -73,48 +75,46 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
                 </TableRow>
               </TableHead>
               <TableBody>
-                {estudiantes
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((estudiante) => (
-                    <TableRow key={estudiante.id} hover>
-                      <TableCell>{estudiante.id}</TableCell>
-                      <TableCell>{getNombreCompleto(estudiante)}</TableCell>
-                      <TableCell>{estudiante.email}</TableCell>
-                      <TableCell>{estudiante.blood_type}</TableCell>
-                      <TableCell>{estudiante.school_campus}</TableCell>
-                      <TableCell>
-                        <Chip 
-                          label={estudiante.scholar_ship ? "Sí" : "No"} 
-                          color={estudiante.scholar_ship ? "success" : "default"}
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        {new Date(estudiante.reg_date).toLocaleDateString('es-MX')}
-                      </TableCell>
-                      <TableCell align="center">
-                        <Tooltip title="Ver detalles">
-                          <IconButton size="small" color="primary">
-                            <LuEye />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Editar">
-                          <IconButton size="small" color="primary">
-                            <LuPencil />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Eliminar">
-                          <IconButton 
-                            size="small" 
-                            color="error"
-                            onClick={() => handleDelete(estudiante.id)}
-                          >
-                            <LuTrash />
-                          </IconButton>
-                        </Tooltip>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                {estudiantes.map((estudiante) => (
+                  <TableRow key={estudiante.id} hover>
+                    <TableCell>{estudiante.id}</TableCell>
+                    <TableCell>{getNombreCompleto(estudiante)}</TableCell>
+                    <TableCell>{estudiante.email}</TableCell>
+                    <TableCell>{estudiante.blood_type}</TableCell>
+                    <TableCell>{estudiante.school_campus}</TableCell>
+                    <TableCell>
+                      <Chip 
+                        label={estudiante.scholar_ship ? "Sí" : "No"} 
+                        color={estudiante.scholar_ship ? "success" : "default"}
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {new Date(estudiante.reg_date).toLocaleDateString('es-MX')}
+                    </TableCell>
+                    <TableCell align="center">
+                      <Tooltip title="Ver detalles">
+                        <IconButton size="small" color="primary">
+                          <LuEye />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Editar">
+                        <IconButton size="small" color="primary">
+                          <LuPencil />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Eliminar">
+                        <IconButton 
+                          size="small" 
+                          color="error"
+                          onClick={() => handleDelete(estudiante.id)}
+                        >
+                          <LuTrash />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                  </TableRow>
+                ))}
                 {estudiantes.length === 0 && !loading && (
                   <TableRow>
                     <TableCell colSpan={8} align="center" sx={{ py: 3 }}>
@@ -129,10 +129,10 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={estudiantes.length}
+          count={totalCount}
           rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
+          page={page - 1} // TablePagination usa base-0 para las páginas
+          onPageChange={(e, newPage) => handleChangePage(e, newPage + 1)} // Convertir de base-0 a base-1
           onRowsPerPageChange={handleChangeRowsPerPage}
           labelRowsPerPage="Filas por página:"
           labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}

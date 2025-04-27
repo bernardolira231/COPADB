@@ -1,66 +1,21 @@
 import { useState, useEffect } from "react";
 import { Estudiante } from "../types/estudiante";
 
-// Datos de ejemplo para simular la respuesta del API
-const mockEstudiantes: Estudiante[] = [
-  {
-    id: 1,
-    name: "Juan",
-    lastname_f: "Pérez",
-    lastname_m: "García",
-    email: "juan.perez@ejemplo.com",
-    blood_type: "O+",
-    allergies: "Ninguna",
-    scholar_ship: true,
-    chapel: "San Juan",
-    school_campus: "Campus Norte",
-    family_id: 101,
-    permission: "Permiso para actividades deportivas",
-    reg_date: "2025-01-15",
-    created_at: "2025-01-15T10:30:00Z",
-    updated_at: "2025-01-15T10:30:00Z"
-  },
-  {
-    id: 2,
-    name: "Ana",
-    lastname_f: "Martínez",
-    lastname_m: "Rodríguez",
-    email: "ana.martinez@ejemplo.com",
-    blood_type: "A+",
-    allergies: "Polen",
-    scholar_ship: false,
-    chapel: "Santa María",
-    school_campus: "Campus Sur",
-    family_id: 102,
-    permission: "Permiso para excursiones escolares",
-    reg_date: "2025-02-20",
-    created_at: "2025-02-20T14:45:00Z",
-    updated_at: "2025-02-20T14:45:00Z"
-  },
-  {
-    id: 3,
-    name: "Luis",
-    lastname_f: "González",
-    lastname_m: "Hernández",
-    email: "luis.gonzalez@ejemplo.com",
-    blood_type: "B-",
-    allergies: "Lactosa",
-    scholar_ship: true,
-    chapel: "San Francisco",
-    school_campus: "Campus Central",
-    family_id: 103,
-    permission: "Permiso para actividades extracurriculares",
-    reg_date: "2025-03-10",
-    created_at: "2025-03-10T09:15:00Z",
-    updated_at: "2025-03-10T09:15:00Z"
-  }
-];
+interface PaginationInfo {
+  total: number;
+  page: number;
+  per_page: number;
+  total_pages: number;
+}
 
 interface UseEstudiantesReturn {
   estudiantes: Estudiante[];
   loading: boolean;
   error: string | null;
-  fetchEstudiantes: () => Promise<void>;
+  paginationInfo: PaginationInfo;
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
+  fetchEstudiantes: (page?: number, perPage?: number, search?: string) => Promise<void>;
   deleteEstudiante: (id: number) => Promise<void>;
 }
 
@@ -68,62 +23,105 @@ const useEstudiantes = (): UseEstudiantesReturn => {
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [paginationInfo, setPaginationInfo] = useState<PaginationInfo>({
+    total: 0,
+    page: 1,
+    per_page: 10,
+    total_pages: 0
+  });
 
-  // Simula la llamada a la API para obtener estudiantes
-  const fetchEstudiantes = async (): Promise<void> => {
+  // Función para obtener estudiantes del API
+  const fetchEstudiantes = async (
+    page: number = paginationInfo.page,
+    perPage: number = paginationInfo.per_page,
+    search: string = searchTerm
+  ): Promise<void> => {
     setLoading(true);
     setError(null);
     
     try {
-      // Simular un retraso de red
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // Construir la URL con los parámetros de paginación y búsqueda
+      const url = `http://localhost:5328/api/estudiantes?page=${page}&per_page=${perPage}${search ? `&search=${encodeURIComponent(search)}` : ''}`;
       
-      // En el futuro, aquí iría la llamada real al API
-      // const response = await fetch('/api/estudiantes');
-      // const data = await response.json();
+      // Hacer la llamada al API
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        credentials: 'include'
+      });
       
-      setEstudiantes(mockEstudiantes);
+      if (!response.ok) {
+        throw new Error(`Error HTTP: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // Actualizar el estado con los estudiantes y la información de paginación
+      setEstudiantes(data.estudiantes);
+      setPaginationInfo(data.pagination);
     } catch (err) {
-      setError("Error al cargar los estudiantes. Por favor, intenta de nuevo.");
       console.error("Error fetching estudiantes:", err);
+      setError("Error al cargar los estudiantes. Por favor, intenta de nuevo más tarde.");
+      
+      // Establecer estados vacíos en caso de error
+      setEstudiantes([]);
+      setPaginationInfo({
+        total: 0,
+        page: 1,
+        per_page: perPage,
+        total_pages: 0
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  // Simula la eliminación de un estudiante
+  // Función para eliminar un estudiante
   const deleteEstudiante = async (id: number): Promise<void> => {
     setLoading(true);
     setError(null);
     
     try {
-      // Simular un retraso de red
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Hacer la llamada al API para eliminar el estudiante
+      const response = await fetch(`http://localhost:5328/api/estudiantes/${id}`, { 
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        credentials: 'include'
+      });
       
-      // En el futuro, aquí iría la llamada real al API
-      // await fetch(`/api/estudiantes/${id}`, { method: 'DELETE' });
+      if (!response.ok) {
+        throw new Error(`Error HTTP: ${response.status}`);
+      }
       
-      // Actualizar el estado local eliminando el estudiante
-      setEstudiantes(prevEstudiantes => 
-        prevEstudiantes.filter(estudiante => estudiante.id !== id)
-      );
+      // Refrescar la lista después de eliminar
+      await fetchEstudiantes();
     } catch (err) {
-      setError("Error al eliminar el estudiante. Por favor, intenta de nuevo.");
       console.error("Error deleting estudiante:", err);
+      setError("Error al eliminar el estudiante. Por favor, intenta de nuevo.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Cargar estudiantes al montar el componente
+  // Cargar estudiantes al montar el componente o cuando cambia el término de búsqueda
   useEffect(() => {
     fetchEstudiantes();
-  }, []);
+  }, [searchTerm]);
 
   return {
     estudiantes,
     loading,
     error,
+    paginationInfo,
+    searchTerm,
+    setSearchTerm,
     fetchEstudiantes,
     deleteEstudiante
   };
