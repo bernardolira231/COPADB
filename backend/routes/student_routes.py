@@ -205,3 +205,78 @@ def delete_estudiante(id):
         import traceback
         traceback.print_exc()
         return jsonify({"message": "Error al eliminar estudiante", "error": str(e)}), 500
+
+@student_bp.route('/estudiantes/<int:id>', methods=['PUT', 'OPTIONS'])
+def update_estudiante(id):
+    if request.method == "OPTIONS":
+        response = jsonify({"message": "CORS preflight OK"})
+        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3001")
+        response.headers.add("Access-Control-Allow-Methods", "PUT, OPTIONS")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+        return response, 204
+        
+    try:
+        data = request.get_json()
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # Verificar si el estudiante existe
+        cur.execute("SELECT id FROM student WHERE id = %s", (id,))
+        estudiante = cur.fetchone()
+        
+        if not estudiante:
+            cur.close()
+            conn.close()
+            return jsonify({"message": f"Estudiante con ID {id} no encontrado"}), 404
+        
+        # Actualizar el estudiante
+        cur.execute("""
+            UPDATE student SET
+                name = %s,
+                lastname_f = %s,
+                lastname_m = %s,
+                email = %s,
+                blood_type = %s,
+                allergies = %s,
+                scholar_ship = %s,
+                chapel = %s,
+                school_campus = %s,
+                permission = %s,
+                reg_date = %s
+            WHERE id = %s
+        """, (
+            data.get("name"),
+            data.get("lastname_f"),
+            data.get("lastname_m"),
+            data.get("email"),
+            data.get("blood_type"),
+            data.get("allergies"),
+            data.get("scholar_ship"),
+            data.get("chapel"),
+            data.get("school_campus"),
+            data.get("permission"),
+            data.get("reg_date"),
+            id
+        ))
+        
+        conn.commit()
+        
+        # Obtener el estudiante actualizado
+        cur.execute("""
+            SELECT * FROM student WHERE id = %s
+        """, (id,))
+        
+        updated_student = cur.fetchone()
+        
+        cur.close()
+        conn.close()
+        
+        return jsonify({
+            "message": f"Estudiante con ID {id} actualizado correctamente",
+            "estudiante": dict(updated_student)
+        }), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"message": "Error al actualizar estudiante", "error": str(e)}), 500

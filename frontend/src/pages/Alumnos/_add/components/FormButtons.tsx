@@ -1,20 +1,34 @@
 import React from "react";
 import { Button, Box } from "@mui/material";
-import { useNavigate } from "@tanstack/react-router";
 import { LuSave, LuX } from "react-icons/lu";
 
 interface FormButtonsProps {
   isFormValid: boolean;
+  submitButtonText?: string;
+  cancelButtonText?: string;
+  onSubmit?: () => void;
+  onCancel?: () => void;
 }
 
-const FormButtons: React.FC<FormButtonsProps> = ({ isFormValid }) => {
-  const navigate = useNavigate();
-  const handleSave = () => {
-    navigate({ to: "/alumnos" });
+const FormButtons: React.FC<FormButtonsProps> = ({ 
+  isFormValid, 
+  submitButtonText = "Registrar Estudiante",
+  cancelButtonText = "Cancelar",
+  onSubmit,
+  onCancel
+}) => {
+  const handleSubmit = () => {
+    if (onSubmit) {
+      onSubmit();
+    }
   };
+
   const handleCancel = () => {
-    navigate({ to: "/alumnos" });
+    if (onCancel) {
+      onCancel();
+    }
   };
+
   return (
     <Box
       sx={{
@@ -33,9 +47,9 @@ const FormButtons: React.FC<FormButtonsProps> = ({ isFormValid }) => {
         size="large"
         startIcon={<LuSave />}
         sx={{ py: 1.5 }}
-        onClick={handleSave}
+        onClick={handleSubmit}
       >
-        Registrar Estudiante
+        {submitButtonText}
       </Button>
       <Button
         type="button"
@@ -47,7 +61,7 @@ const FormButtons: React.FC<FormButtonsProps> = ({ isFormValid }) => {
         sx={{ py: 1.5 }}
         onClick={handleCancel}
       >
-        Cancelar
+        {cancelButtonText}
       </Button>
     </Box>
   );

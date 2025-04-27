@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import { 
   Paper, 
   Table, 
@@ -16,7 +17,8 @@ import {
   Alert,
   Typography,
   alpha,
-  useTheme
+  useTheme,
+  Snackbar
 } from "@mui/material";
 import { LuPencil, LuTrash, LuEye } from "react-icons/lu";
 import { Estudiante } from '../../../../../types/estudiante';
@@ -47,16 +49,57 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
   handleDelete
 }) => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const [selectedStudent, setSelectedStudent] = useState<Estudiante | null>(null);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [editMode, setEditMode] = useState(false);
 
-  const handleOpenDetails = (student: Estudiante) => {
+  const handleOpenDetails = (student: Estudiante, startInEditMode = false) => {
     setSelectedStudent(student);
+    setEditMode(startInEditMode);
     setDetailsModalOpen(true);
   };
 
   const handleCloseDetails = () => {
     setDetailsModalOpen(false);
+    setEditMode(false);
+  };
+
+  const handleSaveStudent = async (updatedStudent: Estudiante) => {
+    try {
+      const response = await fetch(`http://localhost:5328/estudiantes/${updatedStudent.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedStudent),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error al actualizar el estudiante (${response.status})`);
+      }
+
+      // Mostrar mensaje de éxito
+      setSnackbarMessage('Estudiante actualizado correctamente');
+      setSnackbarOpen(true);
+      
+      // Recargar la página para ver los cambios
+      // En una implementación real, sería mejor actualizar solo los datos necesarios
+      window.location.reload();
+      
+      return Promise.resolve();
+    } catch (error) {
+      console.error('Error al guardar estudiante:', error);
+      setSnackbarMessage('Error al actualizar el estudiante');
+      setSnackbarOpen(true);
+      return Promise.reject(error);
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
   };
 
   // Renderizar mensaje de error
@@ -197,7 +240,7 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
                           <IconButton 
                             size="small" 
                             color="primary"
-                            onClick={() => handleOpenDetails(estudiante)}
+                            onClick={() => handleOpenDetails(estudiante, false)}
                             sx={{ 
                               mx: 0.5,
                               transition: 'transform 0.2s',
@@ -211,6 +254,7 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
                           <IconButton 
                             size="small" 
                             color="info"
+                            onClick={() => handleOpenDetails(estudiante, true)}
                             sx={{ 
                               mx: 0.5,
                               transition: 'transform 0.2s',
@@ -260,6 +304,16 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
         open={detailsModalOpen}
         onClose={handleCloseDetails}
         student={selectedStudent}
+        onSave={handleSaveStudent}
+        initialEditMode={editMode}
+      />
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        message={snackbarMessage}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       />
     </>
   );
