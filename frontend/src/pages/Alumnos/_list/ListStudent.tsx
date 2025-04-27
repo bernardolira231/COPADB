@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { Container, Grid, Box } from "@mui/material";
 import useEstudiantes from "../../../hooks/useEstudiantes";
 import Layout from "../../../components/Layout";
@@ -73,6 +73,7 @@ const ListStudent = () => {
             justifyContent: "space-between",
             alignItems: "center",
             mb: 3,
+            mt: 3,
           }}
         >
           <SearchBar searchTerm={searchTerm} onSearch={handleSearch} />
