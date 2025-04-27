@@ -27,7 +27,7 @@ interface StudentsTableProps {
   totalCount: number;
   handleChangePage: (_event: unknown, newPage: number) => void;
   handleChangeRowsPerPage: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  handleDelete: (id: number) => Promise<void>;
+  handleDelete: (id: number) => void;
 }
 
 const StudentsTable: React.FC<StudentsTableProps> = ({
