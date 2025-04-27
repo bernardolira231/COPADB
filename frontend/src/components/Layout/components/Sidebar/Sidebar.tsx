@@ -8,16 +8,23 @@ import {
   LuLayoutDashboard,
 } from "react-icons/lu";
 import SideBarLink from "../SideBarLink";
+import { useAuth } from "../../../../context/AuthContext";
 
 interface SidebarProps {
   isOpen: boolean;
 }
 
 const Sidebar = () => {
+  const { user, logout } = useAuth();
+
+  // Verificar si el usuario tiene permisos para ver la lista de alumnos
+  const canAccessStudentList = user?.rol === 1 || user?.rol === 2;
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     window.location.href = "/";
   };
+
   return (
     <aside className="w-64 bg-white border-r border-border-color flex flex-col justify-between">
       <div>
@@ -46,12 +53,16 @@ const Sidebar = () => {
             to="/asistencia"
             color="text-emerald-500"
           />
-          <SideBarLink
-            icon={<LuGraduationCap />}
-            title="Inscripciones"
-            to="/inscripciones"
-            color="text-pink-500"
-          />
+
+          {canAccessStudentList && (
+            <SideBarLink
+              icon={<LuGraduationCap />}
+              title="Listado de Alumnos"
+              to="/alumnos"
+              color="text-pink-500"
+            />
+          )}
+
           <SideBarLink
             icon={<LuFileText />}
             title="Calificaciones"
@@ -69,7 +80,7 @@ const Sidebar = () => {
       <div className="p-4 border-t border-border-color">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-2 text-left text-red-600 hover:bg-red-100 p-2 rounded"
+          className="w-full flex items-center gap-2 text-left text-red-600 hover:bg-red-100 p-2 rounded cursor-pointer"
         >
           <LuLogOut />
           Cerrar sesión

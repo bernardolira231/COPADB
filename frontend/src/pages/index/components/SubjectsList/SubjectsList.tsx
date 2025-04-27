@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { Card, CardContent, Typography, Button, Box, Grid, Skeleton } from "@mui/material";
 import { LuBook, LuCalculator, LuFlaskConical, LuUsers, LuFileText, LuGlobe, LuPencil, LuMusic, LuDumbbell, LuPalette } from "react-icons/lu";
 import useSx from "./sx";
+import { useEffect } from "react";
 
 // Mapeo de materias a iconos basado en el ID de la clase
 const SUBJECT_ICONS: Record<number, React.ReactNode> = {
@@ -52,13 +53,28 @@ const SubjectSkeletonLoader = () => {
   );
 };
 
-const SubjectsList: React.FC = () => {
+interface SubjectsListProps {
+  groupId?: string | null;
+}
+
+const SubjectsList: React.FC<SubjectsListProps> = ({ groupId }) => {
   const { materias, materiaSeleccionada, setMateriaSeleccionada, loading, error } = useMateria();
   const sx = useSx();
   const navigate = useNavigate();
 
-  // Mostrar solo la materia seleccionada o todas si no hay ninguna seleccionada
-  const materiasAMostrar = materiaSeleccionada ? [materiaSeleccionada] : materias;
+  // Efecto para depurar
+  useEffect(() => {
+    console.log("SubjectsList - materiaSeleccionada:", materiaSeleccionada);
+    console.log("SubjectsList - groupId:", groupId);
+    console.log("SubjectsList - materias disponibles:", materias);
+  }, [materiaSeleccionada, groupId, materias]);
+
+  // Filtrar materias según el groupId si está presente
+  const materiasAMostrar = groupId 
+    ? materias.filter(materia => materia.group_id.toString() === groupId)
+    : materiaSeleccionada 
+      ? [materiaSeleccionada] 
+      : materias;
 
   // Mostrar skeleton loader durante la carga
   if (loading) {
@@ -80,7 +96,11 @@ const SubjectsList: React.FC = () => {
     return (
       <Box sx={{ textAlign: 'center', p: 3 }}>
         <Typography variant="h6">No hay materias disponibles</Typography>
-        <Typography variant="body2">No se encontraron materias asignadas a este profesor</Typography>
+        <Typography variant="body2">
+          {materias.length > 0 
+            ? "Selecciona una materia desde el menú superior" 
+            : "No se encontraron materias asignadas a este profesor"}
+        </Typography>
       </Box>
     );
   }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import {
   EstudiantePersonalInfo,
   EstudianteAcademicInfo,
@@ -7,6 +8,10 @@ import {
 } from "../types/estudiante";
 
 const useInscripcionesForm = () => {
+  const navigate = useNavigate();
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   // Valores iniciales para cada grupo de estados
   const initialPersonalInfo: EstudiantePersonalInfo = {
     nombre: "",
@@ -109,6 +114,8 @@ const useInscripcionesForm = () => {
       ...additionalInfo,
     };
 
+    setLoading(true);
+
     try {
       const response = await fetch("http://localhost:5328/api/inscripciones", {
         method: "POST",
@@ -121,7 +128,8 @@ const useInscripcionesForm = () => {
       const result = await response.json();
 
       if (response.ok) {
-        alert("✅ Registro exitoso");
+        // Mostrar modal de éxito en lugar de alert
+        setIsSuccessModalOpen(true);
         resetForm();
       } else {
         alert("❌ Error al registrar: " + result.message);
@@ -130,7 +138,21 @@ const useInscripcionesForm = () => {
     } catch (error) {
       console.error("Error al enviar solicitud:", error);
       alert("Error de red al enviar el formulario.");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  // Función para cerrar el modal y redirigir
+  const handleCloseSuccessModal = () => {
+    setIsSuccessModalOpen(false);
+    // Redirigir a la lista de estudiantes
+    navigate({ to: "/alumnos" });
+  };
+
+  // Función para cancelar y volver a la lista
+  const handleCancel = () => {
+    navigate({ to: "/alumnos" });
   };
 
   return {
@@ -138,6 +160,8 @@ const useInscripcionesForm = () => {
     academicInfo,
     familyInfo,
     additionalInfo,
+    loading,
+    isSuccessModalOpen,
 
     updatePersonalInfo,
     updateAcademicInfo,
@@ -147,6 +171,8 @@ const useInscripcionesForm = () => {
 
     handleSubmit,
     isFormValid,
+    handleCancel,
+    handleCloseSuccessModal
   };
 };
 

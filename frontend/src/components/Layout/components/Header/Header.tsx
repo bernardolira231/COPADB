@@ -4,9 +4,10 @@ import { useMateria } from "../../../../context/MateriaContext";
 import SelectComponent from "../Select";
 
 interface HeaderProps {
+  onGroupChange?: (groupId: string | null) => void;
 }
 
-const Header: React.FC<HeaderProps> = () => {
+const Header: React.FC<HeaderProps> = ({ onGroupChange }) => {
   const { user, initializing } = useAuth();
   const { materias, materiaSeleccionada, setMateriaSeleccionada } = useMateria();
 
@@ -30,6 +31,16 @@ const Header: React.FC<HeaderProps> = () => {
     return firstInitial + lastInitial;
   };
 
+  // Función para manejar el cambio de materia
+  const handleMateriaChange = (materia: any) => {
+    setMateriaSeleccionada(materia);
+    
+    // Si existe la función onGroupChange, la llamamos con el ID del grupo o null
+    if (onGroupChange) {
+      onGroupChange(materia ? materia.group_id : null);
+    }
+  };
+
   return (
     <header className="h-[82px] bg-white border-b border-border-color flex items-center px-6">
       <div className="flex-1"></div>
@@ -37,7 +48,7 @@ const Header: React.FC<HeaderProps> = () => {
         <SelectComponent
           materias={materias}
           materiaSeleccionada={materiaSeleccionada}
-          onMateriaChange={setMateriaSeleccionada}
+          onMateriaChange={handleMateriaChange}
         />
         <Link to="/perfil">
           <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center cursor-pointer">

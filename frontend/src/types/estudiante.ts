@@ -26,3 +26,19 @@ export interface EstudianteAdditionalInfo {
   permiso: string;
   fechaRegistro: string;
 }
+
+export interface Estudiante {
+  id: number;
+  name: string;
+  lastname_f: string;
+  lastname_m: string;
+  email: string;
+  blood_type: string;
+  allergies: string;
+  scholar_ship: boolean;
+  chapel: string;
+  school_campus: string;
+  family_id: number;
+  permission: string;
+  reg_date: string;
+}
