@@ -11,6 +11,7 @@ interface Props {
 
 const SelectComponent: React.FC<Props> = ({ materias, materiaSeleccionada, onMateriaChange, loading = false }) => {
   const sx = useSx();
+  
   const handleChange = (event: SelectChangeEvent<string>) => {
     const materiaId = event.target.value;
     if (materiaId === "all") {
@@ -41,20 +42,37 @@ const SelectComponent: React.FC<Props> = ({ materias, materiaSeleccionada, onMat
     );
   }
 
+  // Asegurarse de que el valor sea siempre una cadena válida
+  const selectValue = materiaSeleccionada 
+    ? materiaSeleccionada.group_id.toString() 
+    : "all";
+
   return (
     <FormControl sx={sx.root} size="small">
       <Select
-        value={materiaSeleccionada ? materiaSeleccionada.group_id.toString() : "all"}
+        value={selectValue}
         onChange={handleChange}
         displayEmpty
         input={<OutlinedInput />}
         disabled={loading || materias.length === 0}
+        MenuProps={{
+          PaperProps: {
+            style: {
+              maxHeight: 300,
+              marginTop: 5
+            }
+          }
+        }}
       >
         <MenuItem value="all" sx={sx.select}>
           <em>{materias.length > 0 ? "Todas las materias" : "No hay materias"}</em>
         </MenuItem>
         {materias.map((materia) => (
-          <MenuItem key={materia.group_id} value={materia.group_id.toString()} sx={sx.select}>
+          <MenuItem 
+            key={materia.group_id} 
+            value={materia.group_id.toString()} 
+            sx={sx.select}
+          >
             {materia.class_name} - {materia.grado}
           </MenuItem>
         ))}
