@@ -59,7 +59,10 @@ const ListStudent = () => {
 
   // Función para manejar la búsqueda
   const handleSearch = (term: string) => {
+    console.log("Search term changed:", term); // Depuración
     setSearchTerm(term);
+    // Forzar una nueva búsqueda cuando el término cambia
+    fetchEstudiantes(1, paginationInfo.per_page, term);
   };
 
   return (
