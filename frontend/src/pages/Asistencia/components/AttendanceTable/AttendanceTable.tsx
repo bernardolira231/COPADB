@@ -15,13 +15,11 @@ import {
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import { green, red, grey } from "@mui/material/colors";
-import useGetAttendance, {
-  Attendance,
-} from "../../../../hooks/useGetAttendance";
+import { useAttendance } from "../../context/AttendanceContext";
 import useSx from "./sx";
 
 const AttendanceTable: React.FC = () => {
-  const { attendance, loading, toggleAttendance } = useGetAttendance();
+  const { attendance, loading, toggleAttendance } = useAttendance();
   const sx = useSx();
 
   return (
@@ -44,7 +42,7 @@ const AttendanceTable: React.FC = () => {
               </TableCell>
             </TableRow>
           ) : (
-            attendance.map((row: Attendance, idx: number) => (
+            attendance.map((row, idx) => (
               <TableRow key={row.id}>
                 <TableCell>{idx + 1}</TableCell>
                 <TableCell>{row.student_name}</TableCell>
@@ -53,10 +51,8 @@ const AttendanceTable: React.FC = () => {
                     exclusive
                     value={row.present ? "present" : "absent"}
                     onChange={(_, value) => {
-                      if (value === "present" && !row.present)
-                        toggleAttendance(row.id);
-                      if (value === "absent" && row.present)
-                        toggleAttendance(row.id);
+                      if (value === "present" && !row.present) toggleAttendance(row.id);
+                      if (value === "absent" && row.present) toggleAttendance(row.id);
                     }}
                     sx={sx.toggleButtonGroup}
                   >
@@ -72,13 +68,11 @@ const AttendanceTable: React.FC = () => {
                           fontWeight: 700,
                           fontSize: 18,
                           p: 0,
-                          "&.Mui-selected, &.Mui-selected:hover": {
+                          '&.Mui-selected, &.Mui-selected:hover': {
                             bgcolor: green[500],
                             color: "#fff",
                           },
-                          "&:hover": {
-                            bgcolor: row.present ? green[700] : grey[100],
-                          },
+                          '&:hover': { bgcolor: row.present ? green[700] : grey[100] },
                         }}
                       >
                         <CheckIcon />
@@ -97,13 +91,11 @@ const AttendanceTable: React.FC = () => {
                           fontWeight: 700,
                           fontSize: 18,
                           p: 0,
-                          "&.Mui-selected, &.Mui-selected:hover": {
+                          '&.Mui-selected, &.Mui-selected:hover': {
                             bgcolor: red[500],
                             color: "#fff",
                           },
-                          "&:hover": {
-                            bgcolor: !row.present ? red[700] : grey[100],
-                          },
+                          '&:hover': { bgcolor: !row.present ? red[700] : grey[100] },
                         }}
                       >
                         <CloseIcon />

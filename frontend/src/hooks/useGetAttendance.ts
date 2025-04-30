@@ -15,6 +15,8 @@ interface UseAttendanceReturn {
   error: string | null;
   fetchAttendance: (date?: string, groupId?: number) => Promise<void>;
   toggleAttendance: (id: number) => void;
+  setAllPresent: () => void;
+  setAllAbsent: () => void;
 }
 
 const MOCK_ATTENDANCE: Attendance[] = [
@@ -69,6 +71,14 @@ const useGetAttendance = (): UseAttendanceReturn => {
     );
   };
 
+  const setAllPresent = () => {
+    setAttendance((prev) => prev.map((item) => ({ ...item, present: true })));
+  };
+
+  const setAllAbsent = () => {
+    setAttendance((prev) => prev.map((item) => ({ ...item, present: false })));
+  };
+
   // Cargar asistencia al montar el componente
   useEffect(() => {
     fetchAttendance();
@@ -80,6 +90,8 @@ const useGetAttendance = (): UseAttendanceReturn => {
     error,
     fetchAttendance,
     toggleAttendance,
+    setAllPresent,
+    setAllAbsent,
   };
 };
 

@@ -10,6 +10,7 @@ import PageHeader from "./components/PageHeader";
 import AttendanceInfo from "./components/AttendanceInfo";
 import Actions from "./components/Actions";
 import AttendanceTable from "./components/AttendanceTable";
+import { AttendanceProvider } from "./context/AttendanceContext";
 
 const Asistencia = () => {
   const { materiaSeleccionada } = useMateria();
@@ -34,18 +35,20 @@ const Asistencia = () => {
 
   return (
     <Layout>
-      <Container sx={{ mt: 3 }}>
-        <PageHeader />
-        <Card sx={{ p: 3, borderRadius: "8px" }}>
-          <AttendanceInfo
-            materiaSeleccionada={materiaSeleccionada}
-            fecha={fecha}
-            onFechaChange={handleFechaChange}
-          />
-          <Actions />
-          <AttendanceTable />
-        </Card>
-      </Container>
+      <AttendanceProvider>
+        <Container sx={{ mt: 3 }}>
+          <PageHeader />
+          <Card sx={{ p: 3, borderRadius: "8px" }}>
+            <AttendanceInfo
+              materiaSeleccionada={materiaSeleccionada}
+              fecha={fecha}
+              onFechaChange={handleFechaChange}
+            />
+            <Actions />
+            <AttendanceTable />
+          </Card>
+        </Container>
+      </AttendanceProvider>
     </Layout>
   );
 };
