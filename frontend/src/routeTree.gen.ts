@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as PerfilImport } from './routes/perfil'
+import { Route as AsistenciaImport } from './routes/asistencia'
 import { Route as HomeImport } from './routes/Home'
 import { Route as IndexImport } from './routes/index'
 import { Route as AlumnosIndexImport } from './routes/alumnos/index'
@@ -22,6 +23,12 @@ import { Route as AlumnosAgregarImport } from './routes/alumnos/agregar'
 const PerfilRoute = PerfilImport.update({
   id: '/perfil',
   path: '/perfil',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AsistenciaRoute = AsistenciaImport.update({
+  id: '/asistencia',
+  path: '/asistencia',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -67,6 +74,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HomeImport
       parentRoute: typeof rootRoute
     }
+    '/asistencia': {
+      id: '/asistencia'
+      path: '/asistencia'
+      fullPath: '/asistencia'
+      preLoaderRoute: typeof AsistenciaImport
+      parentRoute: typeof rootRoute
+    }
     '/perfil': {
       id: '/perfil'
       path: '/perfil'
@@ -96,6 +110,7 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/Home': typeof HomeRoute
+  '/asistencia': typeof AsistenciaRoute
   '/perfil': typeof PerfilRoute
   '/alumnos/agregar': typeof AlumnosAgregarRoute
   '/alumnos': typeof AlumnosIndexRoute
@@ -104,6 +119,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/Home': typeof HomeRoute
+  '/asistencia': typeof AsistenciaRoute
   '/perfil': typeof PerfilRoute
   '/alumnos/agregar': typeof AlumnosAgregarRoute
   '/alumnos': typeof AlumnosIndexRoute
@@ -113,6 +129,7 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/Home': typeof HomeRoute
+  '/asistencia': typeof AsistenciaRoute
   '/perfil': typeof PerfilRoute
   '/alumnos/agregar': typeof AlumnosAgregarRoute
   '/alumnos/': typeof AlumnosIndexRoute
@@ -120,16 +137,36 @@ export interface FileRoutesById {
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/Home' | '/perfil' | '/alumnos/agregar' | '/alumnos'
+  fullPaths:
+    | '/'
+    | '/Home'
+    | '/asistencia'
+    | '/perfil'
+    | '/alumnos/agregar'
+    | '/alumnos'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/Home' | '/perfil' | '/alumnos/agregar' | '/alumnos'
-  id: '__root__' | '/' | '/Home' | '/perfil' | '/alumnos/agregar' | '/alumnos/'
+  to:
+    | '/'
+    | '/Home'
+    | '/asistencia'
+    | '/perfil'
+    | '/alumnos/agregar'
+    | '/alumnos'
+  id:
+    | '__root__'
+    | '/'
+    | '/Home'
+    | '/asistencia'
+    | '/perfil'
+    | '/alumnos/agregar'
+    | '/alumnos/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   HomeRoute: typeof HomeRoute
+  AsistenciaRoute: typeof AsistenciaRoute
   PerfilRoute: typeof PerfilRoute
   AlumnosAgregarRoute: typeof AlumnosAgregarRoute
   AlumnosIndexRoute: typeof AlumnosIndexRoute
@@ -138,6 +175,7 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   HomeRoute: HomeRoute,
+  AsistenciaRoute: AsistenciaRoute,
   PerfilRoute: PerfilRoute,
   AlumnosAgregarRoute: AlumnosAgregarRoute,
   AlumnosIndexRoute: AlumnosIndexRoute,
@@ -155,6 +193,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/Home",
+        "/asistencia",
         "/perfil",
         "/alumnos/agregar",
         "/alumnos/"
@@ -165,6 +204,9 @@ export const routeTree = rootRoute
     },
     "/Home": {
       "filePath": "Home.tsx"
+    },
+    "/asistencia": {
+      "filePath": "asistencia.tsx"
     },
     "/perfil": {
       "filePath": "perfil.tsx"
