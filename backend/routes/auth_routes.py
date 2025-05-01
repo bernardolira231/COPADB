@@ -1,9 +1,12 @@
-from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token, decode_token, jwt_required, get_jwt_identity
+from flask import Blueprint, request, jsonify, make_response
+from flask_jwt_extended import (
+    create_access_token, create_refresh_token, decode_token, jwt_required, get_jwt_identity, set_refresh_cookies, unset_jwt_cookies
+)
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from config.config import Config
 from extensions import bcrypt
+from datetime import timedelta
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api')
 
@@ -41,17 +44,33 @@ def login():
         if user and bcrypt.check_password_hash(user["password"], password):
             user_id_str = str(user["id"])
             access_token = create_access_token(identity=user_id_str)
-            
-            return jsonify({
+            refresh_token = create_refresh_token(identity=user_id_str)
+
+            resp = jsonify({
                 "message": "Login exitoso",
                 "token": access_token,
                 "user": {"id": user["id"], "name": user["name"], "email": user["email"]}
-            }), 200
+            })
+            set_refresh_cookies(resp, refresh_token)
+            return resp, 200
         else:
             return jsonify({"message": "Credenciales incorrectas"}), 401
 
     except Exception as e:
         return jsonify({"message": "Error en el servidor", "error": str(e)}), 500
+
+@auth_bp.route('/refresh', methods=['POST'])
+@jwt_required(refresh=True)
+def refresh():
+    current_user = get_jwt_identity()
+    new_access_token = create_access_token(identity=current_user)
+    return jsonify({"token": new_access_token}), 200
+
+@auth_bp.route('/logout', methods=['POST'])
+def logout():
+    resp = jsonify({"message": "Logout exitoso"})
+    unset_jwt_cookies(resp)
+    return resp, 200
 
 @auth_bp.route('/profile', methods=['GET'])
 @jwt_required()

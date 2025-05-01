@@ -1,6 +1,9 @@
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
+import { useAuth } from '../../context/AuthContext';
+import { useEffect } from 'react';
+import { useRouter } from '@tanstack/react-router';
 
 interface LayoutProps {
   onGroupChange?: (groupId: string | null) => void;
@@ -9,21 +12,15 @@ interface LayoutProps {
 
 const Layout = ({ onGroupChange ,children }: LayoutProps) => {
 
+  const { user, initializing } = useAuth();
+  const router = useRouter();
+
+  // Proteger rutas: si no hay usuario y ya terminó de inicializar, redirige a login
   useEffect(() => {
-    const checkToken = () => {
-      if (!localStorage.getItem("token")) {
-        window.location.replace("/login");
-      }
-    };
-
-    checkToken();
-
-    window.addEventListener("storage", checkToken);
-
-    return () => {
-      window.removeEventListener("storage", checkToken);
-    };
-  }, []);
+    if (!initializing && !user) {
+      router.navigate({ to: '/', replace: true });
+    }
+  }, [user, initializing, router]);
 
   return (
     <div className="h-screen flex">

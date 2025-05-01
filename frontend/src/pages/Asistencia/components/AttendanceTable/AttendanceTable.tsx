@@ -51,8 +51,10 @@ const AttendanceTable: React.FC = () => {
                     exclusive
                     value={row.present ? "present" : "absent"}
                     onChange={(_, value) => {
-                      if (value === "present" && !row.present) toggleAttendance(row.id);
-                      if (value === "absent" && row.present) toggleAttendance(row.id);
+                      if (value === "present" && !row.present)
+                        toggleAttendance(row.id);
+                      if (value === "absent" && row.present)
+                        toggleAttendance(row.id);
                     }}
                     sx={sx.toggleButtonGroup}
                   >
@@ -68,11 +70,13 @@ const AttendanceTable: React.FC = () => {
                           fontWeight: 700,
                           fontSize: 18,
                           p: 0,
-                          '&.Mui-selected, &.Mui-selected:hover': {
+                          "&.Mui-selected, &.Mui-selected:hover": {
                             bgcolor: green[500],
                             color: "#fff",
                           },
-                          '&:hover': { bgcolor: row.present ? green[700] : grey[100] },
+                          "&:hover": {
+                            bgcolor: row.present ? green[700] : grey[100],
+                          },
                         }}
                       >
                         <CheckIcon />
@@ -91,11 +95,13 @@ const AttendanceTable: React.FC = () => {
                           fontWeight: 700,
                           fontSize: 18,
                           p: 0,
-                          '&.Mui-selected, &.Mui-selected:hover': {
+                          "&.Mui-selected, &.Mui-selected:hover": {
                             bgcolor: red[500],
                             color: "#fff",
                           },
-                          '&:hover': { bgcolor: !row.present ? red[700] : grey[100] },
+                          "&:hover": {
+                            bgcolor: !row.present ? red[700] : grey[100],
+                          },
                         }}
                       >
                         <CloseIcon />

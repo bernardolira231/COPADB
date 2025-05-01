@@ -17,6 +17,7 @@ interface UseAttendanceReturn {
   toggleAttendance: (id: number) => void;
   setAllPresent: () => void;
   setAllAbsent: () => void;
+  saveAttendance: (attendance: Attendance[]) => Promise<{ success: boolean; message: string }>;
 }
 
 const MOCK_ATTENDANCE: Attendance[] = [
@@ -79,6 +80,16 @@ const useGetAttendance = (): UseAttendanceReturn => {
     setAttendance((prev) => prev.map((item) => ({ ...item, present: false })));
   };
 
+  const saveAttendance = async (attendanceToSave: Attendance[]) => {
+    // Aquí iría la petición real a tu backend
+    try {
+      await new Promise((res) => setTimeout(res, 1000));
+      return { success: true, message: "¡Asistencia guardada correctamente!" };
+    } catch (e) {
+      return { success: false, message: "Error al guardar la asistencia" };
+    }
+  };
+
   // Cargar asistencia al montar el componente
   useEffect(() => {
     fetchAttendance();
@@ -92,6 +103,7 @@ const useGetAttendance = (): UseAttendanceReturn => {
     toggleAttendance,
     setAllPresent,
     setAllAbsent,
+    saveAttendance,
   };
 };
 

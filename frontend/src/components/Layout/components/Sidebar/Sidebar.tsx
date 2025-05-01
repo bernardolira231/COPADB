@@ -21,8 +21,7 @@ const Sidebar = () => {
   const canAccessStudentList = user?.rol === 1 || user?.rol === 2;
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/";
+    logout();
   };
 
   return (
