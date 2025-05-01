@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as PerfilImport } from './routes/perfil'
+import { Route as CalificacionesImport } from './routes/calificaciones'
 import { Route as AsistenciaImport } from './routes/asistencia'
 import { Route as HomeImport } from './routes/Home'
 import { Route as IndexImport } from './routes/index'
@@ -23,6 +24,12 @@ import { Route as AlumnosAgregarImport } from './routes/alumnos/agregar'
 const PerfilRoute = PerfilImport.update({
   id: '/perfil',
   path: '/perfil',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const CalificacionesRoute = CalificacionesImport.update({
+  id: '/calificaciones',
+  path: '/calificaciones',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -81,6 +88,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AsistenciaImport
       parentRoute: typeof rootRoute
     }
+    '/calificaciones': {
+      id: '/calificaciones'
+      path: '/calificaciones'
+      fullPath: '/calificaciones'
+      preLoaderRoute: typeof CalificacionesImport
+      parentRoute: typeof rootRoute
+    }
     '/perfil': {
       id: '/perfil'
       path: '/perfil'
@@ -111,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/Home': typeof HomeRoute
   '/asistencia': typeof AsistenciaRoute
+  '/calificaciones': typeof CalificacionesRoute
   '/perfil': typeof PerfilRoute
   '/alumnos/agregar': typeof AlumnosAgregarRoute
   '/alumnos': typeof AlumnosIndexRoute
@@ -120,6 +135,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/Home': typeof HomeRoute
   '/asistencia': typeof AsistenciaRoute
+  '/calificaciones': typeof CalificacionesRoute
   '/perfil': typeof PerfilRoute
   '/alumnos/agregar': typeof AlumnosAgregarRoute
   '/alumnos': typeof AlumnosIndexRoute
@@ -130,6 +146,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/Home': typeof HomeRoute
   '/asistencia': typeof AsistenciaRoute
+  '/calificaciones': typeof CalificacionesRoute
   '/perfil': typeof PerfilRoute
   '/alumnos/agregar': typeof AlumnosAgregarRoute
   '/alumnos/': typeof AlumnosIndexRoute
@@ -141,6 +158,7 @@ export interface FileRouteTypes {
     | '/'
     | '/Home'
     | '/asistencia'
+    | '/calificaciones'
     | '/perfil'
     | '/alumnos/agregar'
     | '/alumnos'
@@ -149,6 +167,7 @@ export interface FileRouteTypes {
     | '/'
     | '/Home'
     | '/asistencia'
+    | '/calificaciones'
     | '/perfil'
     | '/alumnos/agregar'
     | '/alumnos'
@@ -157,6 +176,7 @@ export interface FileRouteTypes {
     | '/'
     | '/Home'
     | '/asistencia'
+    | '/calificaciones'
     | '/perfil'
     | '/alumnos/agregar'
     | '/alumnos/'
@@ -167,6 +187,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   HomeRoute: typeof HomeRoute
   AsistenciaRoute: typeof AsistenciaRoute
+  CalificacionesRoute: typeof CalificacionesRoute
   PerfilRoute: typeof PerfilRoute
   AlumnosAgregarRoute: typeof AlumnosAgregarRoute
   AlumnosIndexRoute: typeof AlumnosIndexRoute
@@ -176,6 +197,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   HomeRoute: HomeRoute,
   AsistenciaRoute: AsistenciaRoute,
+  CalificacionesRoute: CalificacionesRoute,
   PerfilRoute: PerfilRoute,
   AlumnosAgregarRoute: AlumnosAgregarRoute,
   AlumnosIndexRoute: AlumnosIndexRoute,
@@ -194,6 +216,7 @@ export const routeTree = rootRoute
         "/",
         "/Home",
         "/asistencia",
+        "/calificaciones",
         "/perfil",
         "/alumnos/agregar",
         "/alumnos/"
@@ -207,6 +230,9 @@ export const routeTree = rootRoute
     },
     "/asistencia": {
       "filePath": "asistencia.tsx"
+    },
+    "/calificaciones": {
+      "filePath": "calificaciones.tsx"
     },
     "/perfil": {
       "filePath": "perfil.tsx"
