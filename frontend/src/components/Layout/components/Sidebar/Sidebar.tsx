@@ -46,13 +46,6 @@ const Sidebar = () => {
             to="/Home"
             color="text-blue-500"
           />
-          <SideBarLink
-            icon={<LuUsers />}
-            title="Asistencia"
-            to="/asistencia"
-            color="text-emerald-500"
-          />
-
           {canAccessStudentList && (
             <SideBarLink
               icon={<LuGraduationCap />}
@@ -61,7 +54,6 @@ const Sidebar = () => {
               color="text-pink-500"
             />
           )}
-
           <SideBarLink
             icon={<LuFileText />}
             title="Calificaciones"
