@@ -50,7 +50,7 @@ const AsistenciaContent: React.FC<AsistenciaContentProps> = ({ materiaSelecciona
           disabled={saving}
           sx={{ mt: 2 }}
         >
-          <LuSave />
+          <LuSave className="mr-2 h-4 w-4" />
           {saving ? "Guardando..." : "Guardar Asistencia"}
         </Button>
       </Card>
