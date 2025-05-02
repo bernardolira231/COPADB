@@ -8,7 +8,7 @@ import { Dayjs } from "dayjs";
 import useSx from "./sx";
 
 interface AttendanceInfoProps {
-  materiaSeleccionada: { class_name?: string } | null;
+  materiaSeleccionada: { class_name: string };
   fecha: Dayjs;
   onFechaChange: (value: any, context?: any) => void;
 }
@@ -24,7 +24,7 @@ const AttendanceInfo: React.FC<AttendanceInfoProps> = ({
     <>
       <Box sx={sx.container}>
         <Typography variant="h5" sx={sx.title}>
-          {materiaSeleccionada ? materiaSeleccionada.class_name : "Mate 1"}
+          {materiaSeleccionada.class_name}
         </Typography>
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
           <DatePicker
