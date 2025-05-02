@@ -1,6 +1,6 @@
 import { Typography } from "@mui/material";
 
-const PageHeader = () => {
+const PageHeader = ({ children }: { children: React.ReactNode }) => {
     return (
         <Typography
         variant="h4"
@@ -9,7 +9,7 @@ const PageHeader = () => {
         fontWeight="bold"
         sx={{ mb: 2 }}
       >
-        Listado de Asistencia
+        {children}
       </Typography>
     )
 }

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Container, Card, Button } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
-import PageHeader from "./PageHeader";
+import PageHeader from "../../../components/PageHeader";
 import AttendanceInfo from "./AttendanceInfo";
 import Actions from "./Actions";
 import AttendanceTable from "./AttendanceTable";
@@ -14,7 +14,11 @@ interface AsistenciaContentProps {
   navigate: any;
 }
 
-const AsistenciaContent: React.FC<AsistenciaContentProps> = ({ materiaSeleccionada, fechaQuery, navigate }) => {
+const AsistenciaContent: React.FC<AsistenciaContentProps> = ({
+  materiaSeleccionada,
+  fechaQuery,
+  navigate,
+}) => {
   const { guardarAsistencia, saving } = useAttendance();
   const [fecha, setFecha] = useState<Dayjs>(
     fechaQuery ? dayjs(fechaQuery) : dayjs()
@@ -34,7 +38,7 @@ const AsistenciaContent: React.FC<AsistenciaContentProps> = ({ materiaSelecciona
 
   return (
     <Container sx={{ mt: 3 }}>
-      <PageHeader />
+      <PageHeader>Listado de Asistencia</PageHeader>
       <Card sx={{ p: 3, borderRadius: "8px" }}>
         <AttendanceInfo
           materiaSeleccionada={materiaSeleccionada}

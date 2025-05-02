@@ -1,9 +1,13 @@
+import { Container } from "@mui/material";
 import Layout from "../../components/Layout";
+import PageHeader from "../../components/PageHeader";
 
 const Calificaciones = () => {
   return (
     <Layout>
-      <div>Calificaciones</div>
+      <Container sx={{ mt: 3 }}>
+        <PageHeader>Calificaciones</PageHeader>
+      </Container>
     </Layout>
   );
 };
