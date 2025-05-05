@@ -63,7 +63,7 @@ const Sidebar = () => {
           <SideBarLink
             icon={<LuSettings />}
             title="Configuración"
-            to="/configuracion"
+            to="/perfil"
           />
         </nav>
       </div>
