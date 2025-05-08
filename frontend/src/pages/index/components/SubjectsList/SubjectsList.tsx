@@ -95,12 +95,8 @@ const SubjectsList: React.FC<SubjectsListProps> = ({ groupId }) => {
     console.log("SubjectsList - materias disponibles:", materias);
   }, [materiaSeleccionada, groupId, materias]);
 
-  // Filtrar materias según el groupId si está presente
-  const materiasAMostrar = groupId
-    ? materias.filter((materia) => materia.group_id.toString() === groupId)
-    : materiaSeleccionada
-      ? [materiaSeleccionada]
-      : materias;
+  // Siempre mostrar todas las materias disponibles
+  const materiasAMostrar = materias;
 
   // Mostrar skeleton loader durante la carga
   if (loading) {
@@ -167,7 +163,7 @@ const SubjectsList: React.FC<SubjectsListProps> = ({ groupId }) => {
                   sx={sx.calificacionesButtonMain}
                   onClick={() => {
                     setMateriaSeleccionada(subject);
-                    navigate({ to: `/calificaciones/${subject.group_id}` });
+                    navigate({ to: "/calificaciones" });
                   }}
                 >
                   Calificaciones

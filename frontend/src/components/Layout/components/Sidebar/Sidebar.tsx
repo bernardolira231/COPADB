@@ -9,6 +9,7 @@ import {
 } from "react-icons/lu";
 import SideBarLink from "../SideBarLink";
 import { useAuth } from "../../../../context/AuthContext";
+import { useMateria } from "../../../../context/MateriaContext";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -16,9 +17,10 @@ interface SidebarProps {
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
+  const { materiaSeleccionada } = useMateria();
 
-  // Verificar si el usuario tiene permisos para ver la lista de alumnos
   const canAccessStudentList = user?.rol === 1 || user?.rol === 2;
+  const hasMateriaSelected = !!materiaSeleccionada;
 
   const handleLogout = () => {
     logout();
@@ -54,12 +56,22 @@ const Sidebar = () => {
               color="text-pink-500"
             />
           )}
-          <SideBarLink
-            icon={<LuFileText />}
-            title="Calificaciones"
-            to="/calificaciones"
-            color="text-orange-500"
-          />
+          {hasMateriaSelected && (
+            <>
+              <SideBarLink
+                icon={<LuUsers />}
+                title="Asistencia"
+                to="/asistencia"
+                color="text-green-500"
+              />
+              <SideBarLink
+                icon={<LuFileText />}
+                title="Calificaciones"
+                to="/calificaciones"
+                color="text-orange-500"
+              />
+            </>
+          )}
           <SideBarLink
             icon={<LuSettings />}
             title="Configuración"

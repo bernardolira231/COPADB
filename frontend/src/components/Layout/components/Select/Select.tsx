@@ -64,9 +64,11 @@ const SelectComponent: React.FC<Props> = ({ materias, materiaSeleccionada, onMat
           }
         }}
       >
-        <MenuItem value="all" sx={sx.select}>
-          <em>{materias.length > 0 ? "Todas las materias" : "No hay materias"}</em>
-        </MenuItem>
+        {!materiaSeleccionada && (
+          <MenuItem value="all" sx={sx.select}>
+            <em>{materias.length > 0 ? "Seleccionar materia" : "No hay materias"}</em>
+          </MenuItem>
+        )}
         {materias.map((materia) => (
           <MenuItem 
             key={materia.group_id} 

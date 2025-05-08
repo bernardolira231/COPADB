@@ -1,9 +1,9 @@
-import { Container } from "@mui/material";
 import Layout from "../../components/Layout";
 import PageHeader from "../../components/PageHeader";
 import { useMateria } from "../../context/MateriaContext";
 import { useNavigate } from "@tanstack/react-router";
-import PageInfo from "./components/PageInfo";
+import { GradesProvider } from "./context/GradesContext";
+import CalificacionesContent from "./components/CalificacionesContent";
 
 const Calificaciones = () => {
   const { materiaSeleccionada } = useMateria();
@@ -16,10 +16,10 @@ const Calificaciones = () => {
 
   return (
     <Layout>
-      <Container sx={{ mt: 3 }}>
-        <PageHeader>Calificaciones</PageHeader>
-        <PageInfo materiaSeleccionada={materiaSeleccionada} />
-      </Container>
+      <PageHeader>Calificaciones</PageHeader>
+      <GradesProvider>
+        <CalificacionesContent materiaSeleccionada={materiaSeleccionada} />
+      </GradesProvider>
     </Layout>
   );
 };
