@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import useGetAllGroups, { Group } from '../../../../../hooks/useGetAllGroups';
 import { 
   Paper, 
   Table, 
@@ -18,7 +19,11 @@ import {
   Typography,
   alpha,
   useTheme,
-  Snackbar
+  Snackbar,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel
 } from "@mui/material";
 import { LuPencil, LuTrash, LuEye } from "react-icons/lu";
 import { Estudiante } from '../../../../../types/estudiante';
@@ -55,6 +60,20 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [editMode, setEditMode] = useState(false);
+  const [estudiantesGrupos, setEstudiantesGrupos] = useState<{[key: number]: string}>({});
+  const { data: groups = [], isLoading: groupsLoading, error: groupsError } = useGetAllGroups();
+
+  // Manejar el cambio de grupo para un estudiante
+  const handleGrupoChange = (estudianteId: number, grupoId: string) => {
+    setEstudiantesGrupos(prev => ({
+      ...prev,
+      [estudianteId]: grupoId
+    }));
+    
+    // Aquí se podría implementar la lógica para guardar esta asignación en el backend
+    setSnackbarMessage(`Estudiante asignado al grupo ${groups.find(g => g.id === grupoId)?.name}`);
+    setSnackbarOpen(true);
+  };
 
   const handleOpenDetails = (student: Estudiante, startInEditMode = false) => {
     setSelectedStudent(student);
@@ -147,25 +166,28 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell sx={studentsTableHeadCellSx(theme)}>
+                <TableCell sx={studentsTableHeadCellSx(theme)} align="center">
                   ID
                 </TableCell>
-                <TableCell sx={studentsTableHeadCellSx(theme)}>
+                <TableCell sx={studentsTableHeadCellSx(theme)} align="center">
                   Nombre
                 </TableCell>
-                <TableCell sx={studentsTableHeadCellSx(theme)}>
+                <TableCell sx={studentsTableHeadCellSx(theme)} align="center">
                   Email
                 </TableCell>
-                <TableCell sx={studentsTableHeadCellSx(theme)}>
+                <TableCell sx={studentsTableHeadCellSx(theme)} align="center">
                   Tipo de Sangre
                 </TableCell>
-                <TableCell sx={studentsTableHeadCellSx(theme)}>
+                <TableCell sx={studentsTableHeadCellSx(theme)} align="center">
                   Campus
                 </TableCell>
-                <TableCell sx={studentsTableHeadCellSx(theme)}>
+                <TableCell sx={studentsTableHeadCellSx(theme)} align="center">
                   Beca
                 </TableCell>
-                <TableCell sx={studentsTableHeadCellSx(theme)}>
+                <TableCell sx={studentsTableHeadCellSx(theme)} align="center">
+                  Grupo
+                </TableCell>
+                <TableCell sx={studentsTableHeadCellSx(theme)} align='center'>
                   Fecha de Registro
                 </TableCell>
                 <TableCell 
@@ -179,7 +201,7 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
             <TableBody>
               {estudiantes.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                  <TableCell colSpan={9} align="center" sx={{ py: 4 }}>
                     <Typography variant="body1" color="text.secondary">
                       No hay estudiantes registrados
                     </Typography>
@@ -241,6 +263,48 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
                           }}
                         />
                       )}
+                    </TableCell>
+                    <TableCell sx={studentsTableCellSx(theme)}>
+                      <FormControl size="small" fullWidth sx={{ minWidth: 120 }}>
+                        {groupsLoading ? (
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', py: 1 }}>
+                            <CircularProgress size={20} />
+                          </Box>
+                        ) : groupsError ? (
+                          <Typography variant="caption" color="error">
+                            Error al cargar grupos
+                          </Typography>
+                        ) : (
+                          <Select
+                            value={estudiantesGrupos[estudiante.id] || ''}
+                            onChange={(e) => handleGrupoChange(estudiante.id, e.target.value)}
+                            displayEmpty
+                            variant="outlined"
+                            sx={{
+                              borderRadius: '6px',
+                              fontSize: '0.875rem',
+                              '& .MuiOutlinedInput-notchedOutline': {
+                                borderColor: alpha(theme.palette.primary.main, 0.2),
+                              },
+                              '&:hover .MuiOutlinedInput-notchedOutline': {
+                                borderColor: theme.palette.primary.main,
+                              },
+                              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                borderColor: theme.palette.primary.main,
+                              }
+                            }}
+                          >
+                            <MenuItem value="">
+                              <em>Sin asignar</em>
+                            </MenuItem>
+                            {groups.map((group) => (
+                              <MenuItem key={group.id} value={group.id}>
+                                {group.name}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        )}
+                      </FormControl>
                     </TableCell>
                     <TableCell sx={studentsTableCellSx(theme)}>
                       {new Date(estudiante.reg_date).toLocaleDateString()}
