@@ -2,9 +2,10 @@ import { SxProps, Theme } from "@mui/material";
 
 const useSx = () => {
   const tableHead: SxProps<Theme> = {
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#1976d2",
     "& th": {
       fontWeight: 600,
+      color: "white",
     },
   };
 

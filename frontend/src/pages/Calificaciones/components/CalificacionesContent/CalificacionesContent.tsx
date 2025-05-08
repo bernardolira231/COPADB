@@ -60,7 +60,7 @@ const CalificacionesContent: React.FC<CalificacionesContentProps> = ({
               className="mr-2 h-4 w-4"
               style={{ marginRight: "8px" }}
             />
-            Exportar CSV
+            Exportar Reporte
           </Button>
           <Button
             variant="contained"
