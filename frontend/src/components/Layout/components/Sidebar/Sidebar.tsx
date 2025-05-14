@@ -6,6 +6,7 @@ import {
   LuFileText,
   LuSettings,
   LuLayoutDashboard,
+  LuApple,
 } from "react-icons/lu";
 import SideBarLink from "../SideBarLink";
 import { useAuth } from "../../../../context/AuthContext";
@@ -49,12 +50,20 @@ const Sidebar = () => {
             color="text-blue-500"
           />
           {canAccessStudentList && (
-            <SideBarLink
-              icon={<LuGraduationCap />}
-              title="Listado de Alumnos"
-              to="/alumnos"
-              color="text-pink-500"
-            />
+            <>
+              <SideBarLink
+                icon={<LuGraduationCap />}
+                title="Listado de Alumnos"
+                to="/alumnos"
+                color="text-pink-500"
+              />
+              <SideBarLink
+                icon={<LuApple />}
+                title="Listado de Usuarios"
+                to="/profesores"
+                color="text-red-500"
+              />
+            </>
           )}
           {hasMateriaSelected && (
             <>

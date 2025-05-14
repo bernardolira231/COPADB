@@ -16,7 +16,9 @@ import { Route as CalificacionesImport } from './routes/calificaciones'
 import { Route as AsistenciaImport } from './routes/asistencia'
 import { Route as HomeImport } from './routes/Home'
 import { Route as IndexImport } from './routes/index'
+import { Route as ProfesoresIndexImport } from './routes/profesores/index'
 import { Route as AlumnosIndexImport } from './routes/alumnos/index'
+import { Route as ProfesoresAgregarImport } from './routes/profesores/agregar'
 import { Route as AlumnosAgregarImport } from './routes/alumnos/agregar'
 
 // Create/Update Routes
@@ -51,9 +53,21 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const ProfesoresIndexRoute = ProfesoresIndexImport.update({
+  id: '/profesores/',
+  path: '/profesores/',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const AlumnosIndexRoute = AlumnosIndexImport.update({
   id: '/alumnos/',
   path: '/alumnos/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ProfesoresAgregarRoute = ProfesoresAgregarImport.update({
+  id: '/profesores/agregar',
+  path: '/profesores/agregar',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -109,11 +123,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AlumnosAgregarImport
       parentRoute: typeof rootRoute
     }
+    '/profesores/agregar': {
+      id: '/profesores/agregar'
+      path: '/profesores/agregar'
+      fullPath: '/profesores/agregar'
+      preLoaderRoute: typeof ProfesoresAgregarImport
+      parentRoute: typeof rootRoute
+    }
     '/alumnos/': {
       id: '/alumnos/'
       path: '/alumnos'
       fullPath: '/alumnos'
       preLoaderRoute: typeof AlumnosIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/profesores/': {
+      id: '/profesores/'
+      path: '/profesores'
+      fullPath: '/profesores'
+      preLoaderRoute: typeof ProfesoresIndexImport
       parentRoute: typeof rootRoute
     }
   }
@@ -128,7 +156,9 @@ export interface FileRoutesByFullPath {
   '/calificaciones': typeof CalificacionesRoute
   '/perfil': typeof PerfilRoute
   '/alumnos/agregar': typeof AlumnosAgregarRoute
+  '/profesores/agregar': typeof ProfesoresAgregarRoute
   '/alumnos': typeof AlumnosIndexRoute
+  '/profesores': typeof ProfesoresIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -138,7 +168,9 @@ export interface FileRoutesByTo {
   '/calificaciones': typeof CalificacionesRoute
   '/perfil': typeof PerfilRoute
   '/alumnos/agregar': typeof AlumnosAgregarRoute
+  '/profesores/agregar': typeof ProfesoresAgregarRoute
   '/alumnos': typeof AlumnosIndexRoute
+  '/profesores': typeof ProfesoresIndexRoute
 }
 
 export interface FileRoutesById {
@@ -149,7 +181,9 @@ export interface FileRoutesById {
   '/calificaciones': typeof CalificacionesRoute
   '/perfil': typeof PerfilRoute
   '/alumnos/agregar': typeof AlumnosAgregarRoute
+  '/profesores/agregar': typeof ProfesoresAgregarRoute
   '/alumnos/': typeof AlumnosIndexRoute
+  '/profesores/': typeof ProfesoresIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -161,7 +195,9 @@ export interface FileRouteTypes {
     | '/calificaciones'
     | '/perfil'
     | '/alumnos/agregar'
+    | '/profesores/agregar'
     | '/alumnos'
+    | '/profesores'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -170,7 +206,9 @@ export interface FileRouteTypes {
     | '/calificaciones'
     | '/perfil'
     | '/alumnos/agregar'
+    | '/profesores/agregar'
     | '/alumnos'
+    | '/profesores'
   id:
     | '__root__'
     | '/'
@@ -179,7 +217,9 @@ export interface FileRouteTypes {
     | '/calificaciones'
     | '/perfil'
     | '/alumnos/agregar'
+    | '/profesores/agregar'
     | '/alumnos/'
+    | '/profesores/'
   fileRoutesById: FileRoutesById
 }
 
@@ -190,7 +230,9 @@ export interface RootRouteChildren {
   CalificacionesRoute: typeof CalificacionesRoute
   PerfilRoute: typeof PerfilRoute
   AlumnosAgregarRoute: typeof AlumnosAgregarRoute
+  ProfesoresAgregarRoute: typeof ProfesoresAgregarRoute
   AlumnosIndexRoute: typeof AlumnosIndexRoute
+  ProfesoresIndexRoute: typeof ProfesoresIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -200,7 +242,9 @@ const rootRouteChildren: RootRouteChildren = {
   CalificacionesRoute: CalificacionesRoute,
   PerfilRoute: PerfilRoute,
   AlumnosAgregarRoute: AlumnosAgregarRoute,
+  ProfesoresAgregarRoute: ProfesoresAgregarRoute,
   AlumnosIndexRoute: AlumnosIndexRoute,
+  ProfesoresIndexRoute: ProfesoresIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -219,7 +263,9 @@ export const routeTree = rootRoute
         "/calificaciones",
         "/perfil",
         "/alumnos/agregar",
-        "/alumnos/"
+        "/profesores/agregar",
+        "/alumnos/",
+        "/profesores/"
       ]
     },
     "/": {
@@ -240,8 +286,14 @@ export const routeTree = rootRoute
     "/alumnos/agregar": {
       "filePath": "alumnos/agregar.tsx"
     },
+    "/profesores/agregar": {
+      "filePath": "profesores/agregar.tsx"
+    },
     "/alumnos/": {
       "filePath": "alumnos/index.tsx"
+    },
+    "/profesores/": {
+      "filePath": "profesores/index.tsx"
     }
   }
 }

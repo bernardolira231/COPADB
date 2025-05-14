@@ -3,6 +3,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from config.config import Config
 from functools import wraps
+import datetime
 
 student_bp = Blueprint('student', __name__, url_prefix='/api')
 
@@ -130,11 +131,11 @@ def get_estudiantes():
         # Construir la consulta base
         query = """
             SELECT 
-                id, name, lastname_f, lastname_m, email, 
-                blood_type, allergies, scholar_ship, chapel, 
-                school_campus, family_id, permission, 
-                reg_date
-            FROM public.student
+                s.id, s.name, s.lastname_f, s.lastname_m, s.email, 
+                s.blood_type, s.allergies, s.scholar_ship, s.chapel, 
+                s.school_campus, s.family_id, s.permission, 
+                s.reg_date
+            FROM public.student s
         """
         
         params = []
@@ -161,6 +162,43 @@ def get_estudiantes():
         # Ejecutar la consulta principal
         cur.execute(query, params)
         estudiantes = cur.fetchall()
+        
+        # Obtener la información de grupos para cada estudiante
+        student_ids = [e['id'] for e in estudiantes]
+        
+        if student_ids:
+            # Consulta para obtener la información de grupos
+            groups_query = """
+                SELECT h.student_id, h.group_id, g.grade, c.name as class_name
+                FROM history h
+                JOIN "group" g ON h.group_id = g.id
+                LEFT JOIN class c ON g.class_id = c.id
+                WHERE h.student_id = ANY(%s) AND h.status = 'activo'
+                ORDER BY h.student_id, 
+                    CASE WHEN g.grade LIKE '%%primaria%%' THEN 0 ELSE 1 END,
+                    g.grade DESC
+            """
+            
+            cur.execute(groups_query, (student_ids,))
+            groups_data = cur.fetchall()
+            
+            # Crear un diccionario para almacenar la información de grupos por estudiante
+            student_groups = {}
+            for group in groups_data:
+                student_id = group['student_id']
+                if student_id not in student_groups:
+                    student_groups[student_id] = group
+            
+            # Asignar la información de grupos a cada estudiante
+            for estudiante in estudiantes:
+                student_id = estudiante['id']
+                if student_id in student_groups:
+                    estudiante['group_id'] = student_groups[student_id]['group_id']
+                    estudiante['group_grade'] = student_groups[student_id]['grade']
+                    estudiante['class_name'] = student_groups[student_id]['class_name']
+                    print(f"Estudiante {student_id} tiene asignado el grupo {estudiante['group_grade']}")
+                else:
+                    print(f"Estudiante {student_id} no tiene grupo asignado")
         
         # Obtener el conteo total para la paginación
         count_query = "SELECT COUNT(*) FROM public.student"
@@ -300,3 +338,99 @@ def update_estudiante(id):
         import traceback
         traceback.print_exc()
         return jsonify({"message": "Error al actualizar estudiante", "error": str(e)}), 500
+
+@student_bp.route('/estudiantes/<int:estudiante_id>/asignar-grupo', methods=['POST'])
+@cors_decorator
+def asignar_grupo(estudiante_id):
+    """Endpoint para asignar un estudiante a un grupo"""
+    try:
+        # Obtener datos del cuerpo de la solicitud
+        data = request.get_json()
+        
+        if 'group_id' not in data:
+            return jsonify({"message": "Se requiere el ID del grupo"}), 400
+        
+        group_id = data['group_id']
+        
+        # Convertir a entero si es una cadena
+        if isinstance(group_id, str):
+            group_id = int(group_id)
+        
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # Verificar si el estudiante existe
+        cur.execute("SELECT id FROM student WHERE id = %s", (estudiante_id,))
+        if not cur.fetchone():
+            cur.close()
+            conn.close()
+            return jsonify({"message": "Estudiante no encontrado"}), 404
+        
+        # Verificar si el grupo existe
+        cur.execute("SELECT id FROM \"group\" WHERE id = %s", (group_id,))
+        if not cur.fetchone():
+            cur.close()
+            conn.close()
+            return jsonify({"message": "Grupo no encontrado"}), 404
+        
+        # Verificar si ya existe una asignación activa para este estudiante
+        cur.execute(
+            "SELECT id FROM history WHERE student_id = %s AND status = 'activo'", 
+            (estudiante_id,)
+        )
+        existing_assignment = cur.fetchone()
+        
+        if existing_assignment:
+            # Actualizar la asignación existente a inactiva
+            cur.execute(
+                "UPDATE history SET status = 'inactivo' WHERE id = %s", 
+                (existing_assignment['id'],)
+            )
+        
+        # Crear una nueva asignación en la tabla history
+        cur.execute(
+            """INSERT INTO history (student_id, group_id, status) 
+            VALUES (%s, %s, 'activo')""", 
+            (estudiante_id, group_id)
+        )
+        
+        # Actualizar el campo group_id en la tabla student
+        # Primero verificamos si la columna group_id existe en la tabla student
+        try:
+            cur.execute(
+                """SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name = 'student' AND column_name = 'group_id'"""
+            )
+            column_exists = cur.fetchone()
+            
+            if not column_exists:
+                # La columna no existe, la creamos
+                print("Creando columna group_id en la tabla student")
+                cur.execute(
+                    "ALTER TABLE student ADD COLUMN group_id INTEGER"
+                )
+            
+            # Ahora actualizamos el campo group_id
+            cur.execute(
+                "UPDATE student SET group_id = %s WHERE id = %s", 
+                (group_id, estudiante_id)
+            )
+        except Exception as e:
+            print(f"Error al actualizar el campo group_id: {e}")
+            # Continuamos con la ejecución aunque falle esta parte
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        return jsonify({
+            "message": "Estudiante asignado al grupo correctamente",
+            "estudiante_id": estudiante_id,
+            "group_id": group_id
+        }), 200
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"message": "Error al asignar grupo", "error": str(e)}), 500
