@@ -19,7 +19,8 @@ const AsistenciaContent: React.FC<AsistenciaContentProps> = ({
   fechaQuery,
   navigate,
 }) => {
-  const { guardarAsistencia, saving, downloadAttendanceReport, loading } = useAttendance();
+  const { guardarAsistencia, saving, downloadAttendanceReport, loading } =
+    useAttendance();
   const [fecha, setFecha] = useState<Dayjs>(
     fechaQuery ? dayjs(fechaQuery) : dayjs()
   );
@@ -37,11 +38,11 @@ const AsistenciaContent: React.FC<AsistenciaContentProps> = ({
   };
 
   // Depuración para entender por qué el botón está desactivado
-  console.log('Estado del botón:', {
+  console.log("Estado del botón:", {
     loading,
     materiaSeleccionadaId: materiaSeleccionada?.id,
     materiaSeleccionada,
-    disabled: loading || !materiaSeleccionada?.id
+    disabled: loading || !materiaSeleccionada?.id,
   });
 
   return (
@@ -55,7 +56,28 @@ const AsistenciaContent: React.FC<AsistenciaContentProps> = ({
         />
         <Actions />
         <AttendanceTable />
-        <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+        <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={() => {
+              console.log("Descargando reporte para:", materiaSeleccionada);
+              // Usamos el ID del grupo directamente si está disponible
+              const groupId =
+                materiaSeleccionada?.id ||
+                materiaSeleccionada?.group_id ||
+                materiaSeleccionada?.grade_id;
+              if (groupId) {
+                downloadAttendanceReport(groupId);
+              } else {
+                console.error("No se pudo determinar el ID del grupo");
+              }
+            }}
+            disabled={loading}
+          >
+            <LuDownload className="mr-2 h-4 w-4" />
+            {loading ? "Descargando..." : "Exportar Reporte"}
+          </Button>
           <Button
             variant="contained"
             color="primary"
@@ -64,24 +86,6 @@ const AsistenciaContent: React.FC<AsistenciaContentProps> = ({
           >
             <LuSave className="mr-2 h-4 w-4" />
             {saving ? "Guardando..." : "Guardar Asistencia"}
-          </Button>
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={() => {
-              console.log('Descargando reporte para:', materiaSeleccionada);
-              // Usamos el ID del grupo directamente si está disponible
-              const groupId = materiaSeleccionada?.id || materiaSeleccionada?.group_id || materiaSeleccionada?.grade_id;
-              if (groupId) {
-                downloadAttendanceReport(groupId);
-              } else {
-                console.error('No se pudo determinar el ID del grupo');
-              }
-            }}
-            disabled={loading}
-          >
-            <LuDownload className="mr-2 h-4 w-4" />
-            {loading ? "Descargando..." : "Descargar Reporte (30 días)"}
           </Button>
         </Box>
       </Card>
