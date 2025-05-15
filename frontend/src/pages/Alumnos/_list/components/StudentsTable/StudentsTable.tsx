@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import useGetAllGroups, { Group } from "../../../../../hooks/useGetAllGroups";
 import {
@@ -70,9 +70,9 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [editMode, setEditMode] = useState(false);
-  const [estudiantesGrupos, setEstudiantesGrupos] = useState<{
-    [key: number]: string;
-  }>({});
+  // Estado para manejar el grupo seleccionado para cada estudiante
+  // Ahora solo permitimos un grupo a la vez
+  const [estudiantesGrupos, setEstudiantesGrupos] = useState<Record<number, string>>({});
   const {
     data: groups = [],
     isLoading: groupsLoading,
@@ -84,7 +84,13 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
     // Inicializar el estado con los grupos asignados a cada estudiante
     const gruposIniciales: {[key: number]: string} = {};
     estudiantes.forEach(estudiante => {
-      if (estudiante.group_id) {
+      if (estudiante.all_groups && estudiante.all_groups.length > 0) {
+        // Usamos el ID del primer grupo asignado (ahora solo permitimos uno)
+        const firstGroup = estudiante.all_groups[0];
+        gruposIniciales[estudiante.id] = firstGroup.group_id.toString();
+        console.log(`Estudiante ${estudiante.id} tiene asignado el grupo ${firstGroup.group_id}`);
+      } else if (estudiante.group_id) {
+        // Compatibilidad con la versión anterior
         gruposIniciales[estudiante.id] = estudiante.group_id.toString();
         console.log(`Estudiante ${estudiante.id} tiene asignado el grupo ${estudiante.group_id}`);
       } else {
@@ -94,48 +100,74 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
     setEstudiantesGrupos(gruposIniciales);
   }, [estudiantes]);
 
-  // Manejar el cambio de grupo para un estudiante
-  const handleGrupoChange = async (estudianteId: number, grupoId: string) => {
-    try {
-      // Actualizar el estado local
-      setEstudiantesGrupos((prev) => ({
-        ...prev,
-        [estudianteId]: grupoId,
-      }));
+  // Obtener los grados únicos de los grupos y agrupar los grupos por grado
+  const { uniqueGrades, groupsByGrade } = useMemo(() => {
+    if (!groups || groups.length === 0) return { uniqueGrades: [], groupsByGrade: {} };
+    
+    // Extraer todos los grados únicos
+    const grades = [...new Set(groups.map(group => group.grade))];
+    
+    // Agrupar los grupos por grado
+    const groupedByGrade: Record<string, Group[]> = {};
+    grades.forEach(grade => {
+      groupedByGrade[grade] = groups.filter(group => group.grade === grade);
+    });
+    
+    return { uniqueGrades: grades, groupsByGrade: groupedByGrade };
+  }, [groups]);
 
-      // Si se seleccionó 'Sin asignar', eliminamos la asignación
-      if (!grupoId) {
-        // Implementar lógica para eliminar la asignación
-        setSnackbarMessage(`Estudiante desasignado del grupo`);
-        setSnackbarOpen(true);
-        return;
-      }
+  // Función para manejar el cambio de grupo de un estudiante
+  const handleGrupoChange = (estudianteId: number, groupId: string) => {
+    // Actualizar el estado local
+    setEstudiantesGrupos(prev => ({
+      ...prev,
+      [estudianteId]: groupId
+    }));
 
-      // Guardar la asignación en el backend
-      const response = await fetch(`http://localhost:5328/api/estudiantes/${estudianteId}/asignar-grupo`, {
+    // Si se selecciona "Sin asignar", enviamos un array vacío
+    const groupIdToSend = groupId !== "" ? groupId : null;
+
+    // Verificar si se seleccionó un grado
+    const selectedGroup = groups?.find(g => g.id === groupId);
+    
+    // Función para realizar la llamada a la API
+    const apiCall = (body: any) => {
+      fetch(`http://localhost:5328/api/estudiantes/${estudianteId}/asignar-grupo`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
         },
-        body: JSON.stringify({ group_id: grupoId })
+        body: JSON.stringify(body),
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Error al asignar grupo');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Grupo asignado correctamente:', data);
+        // Mostrar mensaje de éxito
+        setSnackbarMessage('Grupo asignado correctamente');
+        setSnackbarOpen(true);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        // Mostrar mensaje de error
+        setSnackbarMessage('Error al asignar grupo');
+        setSnackbarOpen(true);
       });
-
-      if (!response.ok) {
-        throw new Error(`Error al asignar grupo: ${response.status}`);
-      }
-
-      const data = await response.json();
-      
-      // Mostrar mensaje de éxito
-      setSnackbarMessage(
-        `Estudiante asignado al grupo ${groups.find((g) => g.id === grupoId)?.name}`
-      );
-      setSnackbarOpen(true);
-    } catch (error) {
-      console.error('Error al asignar grupo:', error);
-      setSnackbarMessage(`Error: ${error instanceof Error ? error.message : 'Error desconocido'}`);
-      setSnackbarOpen(true);
+    };
+    
+    if (selectedGroup && uniqueGrades.includes(selectedGroup.grade)) {
+      // Si se seleccionó un grado, enviamos el grado para asignar todas sus materias
+      apiCall({ grade: selectedGroup.grade });
+    } else if (!groupIdToSend) {
+      // Si no se seleccionó ningún grupo, desasignar al estudiante de todos los grupos
+      apiCall({ group_ids: [] });
+    } else {
+      // Si se seleccionó un grupo específico, enviamos el ID del grupo
+      apiCall({ group_ids: [groupIdToSend] });
     }
   };
 
@@ -350,16 +382,47 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
                           </Typography>
                         ) : (
                           <Select
-                            value={estudiantesGrupos[estudiante.id] || ""}
+                            value={estudiantesGrupos[estudiante.id] || 
+                              (estudiante.all_groups && estudiante.all_groups.length > 0 ? 
+                                estudiante.all_groups[0].group_id.toString() : 
+                                (estudiante.group_id ? estudiante.group_id.toString() : ''))}
                             onChange={(e) =>
-                              handleGrupoChange(estudiante.id, e.target.value)
+                              handleGrupoChange(estudiante.id, e.target.value as string)
                             }
-                            defaultValue={estudiante.group_id ? estudiante.group_id.toString() : ""}
                             displayEmpty
                             variant="outlined"
+                            renderValue={(selected) => {
+                              if (!selected || selected === '') {
+                                return <em>Sin asignar</em>;
+                              }
+                              
+                              // Obtener el grado del grupo seleccionado
+                              let gradeName = '';
+                              
+                              // Primero buscamos en all_groups del estudiante
+                              if (estudiante.all_groups) {
+                                const assignedGroup = estudiante.all_groups.find(g => g.group_id.toString() === selected);
+                                if (assignedGroup) {
+                                  gradeName = assignedGroup.grade;
+                                }
+                              }
+                              
+                              // Si no lo encontramos, buscamos en la lista general de grupos
+                              if (!gradeName) {
+                                const group = groups?.find(g => g.id.toString() === selected);
+                                if (group) {
+                                  gradeName = group.grade;
+                                }
+                              }
+                              
+                              return gradeName || 'Grupo seleccionado';
+                            }}
                             sx={{
                               borderRadius: "6px",
                               fontSize: "0.875rem",
+                              minWidth: 120,
+                              maxWidth: 300,
+                              width: '100%',
                               "& .MuiOutlinedInput-notchedOutline": {
                                 borderColor: alpha(
                                   theme.palette.primary.main,
@@ -378,41 +441,30 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
                             <MenuItem value="">
                               <em>Sin asignar</em>
                             </MenuItem>
-                            {/* Mostrar todos los grupos según la estructura real de la base de datos */}
-                            {groups && groups.length > 0 ? (
-                              groups.map(group => (
-                                <MenuItem 
-                                  key={group.id} 
-                                  value={group.id}
-                                  sx={{
-                                    '&.Mui-selected': {
-                                      backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                                    },
-                                    '&.Mui-selected:hover': {
-                                      backgroundColor: alpha(theme.palette.primary.main, 0.15),
-                                    },
-                                  }}
-                                >
-                                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                                    <Box>
-                                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                        {group.name}
-                                      </Typography>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                      {/* No necesitamos mostrar información adicional */}
-                                    </Box>
-                                  </Box>
+                            
+                            {/* Mostrar grados como opciones principales */}
+                            {uniqueGrades.map((grade) => {
+                              // Usar el ID del primer grupo de este grado como valor
+                              const gradeGroups = groupsByGrade[grade] || [];
+                              const gradeId = gradeGroups.length > 0 ? gradeGroups[0].id : '';
+                              
+                              return (
+                                <MenuItem key={`grade-${grade}`} value={gradeId}>
+                                  {grade}
                                 </MenuItem>
-                              ))
-                            ) : (
+                              );
+                            })}
+                            
+                            {/* Opcionalmente, también podríamos mostrar los grupos individuales */}
+                            {/* Pero según el requerimiento, solo queremos mostrar los grados */}
+                            
+                            {(!groups || groups.length === 0) && (
                               <MenuItem disabled>
-                                <Typography variant="body2" color="text.secondary">
+                                <Typography variant="caption">
                                   No hay grupos disponibles
                                 </Typography>
                               </MenuItem>
-                            )
-                            }
+                            )}
                           </Select>
                         )}
                       </FormControl>

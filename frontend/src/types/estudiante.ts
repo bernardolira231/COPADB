@@ -27,6 +27,13 @@ export interface EstudianteAdditionalInfo {
   fechaRegistro: string;
 }
 
+export interface GrupoEstudiante {
+  group_id: number;
+  grade: string;
+  class_name: string;
+  display_name: string;
+}
+
 export interface Estudiante {
   id: number;
   name: string;
@@ -44,4 +51,5 @@ export interface Estudiante {
   group_id?: string | number;
   group_grade?: string;
   class_name?: string;
+  all_groups?: GrupoEstudiante[];
 }

@@ -169,7 +169,12 @@ def get_estudiantes():
         if student_ids:
             # Consulta para obtener la información de grupos
             groups_query = """
-                SELECT h.student_id, h.group_id, g.grade, c.name as class_name
+                SELECT 
+                    h.student_id, 
+                    h.group_id, 
+                    g.grade, 
+                    c.name as class_name,
+                    g.id as original_group_id
                 FROM history h
                 JOIN "group" g ON h.group_id = g.id
                 LEFT JOIN class c ON g.class_id = c.id
@@ -184,8 +189,16 @@ def get_estudiantes():
             
             # Crear un diccionario para almacenar la información de grupos por estudiante
             student_groups = {}
+            student_all_groups = {}
+            
+            # Primero, recopilamos todos los grupos para cada estudiante
             for group in groups_data:
                 student_id = group['student_id']
+                if student_id not in student_all_groups:
+                    student_all_groups[student_id] = []
+                student_all_groups[student_id].append(group)
+                
+                # También guardamos el grupo principal (el primero según el orden)
                 if student_id not in student_groups:
                     student_groups[student_id] = group
             
@@ -193,11 +206,25 @@ def get_estudiantes():
             for estudiante in estudiantes:
                 student_id = estudiante['id']
                 if student_id in student_groups:
+                    # Asignamos el grupo principal
                     estudiante['group_id'] = student_groups[student_id]['group_id']
                     estudiante['group_grade'] = student_groups[student_id]['grade']
                     estudiante['class_name'] = student_groups[student_id]['class_name']
-                    print(f"Estudiante {student_id} tiene asignado el grupo {estudiante['group_grade']}")
+                    
+                    # Asignamos todos los grupos
+                    estudiante['all_groups'] = [
+                        {
+                            'group_id': g['group_id'],
+                            'grade': g['grade'],
+                            'class_name': g['class_name'],
+                            'display_name': f"{g['grade']} - {g['class_name']}" if g['class_name'] else g['grade']
+                        } for g in student_all_groups[student_id]
+                    ]
+                    
+                    print(f"Estudiante {student_id} tiene asignado el grupo principal {estudiante['group_grade']}")
+                    print(f"Estudiante {student_id} tiene {len(estudiante['all_groups'])} grupos asignados en total")
                 else:
+                    estudiante['all_groups'] = []
                     print(f"Estudiante {student_id} no tiene grupo asignado")
         
         # Obtener el conteo total para la paginación
@@ -342,19 +369,23 @@ def update_estudiante(id):
 @student_bp.route('/estudiantes/<int:estudiante_id>/asignar-grupo', methods=['POST'])
 @cors_decorator
 def asignar_grupo(estudiante_id):
-    """Endpoint para asignar un estudiante a un grupo"""
+    """Endpoint para asignar un estudiante a uno o múltiples grupos"""
     try:
         # Obtener datos del cuerpo de la solicitud
         data = request.get_json()
         
-        if 'group_id' not in data:
-            return jsonify({"message": "Se requiere el ID del grupo"}), 400
+        # Si todos los parámetros están vacíos o ausentes, asumimos que se quiere desasignar al estudiante
+        is_unassign = False
         
-        group_id = data['group_id']
-        
-        # Convertir a entero si es una cadena
-        if isinstance(group_id, str):
-            group_id = int(group_id)
+        if 'group_ids' not in data and 'group_id' not in data and 'grade' not in data:
+            # Desasignar al estudiante de todos los grupos
+            is_unassign = True
+        elif 'group_ids' in data and (not data['group_ids'] or data['group_ids'] == []):
+            # Array vacío de group_ids significa desasignar
+            is_unassign = True
+        elif 'group_id' in data and (not data['group_id'] or data['group_id'] == ""):
+            # group_id vacío significa desasignar
+            is_unassign = True
         
         conn = get_db_connection()
         cur = conn.cursor()
@@ -366,59 +397,145 @@ def asignar_grupo(estudiante_id):
             conn.close()
             return jsonify({"message": "Estudiante no encontrado"}), 404
         
-        # Verificar si el grupo existe
-        cur.execute("SELECT id FROM \"group\" WHERE id = %s", (group_id,))
-        if not cur.fetchone():
+        # Si se proporciona un grado, obtener todos los grupos de ese grado
+        if 'grade' in data:
+            grade = data['grade']
+            cur.execute(
+                "SELECT id FROM \"group\" WHERE grade = %s",
+                (grade,)
+            )
+            grade_groups = cur.fetchall()
+            
+            if not grade_groups:
+                cur.close()
+                conn.close()
+                return jsonify({"message": f"No se encontraron grupos para el grado {grade}"}), 404
+            
+            # Usar todos los grupos del grado
+            group_ids = [group['id'] for group in grade_groups]
+            print(f"Asignando estudiante {estudiante_id} a todos los grupos del grado {grade}: {group_ids}")
+        else:
+            # Compatibilidad con la versión anterior que usaba group_id
+            if 'group_id' in data and 'group_ids' not in data:
+                group_ids = [data['group_id']]
+            else:
+                group_ids = data['group_ids']
+            
+            # Convertir a lista de enteros
+            if not isinstance(group_ids, list):
+                group_ids = [group_ids]
+                
+            group_ids = [int(gid) if isinstance(gid, str) else gid for gid in group_ids]
+            
+            # Verificar si todos los grupos existen
+            for group_id in group_ids:
+                cur.execute("SELECT id FROM \"group\" WHERE id = %s", (group_id,))
+                if not cur.fetchone():
+                    cur.close()
+                    conn.close()
+                    return jsonify({"message": f"Grupo con ID {group_id} no encontrado"}), 404
+        
+        # Si es una desasignación, desactivamos todas las asignaciones activas
+        if is_unassign:
+            print(f"Desasignando al estudiante {estudiante_id} de todos los grupos")
+            cur.execute(
+                """UPDATE history 
+                SET status = 'inactivo' 
+                WHERE student_id = %s AND status = 'activo'""", 
+                (estudiante_id,)
+            )
+            
+            # También actualizamos el campo group_id en la tabla student
+            cur.execute(
+                "UPDATE student SET group_id = NULL WHERE id = %s", 
+                (estudiante_id,)
+            )
+            
+            conn.commit()
             cur.close()
             conn.close()
-            return jsonify({"message": "Grupo no encontrado"}), 404
+            
+            return jsonify({
+                "message": f"Estudiante con ID {estudiante_id} desasignado de todos los grupos",
+                "estudiante_id": estudiante_id
+            }), 200
         
-        # Verificar si ya existe una asignación activa para este estudiante
+        # Si no es una desasignación, continuamos con la lógica normal
+        # Obtener las asignaciones activas actuales
         cur.execute(
-            "SELECT id FROM history WHERE student_id = %s AND status = 'activo'", 
+            "SELECT id, group_id FROM history WHERE student_id = %s AND status = 'activo'", 
             (estudiante_id,)
         )
-        existing_assignment = cur.fetchone()
+        existing_assignments = cur.fetchall()
         
-        if existing_assignment:
-            # Actualizar la asignación existente a inactiva
+        # Crear un conjunto con los IDs de grupos ya asignados
+        existing_group_ids = {assignment['group_id'] for assignment in existing_assignments}
+        
+        # Determinar qué grupos hay que añadir y cuáles mantener
+        groups_to_add = [gid for gid in group_ids if gid not in existing_group_ids]
+        groups_to_keep = [gid for gid in group_ids if gid in existing_group_ids]
+        groups_to_remove = [assignment['id'] for assignment in existing_assignments 
+                           if assignment['group_id'] not in group_ids]
+        
+        # Desactivar asignaciones que ya no se necesitan
+        if groups_to_remove:
             cur.execute(
-                "UPDATE history SET status = 'inactivo' WHERE id = %s", 
-                (existing_assignment['id'],)
+                "UPDATE history SET status = 'inactivo' WHERE id = ANY(%s)", 
+                (groups_to_remove,)
             )
         
-        # Crear una nueva asignación en la tabla history
-        cur.execute(
-            """INSERT INTO history (student_id, group_id, status) 
-            VALUES (%s, %s, 'activo')""", 
-            (estudiante_id, group_id)
-        )
-        
-        # Actualizar el campo group_id en la tabla student
-        # Primero verificamos si la columna group_id existe en la tabla student
-        try:
+        # Para cada grupo a añadir, verificar si ya existe un registro inactivo
+        for group_id in groups_to_add:
+            # Verificar si existe un registro inactivo para este estudiante y grupo
             cur.execute(
-                """SELECT column_name 
-                FROM information_schema.columns 
-                WHERE table_name = 'student' AND column_name = 'group_id'"""
+                """SELECT id FROM history 
+                WHERE student_id = %s AND group_id = %s AND status = 'inactivo'""", 
+                (estudiante_id, group_id)
             )
-            column_exists = cur.fetchone()
+            inactive_record = cur.fetchone()
             
-            if not column_exists:
-                # La columna no existe, la creamos
-                print("Creando columna group_id en la tabla student")
+            if inactive_record:
+                # Si existe un registro inactivo, reactivarlo
+                print(f"Reactivando registro para estudiante {estudiante_id} y grupo {group_id}")
                 cur.execute(
-                    "ALTER TABLE student ADD COLUMN group_id INTEGER"
+                    """UPDATE history SET status = 'activo' WHERE id = %s""", 
+                    (inactive_record['id'],)
                 )
-            
-            # Ahora actualizamos el campo group_id
-            cur.execute(
-                "UPDATE student SET group_id = %s WHERE id = %s", 
-                (group_id, estudiante_id)
-            )
-        except Exception as e:
-            print(f"Error al actualizar el campo group_id: {e}")
-            # Continuamos con la ejecución aunque falle esta parte
+            else:
+                # Si no existe, crear un nuevo registro
+                print(f"Creando nuevo registro para estudiante {estudiante_id} y grupo {group_id}")
+                cur.execute(
+                    """INSERT INTO history (student_id, group_id, status) 
+                    VALUES (%s, %s, 'activo')""", 
+                    (estudiante_id, group_id)
+                )
+        
+        # Actualizar el campo group_id en la tabla student con el primer grupo de la lista
+        # (esto es para mantener compatibilidad con el campo group_id existente)
+        if group_ids:
+            try:
+                cur.execute(
+                    """SELECT column_name 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'student' AND column_name = 'group_id'"""
+                )
+                column_exists = cur.fetchone()
+                
+                if not column_exists:
+                    # La columna no existe, la creamos
+                    print("Creando columna group_id en la tabla student")
+                    cur.execute(
+                        "ALTER TABLE student ADD COLUMN group_id INTEGER"
+                    )
+                
+                # Actualizamos el campo group_id con el primer grupo de la lista
+                cur.execute(
+                    "UPDATE student SET group_id = %s WHERE id = %s", 
+                    (group_ids[0], estudiante_id)
+                )
+            except Exception as e:
+                print(f"Error al actualizar el campo group_id: {e}")
+                # Continuamos con la ejecución aunque falle esta parte
         
         conn.commit()
         cur.close()

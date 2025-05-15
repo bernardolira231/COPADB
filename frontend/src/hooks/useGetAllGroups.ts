@@ -4,6 +4,14 @@ interface Group {
   id: string;
   name: string;
   grade: string;
+  class_id?: string | number;
+  class_name?: string;
+}
+
+interface GradeGroup {
+  grade: string;
+  id: string; // ID del primer grupo de este grado
+  groups: Group[];
 }
 
 // Función para obtener todos los grupos del backend
