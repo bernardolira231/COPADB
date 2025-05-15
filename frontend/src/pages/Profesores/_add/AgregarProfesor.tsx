@@ -15,10 +15,11 @@ import {
   Snackbar,
   Alert,
   IconButton,
-  InputAdornment
+  InputAdornment,
+  Tooltip
 } from "@mui/material";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { LuArrowLeft, LuSave, LuEye, LuEyeOff } from "react-icons/lu";
+import { LuArrowLeft, LuSave, LuEye, LuEyeOff, LuRefreshCw } from "react-icons/lu";
 import Layout from "../../../components/Layout";
 import useProfesores from "../../../hooks/useProfesores";
 import { ProfesorCreate } from "../../../types/profesor";
@@ -141,6 +142,32 @@ const AgregarProfesor = () => {
     }
   };
   
+  // Función para generar una contraseña de primer uso
+  const generatePassword = () => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+    let password = "";
+    
+    // Generar una contraseña de 8 caracteres
+    for (let i = 0; i < 8; i++) {
+      const randomIndex = Math.floor(Math.random() * chars.length);
+      password += chars.charAt(randomIndex);
+    }
+    
+    // Actualizar el estado del formulario con la nueva contraseña
+    setFormData(prev => ({
+      ...prev,
+      password
+    }));
+    
+    // Limpiar errores de contraseña si existen
+    if (errors.password) {
+      setErrors(prev => ({
+        ...prev,
+        password: ""
+      }));
+    }
+  };
+  
   // Función para cerrar el snackbar
   const handleCloseSnackbar = () => {
     setSnackbar(prev => ({
@@ -232,6 +259,16 @@ const AgregarProfesor = () => {
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
+                        <Tooltip title="Generar contraseña de primer uso">
+                          <IconButton
+                            onClick={generatePassword}
+                            edge="end"
+                            sx={{ mr: 0.5 }}
+                            color="primary"
+                          >
+                            <LuRefreshCw />
+                          </IconButton>
+                        </Tooltip>
                         <IconButton
                           onClick={() => setShowPassword(!showPassword)}
                           edge="end"
