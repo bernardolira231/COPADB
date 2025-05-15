@@ -5,6 +5,7 @@ export interface EstudiantePersonalInfo {
   email: string;
   tipoSangre: string;
   alergias: string;
+  fechaNacimiento: string;
 }
 
 export interface EstudianteAcademicInfo {
@@ -48,6 +49,7 @@ export interface Estudiante {
   family_id: number;
   permission: string;
   reg_date: string;
+  birth_date?: string;
   group_id?: string | number;
   group_grade?: string;
   class_name?: string;

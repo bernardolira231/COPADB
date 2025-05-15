@@ -20,6 +20,7 @@ const useInscripcionesForm = () => {
     email: "",
     tipoSangre: "",
     alergias: "",
+    fechaNacimiento: "",
   };
 
   const initialAcademicInfo: EstudianteAcademicInfo = {
@@ -107,11 +108,33 @@ const useInscripcionesForm = () => {
       return;
     }
 
+    // Crear un objeto con los datos del estudiante, mapeando los nombres de campos al formato esperado por la API
     const estudianteData = {
-      ...personalInfo,
-      ...academicInfo,
-      ...familyInfo,
-      ...additionalInfo,
+      // Mapear datos personales
+      name: personalInfo.nombre,
+      lastname_f: personalInfo.apellidoPaterno,
+      lastname_m: personalInfo.apellidoMaterno,
+      email: personalInfo.email,
+      blood_type: personalInfo.tipoSangre,
+      allergies: personalInfo.alergias,
+      birth_date: personalInfo.fechaNacimiento, // Nuevo campo de fecha de nacimiento
+      
+      // Mapear datos académicos
+      scholar_ship: academicInfo.beca,
+      chapel: academicInfo.capilla,
+      school_campus: academicInfo.campusEscolar,
+      
+      // Mapear datos familiares
+      tutor_name: familyInfo.tutorNombre,
+      tutor_lastname_f: familyInfo.tutorApellidoPaterno,
+      tutor_lastname_m: familyInfo.tutorApellidoMaterno,
+      phone: familyInfo.telefono,
+      tutor_email: familyInfo.emailTutor,
+      emergency_phone: familyInfo.telefonoEmergencia,
+      
+      // Mapear datos adicionales
+      permission: additionalInfo.permiso,
+      reg_date: additionalInfo.fechaRegistro,
     };
 
     setLoading(true);

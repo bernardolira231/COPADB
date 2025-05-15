@@ -50,6 +50,32 @@ interface StudentsTableProps {
   handleDelete: (id: number) => void;
 }
 
+// Función para calcular la edad a partir de la fecha de nacimiento
+const calculateAge = (birthDateString: string): string => {
+  try {
+    const birthDate = new Date(birthDateString);
+    const today = new Date();
+    
+    // Verificar que la fecha sea válida
+    if (isNaN(birthDate.getTime())) {
+      return 'Fecha inválida';
+    }
+    
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+    
+    // Si aún no ha cumplido años en este año, restar 1
+    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return `${age} años`;
+  } catch (error) {
+    console.error('Error al calcular la edad:', error);
+    return 'Error';
+  }
+};
+
 const StudentsTable: React.FC<StudentsTableProps> = ({
   estudiantes,
   loading,
@@ -289,6 +315,9 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
                   Grupo
                 </TableCell>
                 <TableCell sx={studentsTableHeadCellSx(theme)} align="center">
+                  Edad
+                </TableCell>
+                <TableCell sx={studentsTableHeadCellSx(theme)} align="center">
                   Fecha de Registro
                 </TableCell>
                 <TableCell align="center" sx={studentsTableHeadCellSx(theme)}>
@@ -468,6 +497,9 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
                           </Select>
                         )}
                       </FormControl>
+                    </TableCell>
+                    <TableCell align="center" sx={studentsTableCellSx(theme)}>
+                      {estudiante.birth_date ? calculateAge(estudiante.birth_date) : 'N/A'}
                     </TableCell>
                     <TableCell align="center" sx={studentsTableCellSx(theme)}>
                       {new Date(estudiante.reg_date).toLocaleDateString()}
