@@ -192,6 +192,10 @@ const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
             fullWidth
             variant="outlined"
             margin="normal"
+            // Establecer la fecha máxima como hoy
+            inputProps={{
+              max: new Date().toISOString().split('T')[0] // Limita la fecha máxima a hoy
+            }}
             InputLabelProps={{
               shrink: true,
             }}
