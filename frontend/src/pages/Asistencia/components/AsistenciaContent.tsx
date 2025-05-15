@@ -56,7 +56,7 @@ const AsistenciaContent: React.FC<AsistenciaContentProps> = ({
         />
         <Actions />
         <AttendanceTable />
-        <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+        <Box sx={{ display: "flex", gap: 2, mt: 2, justifyContent: "flex-end" }}>
           <Button
             variant="outlined"
             color="primary"
