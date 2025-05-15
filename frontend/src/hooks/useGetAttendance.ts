@@ -14,11 +14,12 @@ interface UseAttendanceReturn {
   attendance: Attendance[];
   loading: boolean;
   error: string | null;
-  fetchAttendance: (date?: string, groupId?: number) => Promise<void>;
+  fetchAttendance: (date?: string, groupId?: number, preserveState?: boolean) => Promise<void>;
   toggleAttendance: (id: number, studentId?: number) => void;
   setAllPresent: () => void;
   setAllAbsent: () => void;
   saveAttendance: (attendance: Attendance[]) => Promise<{ success: boolean; message: string }>;
+  downloadAttendanceReport: (groupId: number) => Promise<void>;
 }
 
 // Ya no necesitamos datos mock, usaremos datos reales de la API
@@ -227,6 +228,64 @@ const useGetAttendance = (): UseAttendanceReturn => {
     }
   };
 
+  // Nueva función para descargar el reporte CSV de asistencias
+  const downloadAttendanceReport = async (groupId: number) => {
+    try {
+      console.log(`Descargando reporte de asistencia para el grupo ${groupId}`);
+      
+      // Mostrar un indicador de carga
+      setLoading(true);
+      
+      // Hacer la solicitud al endpoint para descargar el reporte CSV
+      const response = await fetch(`http://localhost:5328/api/asistencia/reporte/${groupId}`, {
+        method: 'GET',
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Error HTTP: ${response.status}`);
+      }
+      
+      // Obtener el blob del CSV
+      const blob = await response.blob();
+      
+      // Crear una URL para el blob
+      const url = window.URL.createObjectURL(blob);
+      
+      // Crear un elemento <a> para descargar el archivo
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      
+      // Obtener el nombre del archivo del header Content-Disposition
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'Reporte_Asistencia.csv';
+      
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename=([^;]+)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].trim();
+        }
+      }
+      
+      a.download = filename;
+      
+      // Agregar el elemento al DOM y hacer clic en él para iniciar la descarga
+      document.body.appendChild(a);
+      a.click();
+      
+      // Limpiar
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      console.log('Reporte descargado correctamente');
+    } catch (err) {
+      console.error('Error al descargar el reporte de asistencia:', err);
+      setError('Error al descargar el reporte de asistencia. Por favor, intenta de nuevo más tarde.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Cargar asistencia al montar el componente
   useEffect(() => {
     // No llamar automáticamente a fetchAttendance al montar
@@ -248,6 +307,7 @@ const useGetAttendance = (): UseAttendanceReturn => {
     setAllPresent,
     setAllAbsent,
     saveAttendance,
+    downloadAttendanceReport
   };
 };
 

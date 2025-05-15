@@ -11,6 +11,7 @@ interface AttendanceContextProps {
   setAllPresent: () => void;
   setAllAbsent: () => void;
   guardarAsistencia: () => Promise<void>;
+  downloadAttendanceReport: (groupId: number) => Promise<void>;
   saving: boolean;
 }
 

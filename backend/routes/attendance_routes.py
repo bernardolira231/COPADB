@@ -1,10 +1,12 @@
-from flask import Blueprint, jsonify, request, make_response
+from flask import Blueprint, jsonify, request, make_response, Response
 from functools import wraps
 from utils.db import get_db_connection
 import traceback
 from datetime import datetime, timedelta
 import time
 import psycopg2.extras
+import csv
+import io
 
 # Sistema de caché simple para reducir consultas repetidas
 attendance_cache = {}
@@ -315,6 +317,121 @@ def save_attendance():
         traceback.print_exc()
         return jsonify({
             "message": "Error al guardar asistencia", 
+            "error": str(e),
+            "success": False
+        }), 500
+
+@attendance_bp.route('/asistencia/reporte/<int:group_id>', methods=['GET', 'OPTIONS'])
+@cors_decorator
+def generate_attendance_report(group_id):
+    """Endpoint para generar un reporte CSV de asistencias de los últimos 30 días"""
+    if request.method == 'OPTIONS':
+        return make_response()
+    
+    try:
+        # Obtener la fecha actual y calcular la fecha de hace 30 días
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=30)
+        
+        print(f"Generando reporte de asistencia para el grupo {group_id} desde {start_date.strftime('%Y-%m-%d')} hasta {end_date.strftime('%Y-%m-%d')}")
+        
+        with get_db_connection() as conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
+                # Obtener todos los estudiantes del grupo usando la tabla history
+                cur.execute("""
+                    SELECT s.id, s.name || ' ' || s.lastname_f || ' ' || s.lastname_m as full_name
+                    FROM student s
+                    JOIN history h ON s.id = h.student_id
+                    WHERE h.group_id = %s AND h.status = 'activo'
+                    ORDER BY full_name
+                """, (group_id,))
+                
+                students = cur.fetchall()
+                student_ids = [student['id'] for student in students]
+                
+                if not student_ids:
+                    return jsonify({
+                        "message": "No se encontraron estudiantes en este grupo",
+                        "success": False
+                    }), 404
+                
+                # Obtener todas las fechas con registros de asistencia en el rango de 30 días
+                placeholders = ', '.join(['%s'] * len(student_ids))
+                cur.execute(f"""
+                    SELECT DISTINCT DATE(fecha) as fecha
+                    FROM attendance
+                    WHERE student_id IN ({placeholders}) AND grade_id = %s
+                    AND fecha BETWEEN %s AND %s
+                    ORDER BY fecha DESC
+                """, student_ids + [group_id, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d')])
+                
+                dates = [row['fecha'] for row in cur.fetchall()]
+                
+                # Obtener el nombre del grupo
+                cur.execute("""
+                    SELECT g.grade, c.name as class_name
+                    FROM "group" g
+                    JOIN class c ON g.class_id = c.id
+                    WHERE g.id = %s
+                """, (group_id,))
+                
+                group_info = cur.fetchone()
+                group_name = f"{group_info['grade']} - {group_info['class_name']}" if group_info else f"Grupo {group_id}"
+                
+                # Crear un buffer para el CSV
+                output = io.StringIO()
+                writer = csv.writer(output)
+                
+                # Escribir encabezados
+                headers = ['Estudiante']
+                for date in dates:
+                    headers.append(date.strftime('%d/%m/%Y'))
+                writer.writerow(headers)
+                
+                # Para cada estudiante, obtener su asistencia en cada fecha
+                for student in students:
+                    row = [student['full_name']]
+                    
+                    # Obtener todos los registros de asistencia para este estudiante en el rango de fechas
+                    cur.execute(f"""
+                        SELECT DATE(fecha) as fecha, status
+                        FROM attendance
+                        WHERE student_id = %s AND grade_id = %s
+                        AND fecha BETWEEN %s AND %s
+                    """, (student['id'], group_id, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d')))
+                    
+                    attendance_records = {row['fecha'].strftime('%Y-%m-%d'): row['status'] for row in cur.fetchall()}
+                    
+                    # Agregar el estado de asistencia para cada fecha
+                    for date in dates:
+                        date_str = date.strftime('%Y-%m-%d')
+                        if date_str in attendance_records:
+                            row.append('Presente' if attendance_records[date_str] else 'Ausente')
+                        else:
+                            row.append('N/A')
+                    
+                    writer.writerow(row)
+                
+                # Preparar la respuesta
+                output.seek(0)
+                
+                # Crear un nombre de archivo descriptivo
+                filename = f"Asistencia_{group_name}_{start_date.strftime('%Y%m%d')}_a_{end_date.strftime('%Y%m%d')}.csv"
+                filename = filename.replace(' ', '_')
+                
+                response = Response(
+                    output.getvalue(),
+                    mimetype="text/csv",
+                    headers={
+                        "Content-Disposition": f"attachment; filename={filename}"
+                    }
+                )
+                
+                return response
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({
+            "message": "Error al generar reporte de asistencia", 
             "error": str(e),
             "success": False
         }), 500
