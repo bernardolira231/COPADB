@@ -1,8 +1,54 @@
+import { useState } from "react";
 import Layout from "../../components/Layout";
 import { useAuth } from "../../context/AuthContext";
+import ChangePasswordModal from "./ChangePasswordModal";
+import { Snackbar, Alert } from "@mui/material";
 
 const Profile = () => {
   const { user, loading, initializing, error } = useAuth();
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
+  const [snackbar, setSnackbar] = useState<{open: boolean; message: string; severity: 'success' | 'error'}>({open: false, message: '', severity: 'success'});
+
+  const handleChangePassword = async (currentPassword: string, newPassword: string) => {
+    try {
+      const response = await fetch('http://localhost:5328/api/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Error al cambiar la contraseña');
+      }
+
+      setSnackbar({
+        open: true,
+        message: 'Contraseña cambiada exitosamente',
+        severity: 'success'
+      });
+      
+      return Promise.resolve();
+    } catch (error: any) {
+      setSnackbar({
+        open: true,
+        message: error.message || 'Error al cambiar la contraseña',
+        severity: 'error'
+      });
+      return Promise.reject(error);
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
+  };
 
   const getUserInitials = () => {
     if (!user) return "U";
@@ -142,7 +188,10 @@ const Profile = () => {
                   <div>
                     <p className="font-medium">Contraseña</p>
                   </div>
-                  <button className="text-primary hover:underline">
+                  <button 
+                    className="text-primary hover:underline"
+                    onClick={() => setIsChangePasswordModalOpen(true)}
+                  >
                     Cambiar
                   </button>
                 </div>
@@ -151,6 +200,29 @@ const Profile = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal de cambio de contraseña */}
+      <ChangePasswordModal
+        open={isChangePasswordModalOpen}
+        onClose={() => setIsChangePasswordModalOpen(false)}
+        onSubmit={handleChangePassword}
+      />
+
+      {/* Snackbar para mostrar mensajes */}
+      <Snackbar 
+        open={snackbar.open} 
+        autoHideDuration={6000} 
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbar.severity} 
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Layout>
   );
 };
