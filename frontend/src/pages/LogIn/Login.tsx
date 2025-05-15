@@ -34,16 +34,22 @@ const Login = () => {
 
     if (newErrors.email || newErrors.password) return;
 
-    login({ email, password }, {
-      onSuccess: (data) => {
-        localStorage.setItem("token", data.token);
-        setUserAfterLogin(data.user);
-        navigate({ to: "/Home" });
-      },
-      onError: (err) => {
-        setErrors((prev) => ({ ...prev, password: "Credenciales incorrectas." }));
-      },
-    });
+    login(
+      { email, password },
+      {
+        onSuccess: (data) => {
+          localStorage.setItem("token", data.token);
+          setUserAfterLogin(data.user);
+          navigate({ to: "/Home" });
+        },
+        onError: (err) => {
+          setErrors((prev) => ({
+            ...prev,
+            password: "Credenciales incorrectas.",
+          }));
+        },
+      }
+    );
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -57,7 +63,7 @@ const Login = () => {
       <div className="w-[448px] bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="bg-secondary py-6 flex justify-center">
           <img
-            src="/src/assets/images/icon.png"
+            src="/src/assets/images/logo.webp"
             alt="Logo de la escuela"
             className="w-[196px] h-[192px]"
           />

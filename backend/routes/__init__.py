@@ -2,6 +2,7 @@ from routes.auth_routes import auth_bp
 from routes.teacher_routes import teacher_bp
 from routes.student_routes import student_bp
 from routes.user_routes import user_bp
+from routes.attendance_routes import attendance_bp
 
 def register_blueprints(app):
     """
@@ -14,3 +15,4 @@ def register_blueprints(app):
     app.register_blueprint(teacher_bp)
     app.register_blueprint(student_bp)
     app.register_blueprint(user_bp)
+    app.register_blueprint(attendance_bp)

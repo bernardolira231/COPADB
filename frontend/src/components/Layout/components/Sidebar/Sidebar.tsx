@@ -33,7 +33,7 @@ const Sidebar = () => {
         <Link to="/Home">
           <div className="flex items-center gap-2 border-b border-border-color py-2 h-[82px] justify-center">
             <img
-              src="/src/assets/images/icon.png"
+              src="/src/assets/images/logo.webp"
               alt="Logo de la escuela"
               className="h-[50px] w-[51px]"
             />

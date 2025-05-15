@@ -366,6 +366,54 @@ def update_estudiante(id):
         traceback.print_exc()
         return jsonify({"message": "Error al actualizar estudiante", "error": str(e)}), 500
 
+@student_bp.route('/estudiantes/por-grupo/<int:group_id>', methods=['GET'])
+@cors_decorator
+def get_estudiantes_por_grupo(group_id):
+    """Endpoint para obtener todos los estudiantes asignados a un grupo específico"""
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # Verificar si el grupo existe
+        cur.execute("SELECT id FROM \"group\" WHERE id = %s", (group_id,))
+        if not cur.fetchone():
+            cur.close()
+            conn.close()
+            return jsonify({"message": f"Grupo con ID {group_id} no encontrado"}), 404
+        
+        # Obtener todos los estudiantes activos en este grupo
+        cur.execute("""
+            SELECT 
+                s.id, s.name, s.lastname_f, s.lastname_m, s.email, 
+                s.blood_type, s.allergies, s.scholar_ship, s.chapel, 
+                s.school_campus, s.family_id, s.permission, 
+                s.reg_date,
+                h.group_id,
+                g.grade as group_grade,
+                c.name as class_name
+            FROM public.student s
+            JOIN history h ON s.id = h.student_id
+            JOIN \"group\" g ON h.group_id = g.id
+            LEFT JOIN class c ON g.class_id = c.id
+            WHERE h.group_id = %s AND h.status = 'activo'
+            ORDER BY s.lastname_f, s.lastname_m, s.name
+        """, (group_id,))
+        
+        estudiantes = [dict(row) for row in cur.fetchall()]
+        
+        cur.close()
+        conn.close()
+        
+        return jsonify({
+            "message": "Estudiantes obtenidos correctamente",
+            "estudiantes": estudiantes,
+            "total": len(estudiantes)
+        }), 200
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"message": "Error al obtener estudiantes", "error": str(e)}), 500
+
 @student_bp.route('/estudiantes/<int:estudiante_id>/asignar-grupo', methods=['POST'])
 @cors_decorator
 def asignar_grupo(estudiante_id):

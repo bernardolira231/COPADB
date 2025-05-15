@@ -12,7 +12,7 @@ const Actions = () => {
         Marcar todos presentes
       </Button>
       <Button variant="contained" onClick={setAllAbsent}>
-        Reiniciar
+        Marcar todos ausentes
       </Button>
     </Box>
   );

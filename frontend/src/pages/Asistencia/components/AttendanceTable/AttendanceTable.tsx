@@ -52,9 +52,9 @@ const AttendanceTable: React.FC = () => {
                     value={row.present ? "present" : "absent"}
                     onChange={(_, value) => {
                       if (value === "present" && !row.present)
-                        toggleAttendance(row.id);
+                        toggleAttendance(row.id, row.student_id);
                       if (value === "absent" && row.present)
-                        toggleAttendance(row.id);
+                        toggleAttendance(row.id, row.student_id);
                     }}
                     sx={sx.toggleButtonGroup}
                   >

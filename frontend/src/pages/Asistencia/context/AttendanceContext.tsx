@@ -7,7 +7,7 @@ interface AttendanceContextProps {
   loading: boolean;
   error: string | null;
   fetchAttendance: (date?: string, groupId?: number) => Promise<void>;
-  toggleAttendance: (id: number) => void;
+  toggleAttendance: (id: number, studentId?: number) => void;
   setAllPresent: () => void;
   setAllAbsent: () => void;
   guardarAsistencia: () => Promise<void>;
@@ -16,10 +16,36 @@ interface AttendanceContextProps {
 
 const AttendanceContext = createContext<AttendanceContextProps | undefined>(undefined);
 
-export const AttendanceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface AttendanceProviderProps {
+  children: React.ReactNode;
+  groupId?: number;
+  date?: string;
+}
+
+export const AttendanceProvider: React.FC<AttendanceProviderProps> = ({ 
+  children,
+  groupId,
+  date 
+}) => {
   const attendanceHook = useGetAttendance();
   const [saving, setSaving] = useState(false);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({ open: false, message: "", severity: "success" });
+
+  // Cargar la asistencia cuando cambie el groupId o la fecha
+  // Usamos una referencia para evitar múltiples solicitudes durante re-renders
+  const prevParamsRef = React.useRef<{groupId?: number, date?: string}>({});
+  
+  React.useEffect(() => {
+    // Solo hacer la solicitud si el groupId o la fecha han cambiado
+    if (groupId && 
+        (prevParamsRef.current.groupId !== groupId || 
+         prevParamsRef.current.date !== date)) {
+      
+      console.log(`Parámetros cambiados: groupId=${groupId}, date=${date}`);
+      prevParamsRef.current = { groupId, date };
+      attendanceHook.fetchAttendance(date, groupId);
+    }
+  }, [groupId, date, attendanceHook]);
 
   const guardarAsistencia = async () => {
     setSaving(true);

@@ -15,9 +15,15 @@ const Asistencia = () => {
     return null;
   }
 
+  // Formatear la fecha si se proporciona en la URL
+  const formattedDate = fechaQuery || new Date().toISOString().split('T')[0];
+  
   return (
     <Layout>
-      <AttendanceProvider>
+      <AttendanceProvider 
+        groupId={materiaSeleccionada?.group_id}
+        date={formattedDate}
+      >
         <AsistenciaContent
           materiaSeleccionada={materiaSeleccionada}
           fechaQuery={fechaQuery}
