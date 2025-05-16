@@ -97,7 +97,7 @@ def registrar_estudiante():
             family_id,
             data["permiso"],
             data["fechaRegistro"],
-            data.get("fechaNacimiento", None)  # Obtener la fecha de nacimiento
+            data.get("birth_date", None)  # Obtener la fecha de nacimiento
         ))
 
         conn.commit()

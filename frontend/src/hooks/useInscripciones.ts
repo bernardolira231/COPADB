@@ -111,30 +111,30 @@ const useInscripcionesForm = () => {
     // Crear un objeto con los datos del estudiante, mapeando los nombres de campos al formato esperado por la API
     const estudianteData = {
       // Mapear datos personales
-      name: personalInfo.nombre,
-      lastname_f: personalInfo.apellidoPaterno,
-      lastname_m: personalInfo.apellidoMaterno,
+      nombre: personalInfo.nombre,
+      apellidoPaterno: personalInfo.apellidoPaterno,
+      apellidoMaterno: personalInfo.apellidoMaterno,
       email: personalInfo.email,
-      blood_type: personalInfo.tipoSangre,
-      allergies: personalInfo.alergias,
+      tipoSangre: personalInfo.tipoSangre,
+      alergias: personalInfo.alergias,
       birth_date: personalInfo.fechaNacimiento, // Nuevo campo de fecha de nacimiento
       
       // Mapear datos académicos
-      scholar_ship: academicInfo.beca,
-      chapel: academicInfo.capilla,
-      school_campus: academicInfo.campusEscolar,
+      beca: academicInfo.beca,
+      capilla: academicInfo.capilla,
+      campusEscolar: academicInfo.campusEscolar,
       
       // Mapear datos familiares
-      tutor_name: familyInfo.tutorNombre,
-      tutor_lastname_f: familyInfo.tutorApellidoPaterno,
-      tutor_lastname_m: familyInfo.tutorApellidoMaterno,
-      phone: familyInfo.telefono,
-      tutor_email: familyInfo.emailTutor,
-      emergency_phone: familyInfo.telefonoEmergencia,
+      tutorNombre: familyInfo.tutorNombre,
+      tutorApellidoPaterno: familyInfo.tutorApellidoPaterno,
+      tutorApellidoMaterno: familyInfo.tutorApellidoMaterno,
+      telefono: familyInfo.telefono,
+      emailTutor: familyInfo.emailTutor,
+      telefonoEmergencia: familyInfo.telefonoEmergencia,
       
       // Mapear datos adicionales
-      permission: additionalInfo.permiso,
-      reg_date: additionalInfo.fechaRegistro,
+      permiso: additionalInfo.permiso,
+      fechaRegistro: additionalInfo.fechaRegistro,
     };
 
     setLoading(true);
