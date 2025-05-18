@@ -4,13 +4,18 @@ import {
   EstudiantePersonalInfo,
   EstudianteAcademicInfo,
   EstudianteFamilyInfo,
-  EstudianteAdditionalInfo
+  EstudianteAdditionalInfo,
+  Tutor
 } from "../types/estudiante";
 
 const useInscripcionesForm = () => {
   const navigate = useNavigate();
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  
+  // Estado para manejar la selección de tutor existente
+  const [usarTutorExistente, setUsarTutorExistente] = useState(false);
+  const [tutorSeleccionado, setTutorSeleccionado] = useState<Tutor | null>(null);
 
   // Valores iniciales para cada grupo de estados
   const initialPersonalInfo: EstudiantePersonalInfo = {
@@ -135,6 +140,10 @@ const useInscripcionesForm = () => {
       // Mapear datos adicionales
       permiso: additionalInfo.permiso,
       fechaRegistro: additionalInfo.fechaRegistro,
+      
+      // Información de tutor existente
+      usarTutorExistente: usarTutorExistente,
+      tutorExistenteId: tutorSeleccionado?.id
     };
 
     setLoading(true);
@@ -185,12 +194,16 @@ const useInscripcionesForm = () => {
     additionalInfo,
     loading,
     isSuccessModalOpen,
+    usarTutorExistente,
+    tutorSeleccionado,
 
     updatePersonalInfo,
     updateAcademicInfo,
     updateFamilyInfo,
     updateAdditionalInfo,
     resetForm,
+    setUsarTutorExistente,
+    setTutorSeleccionado,
 
     handleSubmit,
     isFormValid,

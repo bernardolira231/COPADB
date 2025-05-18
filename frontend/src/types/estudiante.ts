@@ -28,6 +28,16 @@ export interface EstudianteAdditionalInfo {
   fechaRegistro: string;
 }
 
+export interface Tutor {
+  id: number;
+  tutor_name: string;
+  tutor_lastname_f: string;
+  tutor_lastname_m: string;
+  phone_number: string;
+  email_address: string;
+  emergency_phone_number: string;
+}
+
 export interface GrupoEstudiante {
   group_id: number;
   grade: string;

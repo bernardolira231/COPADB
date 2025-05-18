@@ -4,6 +4,7 @@ from psycopg2.extras import RealDictCursor
 from config.config import Config
 from functools import wraps
 import datetime
+import json
 
 student_bp = Blueprint('student', __name__, url_prefix='/api')
 
@@ -57,27 +58,33 @@ def registrar_estudiante():
         conn = get_db_connection()
         cur = conn.cursor()
 
-        cur.execute("""
-            INSERT INTO family (
-                tutor_name, tutor_lastname_F, tutor_lastname_M,
-                phone_number, email_address, emergency_phone_number
-            ) VALUES (%s, %s, %s, %s, %s, %s)
-            RETURNING id;
-        """, (
-            data["tutorNombre"],
-            data["tutorApellidoPaterno"],
-            data["tutorApellidoMaterno"],
-            data["telefono"],
-            data["emailTutor"],
-            data["telefonoEmergencia"]
-        ))
+        # Verificar si se está utilizando un tutor existente
+        family_id = None
+        if data.get("usarTutorExistente") and data.get("tutorExistenteId"):
+            family_id = data["tutorExistenteId"]
+        else:
+            # Crear un nuevo registro de familia
+            cur.execute("""
+                INSERT INTO family (
+                    tutor_name, tutor_lastname_F, tutor_lastname_M,
+                    phone_number, email_address, emergency_phone_number
+                ) VALUES (%s, %s, %s, %s, %s, %s)
+                RETURNING id;
+            """, (
+                data["tutorNombre"],
+                data["tutorApellidoPaterno"],
+                data["tutorApellidoMaterno"],
+                data["telefono"],
+                data["emailTutor"],
+                data["telefonoEmergencia"]
+            ))
 
-        family_id = cur.fetchone()
+            family_result = cur.fetchone()
 
-        if family_id is None:
-            raise ValueError("No se pudo obtener el family_id después de insertar en family.")
-        
-        family_id = family_id["id"]
+            if family_result is None:
+                raise ValueError("No se pudo obtener el family_id después de insertar en family.")
+            
+            family_id = family_result["id"]
         cur.execute("""
             INSERT INTO student (
                 name, lastname_F, lastname_M, email, blood_type,
@@ -416,6 +423,73 @@ def get_estudiantes_por_grupo(group_id):
         import traceback
         traceback.print_exc()
         return jsonify({"message": "Error al obtener estudiantes", "error": str(e)}), 500
+
+@student_bp.route('/tutores', methods=['GET', 'OPTIONS'])
+@cors_decorator
+def get_tutores():
+    if request.method == "OPTIONS":
+        return jsonify({"message": "CORS preflight OK"}), 204
+        
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # Obtener parámetros de consulta para filtrado
+        search = request.args.get('search', default='', type=str)
+        
+        # Construir la consulta base
+        query = """
+            SELECT 
+                f.id, f.tutor_name, f.tutor_lastname_f, f.tutor_lastname_m,
+                f.phone_number, f.email_address, f.emergency_phone_number
+            FROM public.family f
+        """
+        
+        params = []
+        
+        # Añadir filtro de búsqueda si se proporciona
+        if search:
+            query += """
+                WHERE 
+                    tutor_name ILIKE %s OR 
+                    tutor_lastname_f ILIKE %s OR 
+                    tutor_lastname_m ILIKE %s OR 
+                    email_address ILIKE %s
+            """
+            search_param = f'%{search}%'
+            params.extend([search_param, search_param, search_param, search_param])
+            # Ordenar por relevancia cuando hay búsqueda
+            query += """
+                ORDER BY 
+                    CASE WHEN tutor_lastname_f ILIKE %s THEN 0 ELSE 1 END,
+                    tutor_lastname_f, tutor_lastname_m, tutor_name
+                LIMIT 20
+            """
+            params.append(search_param)
+        else:
+            # Si no hay búsqueda, mostrar los tutores más recientes
+            # Asumimos que los IDs más altos son los más recientes
+            query += """
+                ORDER BY id DESC
+                LIMIT 20
+            """
+        
+        # Ejecutar la consulta
+        cur.execute(query, params)
+        tutores = cur.fetchall()
+        
+        # Cerrar conexión
+        cur.close()
+        conn.close()
+        
+        return jsonify({
+            "tutores": tutores
+        }), 200
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"message": "Error al obtener tutores", "error": str(e)}), 500
 
 @student_bp.route('/estudiantes/<int:estudiante_id>/asignar-grupo', methods=['POST'])
 @cors_decorator

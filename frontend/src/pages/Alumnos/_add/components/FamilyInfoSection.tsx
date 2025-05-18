@@ -1,20 +1,31 @@
-import React, { useState } from 'react';
-import { EstudianteFamilyInfo } from '../../../../types/estudiante';
+import React, { useState, useEffect } from 'react';
+import { EstudianteFamilyInfo, Tutor } from '../../../../types/estudiante';
 import { 
   Typography, 
   Grid, 
-  TextField
+  TextField,
+  Divider,
+  Box
 } from '@mui/material';
 import { LuUsers, LuPhone, LuMail } from 'react-icons/lu';
+import ExistingTutorSelector from './ExistingTutorSelector';
 
 interface FamilyInfoSectionProps {
   familyInfo: EstudianteFamilyInfo;
   updateFamilyInfo: (field: keyof EstudianteFamilyInfo, value: string) => void;
+  usarTutorExistente: boolean;
+  setUsarTutorExistente: (value: boolean) => void;
+  tutorSeleccionado: Tutor | null;
+  setTutorSeleccionado: (tutor: Tutor | null) => void;
 }
 
 const FamilyInfoSection: React.FC<FamilyInfoSectionProps> = ({
   familyInfo,
   updateFamilyInfo,
+  usarTutorExistente,
+  setUsarTutorExistente,
+  tutorSeleccionado,
+  setTutorSeleccionado
 }) => {
   // Estado para rastrear qué campos han sido tocados
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
@@ -27,6 +38,18 @@ const FamilyInfoSection: React.FC<FamilyInfoSectionProps> = ({
     const numericValue = value.replace(/\D/g, "");
     updateFamilyInfo(field, numericValue);
   };
+  
+  // Actualizar los campos del formulario cuando se selecciona un tutor existente
+  useEffect(() => {
+    if (usarTutorExistente && tutorSeleccionado) {
+      updateFamilyInfo('tutorNombre', tutorSeleccionado.tutor_name);
+      updateFamilyInfo('tutorApellidoPaterno', tutorSeleccionado.tutor_lastname_f);
+      updateFamilyInfo('tutorApellidoMaterno', tutorSeleccionado.tutor_lastname_m);
+      updateFamilyInfo('telefono', tutorSeleccionado.phone_number);
+      updateFamilyInfo('emailTutor', tutorSeleccionado.email_address);
+      updateFamilyInfo('telefonoEmergencia', tutorSeleccionado.emergency_phone_number);
+    }
+  }, [tutorSeleccionado, usarTutorExistente]);
 
   return (
     <section>
@@ -35,7 +58,24 @@ const FamilyInfoSection: React.FC<FamilyInfoSectionProps> = ({
         Información Familiar
       </Typography>
       
-      <Grid container spacing={3}>
+      <ExistingTutorSelector
+        usarTutorExistente={usarTutorExistente}
+        setUsarTutorExistente={setUsarTutorExistente}
+        tutorSeleccionado={tutorSeleccionado}
+        setTutorSeleccionado={setTutorSeleccionado}
+      />
+      
+      {usarTutorExistente && tutorSeleccionado ? (
+        <Box sx={{ mt: 3, mb: 2 }}>
+          <Typography variant="body2" color="text.secondary">
+            Los datos del tutor se han completado automáticamente.
+          </Typography>
+        </Box>
+      ) : (
+        <Divider sx={{ my: 2 }} />
+      )}
+      
+      <Grid container spacing={3} sx={{ opacity: usarTutorExistente && tutorSeleccionado ? 0.7 : 1 }}>
         <Grid item xs={12} md={4}>
           <TextField
             label="Nombre del Tutor"
@@ -49,6 +89,7 @@ const FamilyInfoSection: React.FC<FamilyInfoSectionProps> = ({
             placeholder="Ingresa el nombre del tutor"
             error={touchedFields['tutorNombre'] && familyInfo.tutorNombre === ''}
             helperText={touchedFields['tutorNombre'] && familyInfo.tutorNombre === '' ? 'El nombre del tutor es requerido' : ''}
+            disabled={usarTutorExistente && tutorSeleccionado !== null}
           />
         </Grid>
         
@@ -65,6 +106,7 @@ const FamilyInfoSection: React.FC<FamilyInfoSectionProps> = ({
             placeholder="Ingresa el apellido paterno del tutor"
             error={touchedFields['tutorApellidoPaterno'] && familyInfo.tutorApellidoPaterno === ''}
             helperText={touchedFields['tutorApellidoPaterno'] && familyInfo.tutorApellidoPaterno === '' ? 'El apellido paterno del tutor es requerido' : ''}
+            disabled={usarTutorExistente && tutorSeleccionado !== null}
           />
         </Grid>
         
@@ -81,6 +123,7 @@ const FamilyInfoSection: React.FC<FamilyInfoSectionProps> = ({
             placeholder="Ingresa el apellido materno del tutor"
             error={touchedFields['tutorApellidoMaterno'] && familyInfo.tutorApellidoMaterno === ''}
             helperText={touchedFields['tutorApellidoMaterno'] && familyInfo.tutorApellidoMaterno === '' ? 'El apellido materno del tutor es requerido' : ''}
+            disabled={usarTutorExistente && tutorSeleccionado !== null}
           />
         </Grid>
         
@@ -104,6 +147,7 @@ const FamilyInfoSection: React.FC<FamilyInfoSectionProps> = ({
                 <LuPhone className="mr-2" />
               ),
             }}
+            disabled={usarTutorExistente && tutorSeleccionado !== null}
           />
         </Grid>
         
@@ -126,6 +170,7 @@ const FamilyInfoSection: React.FC<FamilyInfoSectionProps> = ({
                 <LuMail className="mr-2" />
               ),
             }}
+            disabled={usarTutorExistente && tutorSeleccionado !== null}
           />
         </Grid>
         
@@ -149,6 +194,7 @@ const FamilyInfoSection: React.FC<FamilyInfoSectionProps> = ({
                 <LuPhone className="mr-2" color="red" />
               ),
             }}
+            disabled={usarTutorExistente && tutorSeleccionado !== null}
           />
         </Grid>
       </Grid>
