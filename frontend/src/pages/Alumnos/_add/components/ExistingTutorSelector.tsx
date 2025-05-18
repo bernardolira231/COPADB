@@ -167,8 +167,8 @@ const ExistingTutorSelector: React.FC<ExistingTutorSelectorProps> = ({
                 <Box component={Paper} elevation={0} sx={{ p: 1, width: '100%', '&:hover': { bgcolor: 'rgba(0, 0, 0, 0.04)' } }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
                     <LuUser size={16} style={{ marginRight: 8 }} />
-                    <Typography variant="body1" fontWeight="medium">
-                      {option.tutor_lastname_f} {option.tutor_lastname_m} {option.tutor_name}
+                    <Typography variant="body1" fontWeight="medium">                      
+                      {option.tutor_name} {option.tutor_lastname_f} {option.tutor_lastname_m}
                     </Typography>
                   </Box>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, ml: 3 }}>
@@ -198,7 +198,7 @@ const ExistingTutorSelector: React.FC<ExistingTutorSelectorProps> = ({
                 Tutor seleccionado:
               </Typography>
               <Typography variant="body1">
-                {tutorSeleccionado.tutor_lastname_f} {tutorSeleccionado.tutor_lastname_m} {tutorSeleccionado.tutor_name}
+                {tutorSeleccionado.tutor_name} {tutorSeleccionado.tutor_lastname_f} {tutorSeleccionado.tutor_lastname_m}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Correo: {tutorSeleccionado.email_address}
