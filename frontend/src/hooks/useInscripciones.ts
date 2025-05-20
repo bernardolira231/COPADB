@@ -117,7 +117,7 @@ const useInscripcionesForm = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5328/api/inscripciones", {
+      const response = await fetch("/inscripciones", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

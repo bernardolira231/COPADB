@@ -18,7 +18,7 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
     
     # Inicializar extensiones
-    cors.init_app(app, supports_credentials=True, resources={r"/*": {"origins": app.config['CORS_ORIGIN']}})
+    cors.init_app(app, supports_credentials=True, resources=app.config['CORS_RESOURCES'])
     jwt.init_app(app)
     bcrypt.init_app(app)
     

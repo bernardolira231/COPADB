@@ -132,7 +132,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     try {
-      const response = await fetch("http://localhost:5328/api/user/profile", {
+      const response = await fetch("/api/user/profile", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

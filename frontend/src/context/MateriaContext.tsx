@@ -65,7 +65,7 @@ export const MateriaProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      const response = await fetch(`http://localhost:5328/api/profesor/materias`, {
+      const response = await fetch(`/api/profesor/materias`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

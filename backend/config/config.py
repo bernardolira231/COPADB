@@ -16,8 +16,14 @@ class Config:
     JWT_HEADER_TYPE = "Bearer"
     
     # Configuración de CORS
-    CORS_ORIGIN = os.getenv("CORS_ORIGIN", "http://localhost:3001")
+    CORS_ORIGIN = os.getenv("CORS_ORIGIN", "http://localhost:80")
     
+    CORS_RESOURCES = {r"/*": {
+    "origins": ["http://localhost", "http://localhost:80", "http://localhost:3001"],
+    "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    "allow_headers": ["Content-Type", "Authorization", "Accept"]
+    }}
+
     # Configuración de la base de datos
     DB_CONFIG = {
         "host": os.getenv("DB_HOST"),

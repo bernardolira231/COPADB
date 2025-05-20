@@ -42,7 +42,7 @@ const useEstudiantes = (): UseEstudiantesReturn => {
     
     try {
       // Construir la URL con los parámetros de paginación y búsqueda
-      const url = `http://localhost:5328/api/estudiantes?page=${page}&per_page=${perPage}${search ? `&search=${encodeURIComponent(search)}` : ''}`;
+      const url = `/api/estudiantes?page=${page}&per_page=${perPage}${search ? `&search=${encodeURIComponent(search)}` : ''}`;
       
       // Hacer la llamada al API
       const response = await fetch(url, {
@@ -87,7 +87,7 @@ const useEstudiantes = (): UseEstudiantesReturn => {
     
     try {
       // Hacer la llamada al API para eliminar el estudiante
-      const response = await fetch(`http://localhost:5328/api/estudiantes/${id}`, { 
+      const response = await fetch(`/api/estudiantes/${id}`, { 
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

@@ -77,7 +77,7 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
         reg_date: updatedStudent.reg_date || new Date().toISOString()
       };
 
-      const response = await fetch(`http://localhost:5328/api/estudiantes/${updatedStudent.id}`, {
+      const response = await fetch(`/api/estudiantes/${updatedStudent.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

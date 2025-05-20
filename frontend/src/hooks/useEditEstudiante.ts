@@ -69,7 +69,7 @@ const useEditEstudiante = ({ estudianteId, initialData }: UseEditEstudianteProps
       setError(null);
 
       try {
-        const response = await fetch(`http://localhost:5328/estudiantes/${estudianteId}`);
+        const response = await fetch(`/estudiantes/${estudianteId}`);
         
         if (!response.ok) {
           throw new Error(`Error al cargar los datos del estudiante (${response.status})`);
@@ -192,8 +192,8 @@ const useEditEstudiante = ({ estudianteId, initialData }: UseEditEstudianteProps
 
     try {
       const url = isEditMode 
-        ? `http://localhost:5328/estudiantes/${estudianteId}` 
-        : "http://localhost:5328/estudiantes";
+        ? `/estudiantes/${estudianteId}` 
+        : "/estudiantes";
       
       const method = isEditMode ? "PUT" : "POST";
 
