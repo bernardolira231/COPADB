@@ -26,7 +26,9 @@ const ListStudent = () => {
 
   // Manejadores para la paginación
   const handleChangePage = (_event: unknown, newPage: number) => {
-    fetchEstudiantes(newPage, paginationInfo.per_page);
+    // Material UI TablePagination usa índices basados en 0, pero nuestro backend usa índices basados en 1
+    // Por lo tanto, necesitamos sumar 1 al newPage para obtener el número de página correcto para el backend
+    fetchEstudiantes(newPage + 1, paginationInfo.per_page);
   };
 
   const handleChangeRowsPerPage = (

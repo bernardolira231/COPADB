@@ -86,6 +86,14 @@ const isUserDataComplete = (userData: User | null): boolean => {
   return true;
 };
 
+// Utilidad para obtener el valor de una cookie por nombre
+function getCookie(name: string) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(';').shift();
+  return undefined;
+}
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -98,12 +106,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const MAX_RETRIES = 3;
 
   // Función para cerrar sesión
-  const logout = () => {
+  const logout = async () => {
     if (refreshIntervalId) {
       clearInterval(refreshIntervalId);
       setRefreshIntervalId(null);
     }
-
+    try {
+      await fetch("http://localhost:5328/api/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (err) {
+      // No importa si falla, continuar logout
+    }
     localStorage.removeItem("token");
     setUser(null);
     setInitializing(false);
@@ -114,21 +129,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const fetchUserData = async (isInitialFetch = false) => {
     setLoading(true);
 
-    const token = localStorage.getItem("token");
+    let token = localStorage.getItem("token");
     if (!token) {
-      setLoading(false);
-      setUser(null);
-      if (isInitialFetch) {
-        setInitializing(false);
+      // Intenta refrescar el token antes de cerrar sesión
+      const newToken = await refreshAccessToken();
+      if (!newToken) {
+        setLoading(false);
+        setUser(null);
+        if (isInitialFetch) {
+          setInitializing(false);
+        }
+        return;
       }
-      return;
+      token = newToken;
+      localStorage.setItem("token", token);
     }
 
     // Verificar si el token ha expirado
     if (isTokenExpired(token)) {
-      console.log("Token expirado, cerrando sesión");
-      logout();
-      return;
+      console.log("Token expirado, intentando refrescar access token...");
+      const newToken = await refreshAccessToken();
+      if (!newToken) {
+        logout();
+        return;
+      }
+      token = newToken;
+      localStorage.setItem("token", token);
     }
 
     try {
@@ -140,74 +166,50 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         },
         credentials: "include",
       });
-
-      if (response.status === 401) {
-        console.log("Sesión expirada o no válida");
-        logout();
-        return;
-      }
-
       if (!response.ok) {
-        throw new Error(
-          `Error al obtener datos del usuario: ${response.status}`
-        );
+        throw new Error("No autorizado");
       }
-
       const data = await response.json();
       setUser(data.user);
       setError(null);
-
-      // Verificar si los datos están completos
-      const dataComplete = isUserDataComplete(data.user);
-
-      // Si es la carga inicial y los datos no están completos, intentamos nuevamente
-      if (isInitialFetch && !dataComplete && retryCount < MAX_RETRIES) {
-        console.log(
-          `Datos de usuario incompletos, reintentando (${retryCount + 1}/${MAX_RETRIES})...`
-        );
-        setRetryCount((prev) => prev + 1);
-
-        // Esperar 1 segundo antes de reintentar
-        setTimeout(() => {
-          fetchUserData(true);
-        }, 1000);
-
-        return;
-      }
-
-      // Si hemos llegado al máximo de reintentos o los datos están completos
       if (isInitialFetch) {
         setInitializing(false);
         setRetryCount(0);
       }
     } catch (err) {
-      console.error("Error al cargar datos del usuario:", err);
-      setError(
-        "Error de conexión con el servidor. Verifica que el backend esté en ejecución."
-      );
-
-      // Si es la carga inicial y aún no hemos alcanzado el máximo de reintentos
-      if (isInitialFetch && retryCount < MAX_RETRIES) {
-        console.log(
-          `Error al cargar datos, reintentando (${retryCount + 1}/${MAX_RETRIES})...`
-        );
-        setRetryCount((prev) => prev + 1);
-
-        // Esperar 1 segundo antes de reintentar
-        setTimeout(() => {
-          fetchUserData(true);
-        }, 1000);
-
-        return;
-      }
-
-      // Si hemos llegado al máximo de reintentos
+      setUser(null);
+      setError(err instanceof Error ? err.message : "Error desconocido");
       if (isInitialFetch) {
         setInitializing(false);
-        setRetryCount(0);
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const refreshAccessToken = async (): Promise<string | null> => {
+    try {
+      // Obtener el valor del CSRF token desde la cookie
+      const csrfToken = getCookie('csrf_refresh_token');
+      const response = await fetch('http://localhost:5328/api/refresh', {
+        method: 'POST',
+        credentials: 'include', // Importante: para enviar cookies
+        headers: {
+          'X-CSRF-TOKEN': csrfToken || '',
+        },
+      });
+      if (!response.ok) {
+        throw new Error('No se pudo refrescar el token');
+      }
+      const data = await response.json();
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        return data.token;
+      }
+      return null;
+    } catch (err) {
+      console.error("Error al refrescar el token:", err);
+      return null;
     }
   };
 
@@ -248,22 +250,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Efecto para cargar los datos del usuario al iniciar
   useEffect(() => {
-    // Cargar datos del usuario con la bandera de inicialización
-    fetchUserData(true);
-
-    // Configurar intervalo de refresco si hay un token
+    // Solo intenta cargar datos si hay token
     if (localStorage.getItem("token")) {
+      fetchUserData(true);
       setupRefreshInterval();
+    } else {
+      setInitializing(false);
+      setUser(null);
     }
 
-    // Limpiar el intervalo cuando el componente se desmonte
     return () => {
       if (refreshIntervalId) {
         clearInterval(refreshIntervalId);
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Solo se ejecuta una vez al montar el componente
+  }, []);
 
   // Escuchar eventos de almacenamiento para sincronizar múltiples pestañas
   useEffect(() => {
@@ -289,8 +290,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => {
       window.removeEventListener("storage", handleStorageChange);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Solo se ejecuta una vez al montar el componente
+  }, []);
 
   const value = {
     user,

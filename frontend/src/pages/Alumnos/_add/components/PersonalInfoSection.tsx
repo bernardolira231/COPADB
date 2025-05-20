@@ -182,6 +182,26 @@ const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
           </FormControl>
         </Grid>
 
+        <Grid item xs={12} md={6}>
+          <TextField
+            label="Fecha de Nacimiento"
+            type="date"
+            value={personalInfo.fechaNacimiento}
+            onChange={(e) => updatePersonalInfo("fechaNacimiento", e.target.value)}
+            onBlur={() => handleBlur("fechaNacimiento")}
+            fullWidth
+            variant="outlined"
+            margin="normal"
+            // Establecer la fecha máxima como hoy
+            inputProps={{
+              max: new Date().toISOString().split('T')[0] // Limita la fecha máxima a hoy
+            }}
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
+        </Grid>
+
         <Grid item xs={12}>
           <TextField
             label="Alergias"

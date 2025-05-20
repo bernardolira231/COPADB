@@ -19,6 +19,8 @@ const Inscripciones = () => {
     additionalInfo,
     loading,
     isSuccessModalOpen,
+    usarTutorExistente,
+    tutorSeleccionado,
     updatePersonalInfo,
     updateAcademicInfo,
     updateFamilyInfo,
@@ -27,6 +29,8 @@ const Inscripciones = () => {
     isFormValid,
     handleCancel,
     handleCloseSuccessModal,
+    setUsarTutorExistente,
+    setTutorSeleccionado,
   } = useInscripcionesForm();
 
   return (
@@ -90,6 +94,10 @@ const Inscripciones = () => {
             <FamilyInfoSection
               familyInfo={familyInfo}
               updateFamilyInfo={updateFamilyInfo}
+              usarTutorExistente={usarTutorExistente}
+              setUsarTutorExistente={setUsarTutorExistente}
+              tutorSeleccionado={tutorSeleccionado}
+              setTutorSeleccionado={setTutorSeleccionado}
             />
           </Card>
 

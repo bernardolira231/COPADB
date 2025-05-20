@@ -4,13 +4,18 @@ import {
   EstudiantePersonalInfo,
   EstudianteAcademicInfo,
   EstudianteFamilyInfo,
-  EstudianteAdditionalInfo
+  EstudianteAdditionalInfo,
+  Tutor
 } from "../types/estudiante";
 
 const useInscripcionesForm = () => {
   const navigate = useNavigate();
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  
+  // Estado para manejar la selección de tutor existente
+  const [usarTutorExistente, setUsarTutorExistente] = useState(false);
+  const [tutorSeleccionado, setTutorSeleccionado] = useState<Tutor | null>(null);
 
   // Valores iniciales para cada grupo de estados
   const initialPersonalInfo: EstudiantePersonalInfo = {
@@ -20,6 +25,7 @@ const useInscripcionesForm = () => {
     email: "",
     tipoSangre: "",
     alergias: "",
+    fechaNacimiento: "",
   };
 
   const initialAcademicInfo: EstudianteAcademicInfo = {
@@ -107,11 +113,37 @@ const useInscripcionesForm = () => {
       return;
     }
 
+    // Crear un objeto con los datos del estudiante, mapeando los nombres de campos al formato esperado por la API
     const estudianteData = {
-      ...personalInfo,
-      ...academicInfo,
-      ...familyInfo,
-      ...additionalInfo,
+      // Mapear datos personales
+      nombre: personalInfo.nombre,
+      apellidoPaterno: personalInfo.apellidoPaterno,
+      apellidoMaterno: personalInfo.apellidoMaterno,
+      email: personalInfo.email,
+      tipoSangre: personalInfo.tipoSangre,
+      alergias: personalInfo.alergias,
+      birth_date: personalInfo.fechaNacimiento, // Nuevo campo de fecha de nacimiento
+      
+      // Mapear datos académicos
+      beca: academicInfo.beca,
+      capilla: academicInfo.capilla,
+      campusEscolar: academicInfo.campusEscolar,
+      
+      // Mapear datos familiares
+      tutorNombre: familyInfo.tutorNombre,
+      tutorApellidoPaterno: familyInfo.tutorApellidoPaterno,
+      tutorApellidoMaterno: familyInfo.tutorApellidoMaterno,
+      telefono: familyInfo.telefono,
+      emailTutor: familyInfo.emailTutor,
+      telefonoEmergencia: familyInfo.telefonoEmergencia,
+      
+      // Mapear datos adicionales
+      permiso: additionalInfo.permiso,
+      fechaRegistro: additionalInfo.fechaRegistro,
+      
+      // Información de tutor existente
+      usarTutorExistente: usarTutorExistente,
+      tutorExistenteId: tutorSeleccionado?.id
     };
 
     setLoading(true);
@@ -162,12 +194,16 @@ const useInscripcionesForm = () => {
     additionalInfo,
     loading,
     isSuccessModalOpen,
+    usarTutorExistente,
+    tutorSeleccionado,
 
     updatePersonalInfo,
     updateAcademicInfo,
     updateFamilyInfo,
     updateAdditionalInfo,
     resetForm,
+    setUsarTutorExistente,
+    setTutorSeleccionado,
 
     handleSubmit,
     isFormValid,

@@ -106,6 +106,42 @@ const StudentDetailsModal: React.FC<StudentDetailsModalProps> = ({
         );
       }
       
+      // Manejar campos de fecha
+      if (field === 'birth_date' || field === 'reg_date') {
+        // Convertir la fecha a formato YYYY-MM-DD para el input type="date"
+        const dateValue = editedStudent[field] 
+          ? new Date(editedStudent[field] as string).toISOString().split('T')[0] 
+          : '';
+        
+        // Obtener la fecha actual en formato YYYY-MM-DD para limitar el máximo
+        const today = new Date().toISOString().split('T')[0];
+          
+        return (
+          <>
+            <Typography variant="subtitle2" color="text.secondary" sx={{ fontSize: '0.85rem' }}>
+              {label}
+            </Typography>
+            <Box sx={{ mt: 0.5, mb: 2 }}>
+              <TextField
+                fullWidth
+                size="small"
+                type="date"
+                value={dateValue}
+                onChange={(e) => handleInputChange(field, e.target.value)}
+                variant="outlined"
+                // Establecer la fecha máxima como hoy para birth_date
+                inputProps={{
+                  max: field === 'birth_date' ? today : undefined
+                }}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
+            </Box>
+          </>
+        );
+      }
+      
       return (
         <>
           <Typography variant="subtitle2" color="text.secondary" sx={{ fontSize: '0.85rem' }}>
@@ -288,6 +324,13 @@ const StudentDetailsModal: React.FC<StudentDetailsModalProps> = ({
             )}
           </Grid>
           
+          <Grid item xs={12} sm={6}>
+            {infoItem("Fecha de Nacimiento", 
+              <Typography variant="body1">{student.birth_date ? new Date(student.birth_date).toLocaleDateString() : 'No especificado'}</Typography>,
+              "birth_date"
+            )}
+          </Grid>
+
           <Grid item xs={12} sm={6}>
             {infoItem("Fecha de Registro", 
               <Typography variant="body1">{new Date(student.reg_date).toLocaleDateString()}</Typography>,

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import useLogin from "../../hooks/useLogin";
 import { useAuth } from "../../context/AuthContext";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ const Login = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [errors, setErrors] = useState({
     email: "",
@@ -34,16 +36,22 @@ const Login = () => {
 
     if (newErrors.email || newErrors.password) return;
 
-    login({ email, password }, {
-      onSuccess: (data) => {
-        localStorage.setItem("token", data.token);
-        setUserAfterLogin(data.user);
-        navigate({ to: "/Home" });
-      },
-      onError: (err) => {
-        setErrors((prev) => ({ ...prev, password: "Credenciales incorrectas." }));
-      },
-    });
+    login(
+      { email, password },
+      {
+        onSuccess: (data) => {
+          localStorage.setItem("token", data.token);
+          setUserAfterLogin(data.user);
+          navigate({ to: "/Home" });
+        },
+        onError: (err) => {
+          setErrors((prev) => ({
+            ...prev,
+            password: "Credenciales incorrectas.",
+          }));
+        },
+      }
+    );
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -83,14 +91,27 @@ const Login = () => {
           </div>
           <div>
             <label className="block font-medium mb-1">Contraseña</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="contraseña"
-              className={`w-full border ${errors.password ? "border-red-500" : "border-gray-300"} rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400`}
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="contraseña"
+                className={`w-full border ${errors.password ? "border-red-500" : "border-gray-300"} rounded-md p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-400`}
+              />
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <FaEyeSlash className="h-5 w-5" />
+                ) : (
+                  <FaEye className="h-5 w-5" />
+                )}
+              </button>
+            </div>
             {errors.password && (
               <p className="text-red-500 text-sm mt-1">{errors.password}</p>
             )}
