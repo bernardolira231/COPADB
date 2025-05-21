@@ -72,7 +72,7 @@ const GradesTable: React.FC = () => {
   }
 
   return (
-    <TableContainer component={Paper} sx={{ mt: 4 }}>
+    <TableContainer component={Paper} sx={{ mt: 4, mb: 4 }}>
       <Table size="small">
         <TableHead sx={sx.tableHead}>
           <TableRow>
