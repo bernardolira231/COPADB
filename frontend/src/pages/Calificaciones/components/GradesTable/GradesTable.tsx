@@ -11,12 +11,14 @@ import {
   CircularProgress,
   Typography,
   Box,
+  Tooltip,
 } from "@mui/material";
 import { useGradesContext } from "../../context/GradesContext";
+import { Grade } from "../../../../hooks/useGrades";
 import useSx from "./sx";
 
 const GradesTable: React.FC = () => {
-  const { grades, loading, error, updateGrade } = useGradesContext();
+  const { grades, updateGrade, loading, error, currentPeriod } = useGradesContext();
   const sx = useSx();
 
   // Función para determinar el color de la calificación final
@@ -29,17 +31,19 @@ const GradesTable: React.FC = () => {
 
   // Función para validar y actualizar calificaciones
   const handleGradeChange = (
-    id: number,
+    studentId: number,
     field: keyof Omit<
-      (typeof grades)[0],
-      "id" | "student_id" | "student_name" | "final_grade"
+      Grade,
+      "id" | "student_id" | "student_name" | "group_id" | "final_grade" | "period"
     >,
     value: string
   ) => {
-    const numValue = parseFloat(value);
-    // Validar que sea un número entre 0 y 10
-    if (!isNaN(numValue) && numValue >= 0 && numValue <= 10) {
-      updateGrade(id, field, numValue);
+    // Convertir el valor a número
+    const numericValue = value === "" ? 0 : parseFloat(value);
+    
+    // Validar que sea un número y esté en el rango correcto (0-10)
+    if (!isNaN(numericValue) && numericValue >= 0 && numericValue <= 10) {
+      updateGrade(studentId, field, numericValue);
     }
   };
 
@@ -75,16 +79,19 @@ const GradesTable: React.FC = () => {
             <TableCell sx={sx.tableCell}>#</TableCell>
             <TableCell sx={sx.tableCell}>Nombre del Estudiante</TableCell>
             <TableCell align="center" sx={sx.tableCell}>
-              Examen 1 (25%)
+              Participación en clase (15%)
             </TableCell>
             <TableCell align="center" sx={sx.tableCell}>
-              Examen 2 (25%)
+              Ejercicios y prácticas (15%)
             </TableCell>
             <TableCell align="center" sx={sx.tableCell}>
-              Proyecto (35%)
+              Tareas o trabajos (25%)
             </TableCell>
             <TableCell align="center" sx={sx.tableCell}>
-              Participación (15%)
+              Exámenes (35%)
+            </TableCell>
+            <TableCell align="center" sx={sx.tableCell}>
+              Asistencia a misa (10%)
             </TableCell>
             <TableCell align="center" sx={sx.tableCell}>
               Promedio Final
@@ -97,58 +104,104 @@ const GradesTable: React.FC = () => {
               <TableCell>{idx + 1}</TableCell>
               <TableCell>{row.student_name}</TableCell>
               <TableCell align="center">
-                <TextField
-                  variant="outlined"
-                  size="small"
-                  value={row.exam1}
-                  onChange={(e) =>
-                    handleGradeChange(row.id, "exam1", e.target.value)
-                  }
-                  inputProps={{ min: 0, max: 10, step: 0.1 }}
-                  sx={sx.gradeInput}
-                />
+                {currentPeriod === 0 ? (
+                  <Tooltip title="Promedio de los 4 parciales">
+                    <Typography variant="body2">{row.class_participation}</Typography>
+                  </Tooltip>
+                ) : (
+                  <TextField
+                    variant="outlined"
+                    size="small"
+                    value={row.class_participation}
+                    onChange={(e) =>
+                      handleGradeChange(row.student_id, "class_participation", e.target.value)
+                    }
+                    inputProps={{ min: 0, max: 10, step: 0.1 }}
+                    sx={sx.gradeInput}
+                  />
+                )}
               </TableCell>
               <TableCell align="center">
-                <TextField
-                  variant="outlined"
-                  size="small"
-                  value={row.exam2}
-                  onChange={(e) =>
-                    handleGradeChange(row.id, "exam2", e.target.value)
-                  }
-                  inputProps={{ min: 0, max: 10, step: 0.1 }}
-                  sx={sx.gradeInput}
-                />
+                {currentPeriod === 0 ? (
+                  <Tooltip title="Promedio de los 4 parciales">
+                    <Typography variant="body2">{row.exercises}</Typography>
+                  </Tooltip>
+                ) : (
+                  <TextField
+                    variant="outlined"
+                    size="small"
+                    value={row.exercises}
+                    onChange={(e) =>
+                      handleGradeChange(row.student_id, "exercises", e.target.value)
+                    }
+                    inputProps={{ min: 0, max: 10, step: 0.1 }}
+                    sx={sx.gradeInput}
+                  />
+                )}
               </TableCell>
               <TableCell align="center">
-                <TextField
-                  variant="outlined"
-                  size="small"
-                  value={row.project}
-                  onChange={(e) =>
-                    handleGradeChange(row.id, "project", e.target.value)
-                  }
-                  inputProps={{ min: 0, max: 10, step: 0.1 }}
-                  sx={sx.gradeInput}
-                />
+                {currentPeriod === 0 ? (
+                  <Tooltip title="Promedio de los 4 parciales">
+                    <Typography variant="body2">{row.homework}</Typography>
+                  </Tooltip>
+                ) : (
+                  <TextField
+                    variant="outlined"
+                    size="small"
+                    value={row.homework}
+                    onChange={(e) =>
+                      handleGradeChange(row.student_id, "homework", e.target.value)
+                    }
+                    inputProps={{ min: 0, max: 10, step: 0.1 }}
+                    sx={sx.gradeInput}
+                  />
+                )}
               </TableCell>
               <TableCell align="center">
-                <TextField
-                  variant="outlined"
-                  size="small"
-                  value={row.participation}
-                  onChange={(e) =>
-                    handleGradeChange(row.id, "participation", e.target.value)
-                  }
-                  inputProps={{ min: 0, max: 10, step: 0.1 }}
-                  sx={sx.gradeInput}
-                />
+                {currentPeriod === 0 ? (
+                  <Tooltip title="Promedio de los 4 parciales">
+                    <Typography variant="body2">{row.exams}</Typography>
+                  </Tooltip>
+                ) : (
+                  <TextField
+                    variant="outlined"
+                    size="small"
+                    value={row.exams}
+                    onChange={(e) =>
+                      handleGradeChange(row.student_id, "exams", e.target.value)
+                    }
+                    inputProps={{ min: 0, max: 10, step: 0.1 }}
+                    sx={sx.gradeInput}
+                  />
+                )}
+              </TableCell>
+              <TableCell align="center">
+                {currentPeriod === 0 ? (
+                  <Tooltip title="Promedio de los 4 parciales">
+                    <Typography variant="body2">{row.church_class}</Typography>
+                  </Tooltip>
+                ) : (
+                  <TextField
+                    variant="outlined"
+                    size="small"
+                    value={row.church_class}
+                    onChange={(e) =>
+                      handleGradeChange(row.student_id, "church_class", e.target.value)
+                    }
+                    inputProps={{ min: 0, max: 10, step: 0.1 }}
+                    sx={sx.gradeInput}
+                  />
+                )}
               </TableCell>
               <TableCell
                 align="center"
                 sx={{ ...sx.finalGradeCell, ...getGradeColor(row.final_grade) }}
               >
-                {row.final_grade}
+                <Tooltip title={currentPeriod === 0 ? "Promedio final de los 4 parciales" : "Calificación final del parcial"}>
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    {row.final_grade}
+                  </Typography>
+                </Tooltip>
               </TableCell>
             </TableRow>
           ))}
