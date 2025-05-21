@@ -65,7 +65,7 @@ const Login = () => {
       <div className="w-[448px] bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="bg-secondary py-6 flex justify-center">
           <img
-            src="/images/icon.png"
+            src="/images/logo.webp"
             alt="Logo de la escuela"
             className="w-[196px] h-[192px]"
           />
