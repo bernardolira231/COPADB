@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, Card, Button } from "@mui/material";
+import { Container, Card, Button, Box, Typography, Tabs, Tab } from "@mui/material";
 import { LuSave, LuFileDown } from "react-icons/lu";
 import PageInfo from "../PageInfo";
 import GradesTable from "../GradesTable";
@@ -12,68 +12,102 @@ interface CalificacionesContentProps {
 const CalificacionesContent: React.FC<CalificacionesContentProps> = ({
   materiaSeleccionada,
 }) => {
-  const { saveGrades, saving, calculateFinalGrades, grades } =
+  const { saveGrades, saving, calculateFinalGrades, grades, downloadGradesReport, fetchGrades, currentPeriod, setPeriod } =
     useGradesContext();
+    
+  // Cargar las calificaciones cuando cambie la materia seleccionada
+  React.useEffect(() => {
+    // Usar una referencia para evitar múltiples solicitudes
+    const groupId = materiaSeleccionada?.group_id;
+    if (groupId) {
+      console.log(`Cargando calificaciones para el grupo ${groupId} (una sola vez)`);
+      // Usar un timeout para evitar múltiples llamadas
+      const timer = setTimeout(() => {
+        fetchGrades(groupId);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [materiaSeleccionada?.group_id]); // Solo depender del ID del grupo, no de fetchGrades
 
-  // Función para exportar calificaciones a CSV
-  const exportToCSV = () => {
+  // Función para guardar calificaciones
+  const handleSaveGrades = () => {
+    // Calcular calificaciones finales antes de guardar
+    calculateFinalGrades();
+    // Guardar calificaciones
+    saveGrades();
+  };
+  
+  // Función para descargar el reporte de calificaciones
+  const handleDownloadReport = () => {
     // Calcular calificaciones finales antes de exportar
     calculateFinalGrades();
+    
+    if (materiaSeleccionada && materiaSeleccionada.group_id) {
+      downloadGradesReport(materiaSeleccionada.group_id, currentPeriod);
+    }
+  };
 
-    // Crear contenido CSV
-    const headers = [
-      "#,Nombre del Estudiante,Examen 1 (25%),Examen 2 (25%),Proyecto (35%),Participación (15%),Promedio Final",
-    ];
-    const rows = grades.map(
-      (grade, idx) =>
-        `${idx + 1},${grade.student_name},${grade.exam1},${grade.exam2},${grade.project},${grade.participation},${grade.final_grade}`
-    );
-    const csvContent = [headers, ...rows].join("\n");
-
-    // Crear y descargar el archivo
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute(
-      "download",
-      `Calificaciones_${materiaSeleccionada.class_name.replace(/\s+/g, "_")}.csv`
-    );
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  // Manejar el cambio de pestaña (periodo)
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    // Si es la pestaña 5 (índice 4), es la pestaña de calificación final
+    if (newValue === 5) {
+      setPeriod(0); // Usamos 0 para indicar que es la pestaña de calificación final
+    } else {
+      setPeriod(newValue);
+      if (materiaSeleccionada && materiaSeleccionada.group_id) {
+        fetchGrades(materiaSeleccionada.group_id, newValue);
+      }
+    }
   };
 
   return (
     <Container sx={{ mt: 3 }}>
       <Card sx={{ p: 3, borderRadius: "8px" }}>
-        <PageInfo materiaSeleccionada={materiaSeleccionada} />
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <PageInfo materiaSeleccionada={materiaSeleccionada} />
+        </Box>
+        <Box sx={{ width: '100%', mb: 2 }}>
+          <Tabs
+            value={currentPeriod === 0 ? 5 : currentPeriod}
+            onChange={handleTabChange}
+            variant="scrollable"
+            scrollButtons="auto"
+            aria-label="pestañas de parciales"
+          >
+            <Tab label="Primer Parcial" value={1} />
+            <Tab label="Segundo Parcial" value={2} />
+            <Tab label="Tercer Parcial" value={3} />
+            <Tab label="Cuarto Parcial" value={4} />
+            <Tab label="Calificación Final" value={5} />
+          </Tabs>
+        </Box>
+        <Typography variant="subtitle1" sx={{ mb: 2 }}>
+          {currentPeriod === 0 
+            ? 'Calificación Final (Promedio de los 4 parciales)' 
+            : `Calificaciones del ${currentPeriod === 1 ? 'Primer' : currentPeriod === 2 ? 'Segundo' : currentPeriod === 3 ? 'Tercer' : 'Cuarto'} Parcial`}
+        </Typography>
         <GradesTable />
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <Button
-            variant="outlined"
-            onClick={exportToCSV}
-            sx={{ mt: 2, textTransform: "none" }}
-          >
-            <LuFileDown
-              className="mr-2 h-4 w-4"
-              style={{ marginRight: "8px" }}
-            />
-            Exportar Reporte
-          </Button>
-          <Button
             variant="contained"
             color="primary"
-            onClick={() => {
-              calculateFinalGrades();
-              saveGrades();
-            }}
-            disabled={saving}
-            sx={{ mt: 2, ml: 2 }}
+            startIcon={<LuSave />}
+            onClick={handleSaveGrades}
+            disabled={saving || !materiaSeleccionada || currentPeriod === 0}
+            sx={{ mr: 2 }}
+            title={currentPeriod === 0 ? "No se pueden guardar calificaciones en la vista de calificación final" : ""}
           >
-            <LuSave className="mr-2 h-4 w-4" style={{ marginRight: "8px" }} />
-            {saving ? "Guardando..." : "Guardar Calificaciones"}
+            Guardar Calificaciones
+          </Button>
+          <Button
+            variant="outlined"
+            color="primary"
+            startIcon={<LuFileDown />}
+            onClick={handleDownloadReport}
+            disabled={!materiaSeleccionada || currentPeriod === 0}
+            title={currentPeriod === 0 ? "No se pueden descargar reportes en la vista de calificación final" : ""}
+          >
+            Descargar Reporte
           </Button>
         </div>
       </Card>
