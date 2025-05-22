@@ -5,7 +5,7 @@ import {
   EstudianteAcademicInfo,
   EstudianteFamilyInfo,
   EstudianteAdditionalInfo,
-  Estudiante
+  Estudiante,
 } from "../types/estudiante";
 
 interface UseEditEstudianteProps {
@@ -13,7 +13,10 @@ interface UseEditEstudianteProps {
   initialData?: Estudiante;
 }
 
-const useEditEstudiante = ({ estudianteId, initialData }: UseEditEstudianteProps = {}) => {
+const useEditEstudiante = ({
+  estudianteId,
+  initialData,
+}: UseEditEstudianteProps = {}) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,12 +28,17 @@ const useEditEstudiante = ({ estudianteId, initialData }: UseEditEstudianteProps
     apellidoPaterno: "",
     apellidoMaterno: "",
     email: "",
+    genero: "",
     tipoSangre: "",
+    fechaNacimiento: "",
     alergias: "",
+    curp: "",
   };
 
   const initialAcademicInfo: EstudianteAcademicInfo = {
     beca: false,
+    sep_register: "",
+    cpdb_register: "",
     capilla: "",
     campusEscolar: "",
   };
@@ -49,10 +57,14 @@ const useEditEstudiante = ({ estudianteId, initialData }: UseEditEstudianteProps
     fechaRegistro: "",
   };
 
-  const [personalInfo, setPersonalInfo] = useState<EstudiantePersonalInfo>(initialPersonalInfo);
-  const [academicInfo, setAcademicInfo] = useState<EstudianteAcademicInfo>(initialAcademicInfo);
-  const [familyInfo, setFamilyInfo] = useState<EstudianteFamilyInfo>(initialFamilyInfo);
-  const [additionalInfo, setAdditionalInfo] = useState<EstudianteAdditionalInfo>(initialAdditionalInfo);
+  const [personalInfo, setPersonalInfo] =
+    useState<EstudiantePersonalInfo>(initialPersonalInfo);
+  const [academicInfo, setAcademicInfo] =
+    useState<EstudianteAcademicInfo>(initialAcademicInfo);
+  const [familyInfo, setFamilyInfo] =
+    useState<EstudianteFamilyInfo>(initialFamilyInfo);
+  const [additionalInfo, setAdditionalInfo] =
+    useState<EstudianteAdditionalInfo>(initialAdditionalInfo);
 
   // Cargar datos del estudiante si estamos en modo edición
   useEffect(() => {
@@ -69,17 +81,25 @@ const useEditEstudiante = ({ estudianteId, initialData }: UseEditEstudianteProps
       setError(null);
 
       try {
-        const response = await fetch(`http://localhost:5328/estudiantes/${estudianteId}`);
-        
+        const response = await fetch(
+          `http://localhost:5328/estudiantes/${estudianteId}`
+        );
+
         if (!response.ok) {
-          throw new Error(`Error al cargar los datos del estudiante (${response.status})`);
+          throw new Error(
+            `Error al cargar los datos del estudiante (${response.status})`
+          );
         }
 
         const data = await response.json();
         mapEstudianteToForm(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error desconocido al cargar los datos');
-        console.error('Error al cargar datos del estudiante:', err);
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Error desconocido al cargar los datos"
+        );
+        console.error("Error al cargar datos del estudiante:", err);
       } finally {
         setLoading(false);
       }
@@ -98,7 +118,10 @@ const useEditEstudiante = ({ estudianteId, initialData }: UseEditEstudianteProps
       apellidoPaterno: estudiante.lastname_f || "",
       apellidoMaterno: estudiante.lastname_m || "",
       email: estudiante.email || "",
+      curp: estudiante.curp || "",
+      genero: estudiante.gender || "",
       tipoSangre: estudiante.blood_type || "",
+      fechaNacimiento: estudiante.birth_date || "",
       alergias: estudiante.allergies || "",
     });
 
@@ -107,6 +130,8 @@ const useEditEstudiante = ({ estudianteId, initialData }: UseEditEstudianteProps
       beca: estudiante.scholar_ship || false,
       capilla: estudiante.chapel || "",
       campusEscolar: estudiante.school_campus || "",
+      sep_register: estudiante.sep_register || "",
+      cpdb_register: estudiante.cpdb_register || "",
     });
 
     // Datos adicionales
@@ -191,10 +216,10 @@ const useEditEstudiante = ({ estudianteId, initialData }: UseEditEstudianteProps
     setError(null);
 
     try {
-      const url = isEditMode 
-        ? `http://localhost:5328/estudiantes/${estudianteId}` 
+      const url = isEditMode
+        ? `http://localhost:5328/estudiantes/${estudianteId}`
         : "http://localhost:5328/estudiantes";
-      
+
       const method = isEditMode ? "PUT" : "POST";
 
       const response = await fetch(url, {
@@ -211,12 +236,22 @@ const useEditEstudiante = ({ estudianteId, initialData }: UseEditEstudianteProps
       }
 
       // Éxito
-      alert(isEditMode ? "✅ Estudiante actualizado correctamente" : "✅ Estudiante registrado correctamente");
+      alert(
+        isEditMode
+          ? "✅ Estudiante actualizado correctamente"
+          : "✅ Estudiante registrado correctamente"
+      );
       navigate({ to: "/alumnos" });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido al guardar los datos');
-      console.error('Error al guardar estudiante:', err);
-      alert(`❌ Error: ${err instanceof Error ? err.message : 'Error desconocido'}`);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Error desconocido al guardar los datos"
+      );
+      console.error("Error al guardar estudiante:", err);
+      alert(
+        `❌ Error: ${err instanceof Error ? err.message : "Error desconocido"}`
+      );
     } finally {
       setLoading(false);
     }

@@ -55,24 +55,27 @@ const calculateAge = (birthDateString: string): string => {
   try {
     const birthDate = new Date(birthDateString);
     const today = new Date();
-    
+
     // Verificar que la fecha sea válida
     if (isNaN(birthDate.getTime())) {
-      return 'Fecha inválida';
+      return "Fecha inválida";
     }
-    
+
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDifference = today.getMonth() - birthDate.getMonth();
-    
+
     // Si aún no ha cumplido años en este año, restar 1
-    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+    if (
+      monthDifference < 0 ||
+      (monthDifference === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
     }
-    
+
     return `${age} años`;
   } catch (error) {
-    console.error('Error al calcular la edad:', error);
-    return 'Error';
+    console.error("Error al calcular la edad:", error);
+    return "Error";
   }
 };
 
@@ -98,7 +101,9 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
   const [editMode, setEditMode] = useState(false);
   // Estado para manejar el grupo seleccionado para cada estudiante
   // Ahora solo permitimos un grupo a la vez
-  const [estudiantesGrupos, setEstudiantesGrupos] = useState<Record<number, string>>({});
+  const [estudiantesGrupos, setEstudiantesGrupos] = useState<
+    Record<number, string>
+  >({});
   const {
     data: groups = [],
     isLoading: groupsLoading,
@@ -108,17 +113,21 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
   // Cargar los grupos asignados a los estudiantes cuando se carga el componente
   useEffect(() => {
     // Inicializar el estado con los grupos asignados a cada estudiante
-    const gruposIniciales: {[key: number]: string} = {};
-    estudiantes.forEach(estudiante => {
+    const gruposIniciales: { [key: number]: string } = {};
+    estudiantes.forEach((estudiante) => {
       if (estudiante.all_groups && estudiante.all_groups.length > 0) {
         // Usamos el ID del primer grupo asignado (ahora solo permitimos uno)
         const firstGroup = estudiante.all_groups[0];
         gruposIniciales[estudiante.id] = firstGroup.group_id.toString();
-        console.log(`Estudiante ${estudiante.id} tiene asignado el grupo ${firstGroup.group_id}`);
+        console.log(
+          `Estudiante ${estudiante.id} tiene asignado el grupo ${firstGroup.group_id}`
+        );
       } else if (estudiante.group_id) {
         // Compatibilidad con la versión anterior
         gruposIniciales[estudiante.id] = estudiante.group_id.toString();
-        console.log(`Estudiante ${estudiante.id} tiene asignado el grupo ${estudiante.group_id}`);
+        console.log(
+          `Estudiante ${estudiante.id} tiene asignado el grupo ${estudiante.group_id}`
+        );
       } else {
         console.log(`Estudiante ${estudiante.id} no tiene grupo asignado`);
       }
@@ -128,63 +137,67 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
 
   // Obtener los grados únicos de los grupos y agrupar los grupos por grado
   const { uniqueGrades, groupsByGrade } = useMemo(() => {
-    if (!groups || groups.length === 0) return { uniqueGrades: [], groupsByGrade: {} };
-    
+    if (!groups || groups.length === 0)
+      return { uniqueGrades: [], groupsByGrade: {} };
+
     // Extraer todos los grados únicos
-    const grades = [...new Set(groups.map(group => group.grade))];
-    
+    const grades = [...new Set(groups.map((group) => group.grade))];
+
     // Agrupar los grupos por grado
     const groupedByGrade: Record<string, Group[]> = {};
-    grades.forEach(grade => {
-      groupedByGrade[grade] = groups.filter(group => group.grade === grade);
+    grades.forEach((grade) => {
+      groupedByGrade[grade] = groups.filter((group) => group.grade === grade);
     });
-    
+
     return { uniqueGrades: grades, groupsByGrade: groupedByGrade };
   }, [groups]);
 
   // Función para manejar el cambio de grupo de un estudiante
   const handleGrupoChange = (estudianteId: number, groupId: string) => {
     // Actualizar el estado local
-    setEstudiantesGrupos(prev => ({
+    setEstudiantesGrupos((prev) => ({
       ...prev,
-      [estudianteId]: groupId
+      [estudianteId]: groupId,
     }));
 
     // Si se selecciona "Sin asignar", enviamos un array vacío
     const groupIdToSend = groupId !== "" ? groupId : null;
 
     // Verificar si se seleccionó un grado
-    const selectedGroup = groups?.find(g => g.id === groupId);
-    
+    const selectedGroup = groups?.find((g) => g.id === groupId);
+
     // Función para realizar la llamada a la API
     const apiCall = (body: any) => {
-      fetch(`http://localhost:5328/api/estudiantes/${estudianteId}/asignar-grupo`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Error al asignar grupo');
+      fetch(
+        `http://localhost:5328/api/estudiantes/${estudianteId}/asignar-grupo`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
         }
-        return response.json();
-      })
-      .then(data => {
-        console.log('Grupo asignado correctamente:', data);
-        // Mostrar mensaje de éxito
-        setSnackbarMessage('Grupo asignado correctamente');
-        setSnackbarOpen(true);
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        // Mostrar mensaje de error
-        setSnackbarMessage('Error al asignar grupo');
-        setSnackbarOpen(true);
-      });
+      )
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Error al asignar grupo");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log("Grupo asignado correctamente:", data);
+          // Mostrar mensaje de éxito
+          setSnackbarMessage("Grupo asignado correctamente");
+          setSnackbarOpen(true);
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          // Mostrar mensaje de error
+          setSnackbarMessage("Error al asignar grupo");
+          setSnackbarOpen(true);
+        });
     };
-    
+
     if (selectedGroup && uniqueGrades.includes(selectedGroup.grade)) {
       // Si se seleccionó un grado, enviamos el grado para asignar todas sus materias
       apiCall({ grade: selectedGroup.grade });
@@ -411,47 +424,60 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
                           </Typography>
                         ) : (
                           <Select
-                            value={estudiantesGrupos[estudiante.id] || 
-                              (estudiante.all_groups && estudiante.all_groups.length > 0 ? 
-                                estudiante.all_groups[0].group_id.toString() : 
-                                (estudiante.group_id ? estudiante.group_id.toString() : ''))}
+                            value={
+                              estudiantesGrupos[estudiante.id] ||
+                              (estudiante.all_groups &&
+                              estudiante.all_groups.length > 0
+                                ? estudiante.all_groups[0].group_id.toString()
+                                : estudiante.group_id
+                                  ? estudiante.group_id.toString()
+                                  : "")
+                            }
                             onChange={(e) =>
-                              handleGrupoChange(estudiante.id, e.target.value as string)
+                              handleGrupoChange(
+                                estudiante.id,
+                                e.target.value as string
+                              )
                             }
                             displayEmpty
                             variant="outlined"
                             renderValue={(selected) => {
-                              if (!selected || selected === '') {
+                              if (!selected || selected === "") {
                                 return <em>Sin asignar</em>;
                               }
-                              
+
                               // Obtener el grado del grupo seleccionado
-                              let gradeName = '';
-                              
+                              let gradeName = "";
+
                               // Primero buscamos en all_groups del estudiante
                               if (estudiante.all_groups) {
-                                const assignedGroup = estudiante.all_groups.find(g => g.group_id.toString() === selected);
+                                const assignedGroup =
+                                  estudiante.all_groups.find(
+                                    (g) => g.group_id.toString() === selected
+                                  );
                                 if (assignedGroup) {
                                   gradeName = assignedGroup.grade;
                                 }
                               }
-                              
+
                               // Si no lo encontramos, buscamos en la lista general de grupos
                               if (!gradeName) {
-                                const group = groups?.find(g => g.id.toString() === selected);
+                                const group = groups?.find(
+                                  (g) => g.id.toString() === selected
+                                );
                                 if (group) {
                                   gradeName = group.grade;
                                 }
                               }
-                              
-                              return gradeName || 'Grupo seleccionado';
+
+                              return gradeName || "Grupo seleccionado";
                             }}
                             sx={{
                               borderRadius: "6px",
                               fontSize: "0.875rem",
                               minWidth: 120,
                               maxWidth: 300,
-                              width: '100%',
+                              width: "100%",
                               "& .MuiOutlinedInput-notchedOutline": {
                                 borderColor: alpha(
                                   theme.palette.primary.main,
@@ -470,23 +496,27 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
                             <MenuItem value="">
                               <em>Sin asignar</em>
                             </MenuItem>
-                            
+
                             {/* Mostrar grados como opciones principales */}
                             {uniqueGrades.map((grade) => {
                               // Usar el ID del primer grupo de este grado como valor
                               const gradeGroups = groupsByGrade[grade] || [];
-                              const gradeId = gradeGroups.length > 0 ? gradeGroups[0].id : '';
-                              
+                              const gradeId =
+                                gradeGroups.length > 0 ? gradeGroups[0].id : "";
+
                               return (
-                                <MenuItem key={`grade-${grade}`} value={gradeId}>
+                                <MenuItem
+                                  key={`grade-${grade}`}
+                                  value={gradeId}
+                                >
                                   {grade}
                                 </MenuItem>
                               );
                             })}
-                            
+
                             {/* Opcionalmente, también podríamos mostrar los grupos individuales */}
                             {/* Pero según el requerimiento, solo queremos mostrar los grados */}
-                            
+
                             {(!groups || groups.length === 0) && (
                               <MenuItem disabled>
                                 <Typography variant="caption">
@@ -499,7 +529,9 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
                       </FormControl>
                     </TableCell>
                     <TableCell align="center" sx={studentsTableCellSx(theme)}>
-                      {estudiante.birth_date ? calculateAge(estudiante.birth_date) : 'N/A'}
+                      {estudiante.birth_date
+                        ? calculateAge(estudiante.birth_date)
+                        : "N/A"}
                     </TableCell>
                     <TableCell align="center" sx={studentsTableCellSx(theme)}>
                       {new Date(estudiante.reg_date).toLocaleDateString()}

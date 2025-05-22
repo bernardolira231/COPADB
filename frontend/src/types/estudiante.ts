@@ -2,7 +2,9 @@ export interface EstudiantePersonalInfo {
   nombre: string;
   apellidoPaterno: string;
   apellidoMaterno: string;
+  genero: string;
   email: string;
+  curp: string;
   tipoSangre: string;
   alergias: string;
   fechaNacimiento: string;
@@ -12,6 +14,8 @@ export interface EstudianteAcademicInfo {
   beca: boolean;
   capilla: string;
   campusEscolar: string;
+  cpdb_register: string;
+  sep_register: string;
 }
 
 export interface EstudianteFamilyInfo {
@@ -60,6 +64,10 @@ export interface Estudiante {
   permission: string;
   reg_date: string;
   birth_date?: string;
+  gender?: string;
+  cpdb_register?: string;
+  sep_register?: string;
+  curp?: string;
   group_id?: string | number;
   group_grade?: string;
   class_name?: string;

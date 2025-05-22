@@ -89,8 +89,8 @@ def registrar_estudiante():
             INSERT INTO student (
                 name, lastname_F, lastname_M, email, blood_type,
                 allergies, scholar_ship, chapel, school_campus,
-                family_id, permission, reg_date, birth_date
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+                family_id, permission, reg_date, birth_date, curp, sep_register, cpdb_register, gender
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
         """, (
             data["nombre"],
             data["apellidoPaterno"],
@@ -104,7 +104,11 @@ def registrar_estudiante():
             family_id,
             data["permiso"],
             data["fechaRegistro"],
-            data.get("birth_date", None)  # Obtener la fecha de nacimiento
+            data.get("birth_date",),  # Obtener la fecha de nacimiento
+            data.get("curp",),
+            data.get("sep_register",),
+            data.get("cpdb_register",),
+            data.get("genero",)
         ))
 
         conn.commit()
@@ -142,7 +146,7 @@ def get_estudiantes():
                 s.id, s.name, s.lastname_f, s.lastname_m, s.email, 
                 s.blood_type, s.allergies, s.scholar_ship, s.chapel, 
                 s.school_campus, s.family_id, s.permission, 
-                s.reg_date, s.birth_date
+                s.reg_date, s.birth_date, s.curp, s.sep_register, s.cpdb_register, s.gender
             FROM public.student s
         """
         
@@ -338,6 +342,10 @@ def update_estudiante(id):
                 permission = %s,
                 reg_date = %s,
                 birth_date = %s
+                curp = %s,
+                sep_register = %s,
+                cpdb_register = %s
+                gender = %s
             WHERE id = %s
         """, (
             data.get("name"),
@@ -352,6 +360,10 @@ def update_estudiante(id):
             data.get("permission"),
             data.get("reg_date"),
             data.get("birth_date"),
+            data.get("curp"),
+            data.get("sep_register"),
+            data.get("cpdb_register"),
+            data.get("gender"),
             id
         ))
         

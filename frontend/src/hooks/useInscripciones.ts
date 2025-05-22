@@ -5,17 +5,19 @@ import {
   EstudianteAcademicInfo,
   EstudianteFamilyInfo,
   EstudianteAdditionalInfo,
-  Tutor
+  Tutor,
 } from "../types/estudiante";
 
 const useInscripcionesForm = () => {
   const navigate = useNavigate();
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
   // Estado para manejar la selección de tutor existente
   const [usarTutorExistente, setUsarTutorExistente] = useState(false);
-  const [tutorSeleccionado, setTutorSeleccionado] = useState<Tutor | null>(null);
+  const [tutorSeleccionado, setTutorSeleccionado] = useState<Tutor | null>(
+    null
+  );
 
   // Valores iniciales para cada grupo de estados
   const initialPersonalInfo: EstudiantePersonalInfo = {
@@ -23,15 +25,19 @@ const useInscripcionesForm = () => {
     apellidoPaterno: "",
     apellidoMaterno: "",
     email: "",
+    genero: "",
     tipoSangre: "",
     alergias: "",
     fechaNacimiento: "",
+    curp: "",
   };
 
   const initialAcademicInfo: EstudianteAcademicInfo = {
     beca: false,
     capilla: "",
     campusEscolar: "",
+    sep_register: "",
+    cpdb_register: "",
   };
 
   const initialFamilyInfo: EstudianteFamilyInfo = {
@@ -48,10 +54,14 @@ const useInscripcionesForm = () => {
     fechaRegistro: "",
   };
 
-  const [personalInfo, setPersonalInfo] = useState<EstudiantePersonalInfo>(initialPersonalInfo);
-  const [academicInfo, setAcademicInfo] = useState<EstudianteAcademicInfo>(initialAcademicInfo);
-  const [familyInfo, setFamilyInfo] = useState<EstudianteFamilyInfo>(initialFamilyInfo);
-  const [additionalInfo, setAdditionalInfo] = useState<EstudianteAdditionalInfo>(initialAdditionalInfo);
+  const [personalInfo, setPersonalInfo] =
+    useState<EstudiantePersonalInfo>(initialPersonalInfo);
+  const [academicInfo, setAcademicInfo] =
+    useState<EstudianteAcademicInfo>(initialAcademicInfo);
+  const [familyInfo, setFamilyInfo] =
+    useState<EstudianteFamilyInfo>(initialFamilyInfo);
+  const [additionalInfo, setAdditionalInfo] =
+    useState<EstudianteAdditionalInfo>(initialAdditionalInfo);
 
   const updatePersonalInfo = (
     field: keyof EstudiantePersonalInfo,
@@ -120,15 +130,19 @@ const useInscripcionesForm = () => {
       apellidoPaterno: personalInfo.apellidoPaterno,
       apellidoMaterno: personalInfo.apellidoMaterno,
       email: personalInfo.email,
+      gender: personalInfo.genero,
       tipoSangre: personalInfo.tipoSangre,
       alergias: personalInfo.alergias,
       birth_date: personalInfo.fechaNacimiento, // Nuevo campo de fecha de nacimiento
-      
+      curp: personalInfo.curp,
+
       // Mapear datos académicos
       beca: academicInfo.beca,
+      sep_register: academicInfo.sep_register,
+      cpdb_register: academicInfo.cpdb_register,
       capilla: academicInfo.capilla,
       campusEscolar: academicInfo.campusEscolar,
-      
+
       // Mapear datos familiares
       tutorNombre: familyInfo.tutorNombre,
       tutorApellidoPaterno: familyInfo.tutorApellidoPaterno,
@@ -136,14 +150,14 @@ const useInscripcionesForm = () => {
       telefono: familyInfo.telefono,
       emailTutor: familyInfo.emailTutor,
       telefonoEmergencia: familyInfo.telefonoEmergencia,
-      
+
       // Mapear datos adicionales
       permiso: additionalInfo.permiso,
       fechaRegistro: additionalInfo.fechaRegistro,
-      
+
       // Información de tutor existente
       usarTutorExistente: usarTutorExistente,
-      tutorExistenteId: tutorSeleccionado?.id
+      tutorExistenteId: tutorSeleccionado?.id,
     };
 
     setLoading(true);
@@ -208,7 +222,7 @@ const useInscripcionesForm = () => {
     handleSubmit,
     isFormValid,
     handleCancel,
-    handleCloseSuccessModal
+    handleCloseSuccessModal,
   };
 };
 

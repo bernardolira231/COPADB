@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { EstudianteAcademicInfo } from "../../../../types/estudiante";
-import { 
-  Typography, 
-  Grid, 
-  TextField, 
-  FormControl, 
-  InputLabel, 
-  Select, 
+import {
+  Typography,
+  Grid,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
   MenuItem,
-  FormHelperText
+  FormHelperText,
 } from "@mui/material";
 import { LuGraduationCap, LuBuilding, LuSchool } from "react-icons/lu";
 
@@ -22,10 +22,12 @@ const AcademicInfoSection: React.FC<AcademicInfoSectionProps> = ({
   updateAcademicInfo,
 }) => {
   // Estado para rastrear qué campos han sido tocados
-  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
+  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>(
+    {}
+  );
 
   const handleBlur = (field: keyof EstudianteAcademicInfo) => {
-    setTouchedFields(prev => ({ ...prev, [field]: true }));
+    setTouchedFields((prev) => ({ ...prev, [field]: true }));
   };
 
   const becaOptions = [
@@ -35,19 +37,75 @@ const AcademicInfoSection: React.FC<AcademicInfoSectionProps> = ({
 
   return (
     <section>
-      <Typography variant="h5" color="primary" gutterBottom fontWeight="medium" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Typography
+        variant="h5"
+        color="primary"
+        gutterBottom
+        fontWeight="medium"
+        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+      >
         <LuGraduationCap size={24} />
         Información Académica
       </Typography>
-      
+
       <Grid container spacing={3}>
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Registro CPDB"
+            value={academicInfo.cpdb_register}
+            onChange={(e) =>
+              updateAcademicInfo("cpdb_register", e.target.value)
+            }
+            onBlur={() => handleBlur("cpdb_register")}
+            required
+            fullWidth
+            variant="outlined"
+            margin="normal"
+            placeholder="Ingresa el numero de registro CPDB del alumno"
+            error={touchedFields["registroCPDB"] && academicInfo.capilla === ""}
+            helperText={
+              touchedFields["registroCPDB"] && academicInfo.capilla === ""
+                ? "El número de registro es requerido"
+                : ""
+            }
+            InputProps={{
+              startAdornment: <LuBuilding className="mr-2" />,
+            }}
+          />
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Registro SEP"
+            value={academicInfo.sep_register}
+            onChange={(e) => updateAcademicInfo("sep_register", e.target.value)}
+            onBlur={() => handleBlur("sep_register")}
+            required
+            fullWidth
+            variant="outlined"
+            margin="normal"
+            placeholder="Ingresa el numero de registro SEP del alumno"
+            error={touchedFields["registroCPDB"] && academicInfo.capilla === ""}
+            helperText={
+              touchedFields["registroCPDB"] && academicInfo.capilla === ""
+                ? "El número de registro es requerido"
+                : ""
+            }
+            InputProps={{
+              startAdornment: <LuBuilding className="mr-2" />,
+            }}
+          />
+        </Grid>
+
         <Grid item xs={12} md={4}>
           <FormControl fullWidth variant="outlined" margin="normal" required>
             <InputLabel id="beca-label">Beca</InputLabel>
             <Select
               labelId="beca-label"
               value={academicInfo.beca ? "true" : "false"}
-              onChange={(e) => updateAcademicInfo("beca", e.target.value === "true")}
+              onChange={(e) =>
+                updateAcademicInfo("beca", e.target.value === "true")
+              }
               onBlur={() => handleBlur("beca")}
               label="Beca"
               startAdornment={<LuGraduationCap className="mr-2" />}
@@ -60,7 +118,7 @@ const AcademicInfoSection: React.FC<AcademicInfoSectionProps> = ({
             </Select>
           </FormControl>
         </Grid>
-        
+
         <Grid item xs={12} md={4}>
           <TextField
             label="Capilla"
@@ -72,33 +130,43 @@ const AcademicInfoSection: React.FC<AcademicInfoSectionProps> = ({
             variant="outlined"
             margin="normal"
             placeholder="Ingresa el nombre de la capilla"
-            error={touchedFields["capilla"] && academicInfo.capilla === ''}
-            helperText={touchedFields["capilla"] && academicInfo.capilla === '' ? 'La capilla es requerida' : ''}
+            error={touchedFields["capilla"] && academicInfo.capilla === ""}
+            helperText={
+              touchedFields["capilla"] && academicInfo.capilla === ""
+                ? "La capilla es requerida"
+                : ""
+            }
             InputProps={{
-              startAdornment: (
-                <LuBuilding className="mr-2" />
-              ),
+              startAdornment: <LuBuilding className="mr-2" />,
             }}
           />
         </Grid>
-        
+
         <Grid item xs={12} md={4}>
           <TextField
             label="Campus Escolar"
             value={academicInfo.campusEscolar}
-            onChange={(e) => updateAcademicInfo("campusEscolar", e.target.value)}
+            onChange={(e) =>
+              updateAcademicInfo("campusEscolar", e.target.value)
+            }
             onBlur={() => handleBlur("campusEscolar")}
             required
             fullWidth
             variant="outlined"
             margin="normal"
             placeholder="Ingresa el nombre del campus"
-            error={touchedFields["campusEscolar"] && academicInfo.campusEscolar === ''}
-            helperText={touchedFields["campusEscolar"] && academicInfo.campusEscolar === '' ? 'El campus escolar es requerido' : ''}
+            error={
+              touchedFields["campusEscolar"] &&
+              academicInfo.campusEscolar === ""
+            }
+            helperText={
+              touchedFields["campusEscolar"] &&
+              academicInfo.campusEscolar === ""
+                ? "El campus escolar es requerido"
+                : ""
+            }
             InputProps={{
-              startAdornment: (
-                <LuSchool className="mr-2" />
-              ),
+              startAdornment: <LuSchool className="mr-2" />,
             }}
           />
         </Grid>

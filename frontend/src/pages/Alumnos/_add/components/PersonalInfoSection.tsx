@@ -45,6 +45,12 @@ const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
     { value: "O-", label: "O-" },
   ];
 
+  const gender = [
+    { value: "", label: "Selecciona el sexo" },
+    { value: "M", label: "Masculino" },
+    { value: "F", label: "Femenino" },
+  ];
+
   return (
     <section>
       <Typography
@@ -135,6 +141,36 @@ const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
         </Grid>
 
         <Grid item xs={12} md={6}>
+          <FormControl
+            fullWidth
+            variant="outlined"
+            margin="normal"
+            required
+            error={touchedFields["genero"] && personalInfo.genero === ""}
+          >
+            <InputLabel id="gender-label">Sexo</InputLabel>
+            <Select
+              labelId="gender-label"
+              value={personalInfo.genero}
+              onChange={(e) => updatePersonalInfo("genero", e.target.value)}
+              onBlur={() => handleBlur("genero")}
+              label="Sexo"
+              displayEmpty
+              startAdornment={<LuDroplet className="mr-2" />}
+            >
+              {gender.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Select>
+            {touchedFields["genero"] && personalInfo.genero === "" && (
+              <FormHelperText>El genero es requerido</FormHelperText>
+            )}
+          </FormControl>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
           <TextField
             label="Correo Electrónico"
             type="email"
@@ -144,6 +180,22 @@ const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
             variant="outlined"
             margin="normal"
             placeholder="ejemplo@correo.com"
+            InputProps={{
+              startAdornment: <LuMail className="mr-2" />,
+            }}
+          />
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <TextField
+            label="CURP"
+            type="curp"
+            value={personalInfo.curp}
+            onChange={(e) => updatePersonalInfo("curp", e.target.value)}
+            fullWidth
+            variant="outlined"
+            margin="normal"
+            placeholder="Ingresa el CURP del alumno"
             InputProps={{
               startAdornment: <LuMail className="mr-2" />,
             }}
@@ -187,14 +239,16 @@ const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
             label="Fecha de Nacimiento"
             type="date"
             value={personalInfo.fechaNacimiento}
-            onChange={(e) => updatePersonalInfo("fechaNacimiento", e.target.value)}
+            onChange={(e) =>
+              updatePersonalInfo("fechaNacimiento", e.target.value)
+            }
             onBlur={() => handleBlur("fechaNacimiento")}
             fullWidth
             variant="outlined"
             margin="normal"
             // Establecer la fecha máxima como hoy
             inputProps={{
-              max: new Date().toISOString().split('T')[0] // Limita la fecha máxima a hoy
+              max: new Date().toISOString().split("T")[0], // Limita la fecha máxima a hoy
             }}
             InputLabelProps={{
               shrink: true,
