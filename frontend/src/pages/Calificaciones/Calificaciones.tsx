@@ -16,7 +16,6 @@ const Calificaciones = () => {
 
   return (
     <Layout>
-      <PageHeader>Calificaciones</PageHeader>
       <GradesProvider>
         <CalificacionesContent materiaSeleccionada={materiaSeleccionada} />
       </GradesProvider>

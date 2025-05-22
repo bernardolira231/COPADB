@@ -62,6 +62,9 @@ const CalificacionesContent: React.FC<CalificacionesContentProps> = ({
 
   return (
     <Container sx={{ mt: 3 }}>
+      <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2, color: "#1976d2" }}>
+        Calificaciones
+      </Typography>
       <Card sx={{ p: 3, borderRadius: "8px" }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <PageInfo materiaSeleccionada={materiaSeleccionada} />

@@ -14,6 +14,8 @@ const ListProfesores = () => {
     setSearchTerm,
     fetchProfesores,
     deleteProfesor,
+    updateProfesor,
+    getProfesorById,
   } = useProfesores();
 
   // Estado para el modal de confirmación
@@ -80,6 +82,8 @@ const ListProfesores = () => {
           handleChangePage={handleChangePage}
           handleChangeRowsPerPage={handleChangeRowsPerPage}
           handleDelete={handleDeleteClick}
+          handleEdit={updateProfesor}
+          getProfesorById={getProfesorById}
         />
         <ConfirmationModal
           open={deleteModalOpen}

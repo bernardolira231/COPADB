@@ -26,10 +26,12 @@ interface UseProfesoresReturn {
   fetchProfesores: (page?: number, perPage?: number, search?: string) => Promise<void>;
   deleteProfesor: (id: number) => Promise<void>;
   saveProfesor: (profesor: ProfesorCreate) => Promise<boolean>;
+  updateProfesor: (id: number, profesor: Partial<Profesor>) => Promise<boolean>;
   getMateriasProfesor: (id: number) => Promise<{ usuario: any; materias: any[] }>;
   getMateriasDisponibles: () => Promise<Materia[]>;
   asignarMateriaProfesor: (profesorId: number, materiaId: number, esClassId?: boolean) => Promise<boolean>;
   desasignarMateriaProfesor: (profesorId: number, groupId: number) => Promise<boolean>;
+  getProfesorById: (id: number) => Promise<Profesor | null>;
 }
 
 // Datos de ejemplo para desarrollo
@@ -373,6 +375,80 @@ const useProfesores = (): UseProfesoresReturn => {
     }
   };
 
+  // Función para obtener un profesor por su ID
+  const getProfesorById = async (id: number): Promise<Profesor | null> => {
+    try {
+      // Obtener el token de autenticación del localStorage
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No hay token de autenticación');
+      }
+
+      // Hacer la llamada al API
+      const response = await fetch(`http://localhost:5328/api/usuarios/${id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Error en la solicitud: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      // El backend devuelve directamente el objeto usuario, no dentro de un campo 'usuario'
+      return data || null;
+    } catch (err) {
+      console.error('Error al obtener profesor:', err);
+      return null;
+    }
+  };
+
+  // Función para actualizar un profesor existente
+  const updateProfesor = async (id: number, profesor: Partial<Profesor>): Promise<boolean> => {
+    try {
+      // Obtener el token de autenticación del localStorage
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No hay token de autenticación');
+      }
+
+      console.log('Actualizando profesor:', id, profesor);
+
+      // Hacer la llamada al API para actualizar
+      const response = await fetch(`http://localhost:5328/api/usuarios/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(profesor)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Error en la solicitud: ${response.status}`);
+      }
+      
+      const updatedProfesor = await response.json();
+      console.log('Respuesta del servidor:', updatedProfesor);
+      
+      // Actualizar el profesor en el estado local
+      // El backend devuelve directamente el objeto usuario actualizado
+      setProfesores(prev => prev.map(p => 
+        p.id === id ? { ...p, ...updatedProfesor } : p
+      ));
+      
+      return true;
+    } catch (err) {
+      console.error('Error al actualizar profesor:', err);
+      setError("Error al actualizar el profesor. Por favor, intenta de nuevo más tarde.");
+      return false;
+    }
+  };
+
   return {
     profesores,
     loading,
@@ -383,10 +459,12 @@ const useProfesores = (): UseProfesoresReturn => {
     fetchProfesores,
     deleteProfesor,
     saveProfesor,
+    updateProfesor,
     getMateriasProfesor,
     getMateriasDisponibles,
     asignarMateriaProfesor,
-    desasignarMateriaProfesor
+    desasignarMateriaProfesor,
+    getProfesorById
   };
 };
 
