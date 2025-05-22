@@ -11,7 +11,7 @@ const Profile = () => {
 
   const handleChangePassword = async (currentPassword: string, newPassword: string) => {
     try {
-      const response = await fetch('http://localhost:5328/api/change-password', {
+      const response = await fetch('/api/change-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

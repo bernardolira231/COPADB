@@ -65,7 +65,7 @@ const useGetGrades = (): UseGradesReturn => {
         // Llamar al endpoint para obtener las calificaciones
         console.log(`Solicitando calificaciones para grupo ${groupId}`);
         const response = await fetch(
-          `http://localhost:5328/api/calificaciones/grupo/${groupId}`,
+          `/api/calificaciones/grupo/${groupId}`,
           {
             method: 'GET',
             headers: {
@@ -154,7 +154,7 @@ const useGetGrades = (): UseGradesReturn => {
         group_id: groupId
       });
       
-      const response = await fetch('http://localhost:5328/api/calificaciones/guardar', {
+      const response = await fetch('/api/calificaciones/guardar', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -200,7 +200,7 @@ const useGetGrades = (): UseGradesReturn => {
       setLoading(true);
       
       // Hacer la solicitud al endpoint para descargar el reporte CSV
-      const response = await fetch(`http://localhost:5328/api/calificaciones/reporte/${groupId}`, {
+      const response = await fetch(`/api/calificaciones/reporte/${groupId}`, {
         method: 'GET',
       });
       

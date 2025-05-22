@@ -20,7 +20,7 @@ const fetchAllGroups = async (): Promise<Group[]> => {
     // Intentar obtener los grupos directamente sin token primero
     // ya que es posible que el endpoint no requiera autenticación
     try {
-      const response = await fetch('http://localhost:5328/api/usuarios/groups', {
+      const response = await fetch('/api/usuarios/groups', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -57,7 +57,7 @@ const fetchAllGroups = async (): Promise<Group[]> => {
     }
     
     // Obtener todos los grupos de la API con token
-    const response = await fetch('http://localhost:5328/api/usuarios/groups', {
+    const response = await fetch('/api/usuarios/groups', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -87,7 +87,7 @@ const fetchAllGroups = async (): Promise<Group[]> => {
     // Intentar obtener los grupos directamente de la base de datos
     try {
       // Hacer una solicitud directa a la API sin usar fetch para evitar problemas de CORS
-      const response = await fetch('http://localhost:5328/api/usuarios/groups', {
+      const response = await fetch('/api/usuarios/groups', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

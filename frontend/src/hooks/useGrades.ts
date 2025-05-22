@@ -248,7 +248,7 @@ const useGrades = (): UseGradesReturn => {
         // Llamar al endpoint para obtener las calificaciones
         console.log(`Solicitando calificaciones para grupo ${groupId} y periodo ${period}`);
         const response = await fetch(
-          `http://localhost:5328/api/calificaciones/grupo/${groupId}?period=${period}`,
+          `/api/calificaciones/grupo/${groupId}?period=${period}`,
           {
             method: 'GET',
             headers: {
@@ -347,7 +347,7 @@ const useGrades = (): UseGradesReturn => {
         console.log(`Obteniendo calificaciones del parcial ${period} para el grupo ${groupId}`);
         
         const response = await fetch(
-          `http://localhost:5328/api/calificaciones/grupo/${groupId}?period=${period}`,
+          `/api/calificaciones/grupo/${groupId}?period=${period}`,
           {
             method: 'GET',
             headers: {
@@ -502,7 +502,7 @@ const useGrades = (): UseGradesReturn => {
         period: period
       });
       
-      const response = await fetch('http://localhost:5328/api/calificaciones/guardar', {
+      const response = await fetch('/api/calificaciones/guardar', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -549,7 +549,7 @@ const useGrades = (): UseGradesReturn => {
       setLoading(true);
       
       // Hacer la solicitud al endpoint para descargar el reporte CSV
-      const response = await fetch(`http://localhost:5328/api/calificaciones/reporte/${groupId}?period=${period}`, {
+      const response = await fetch(`/api/calificaciones/reporte/${groupId}?period=${period}`, {
         method: 'GET',
       });
       

@@ -149,7 +149,7 @@ const useInscripcionesForm = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("/inscripciones", {
+      const response = await fetch("/api/inscripciones", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -77,7 +77,7 @@ const useGetAttendance = (): UseAttendanceReturn => {
         // Llamar al endpoint para obtener la asistencia
         console.log(`Solicitando asistencia para grupo ${groupId} en fecha ${formattedDate}`);
         const response = await fetch(
-          `http://localhost:5328/api/asistencia/grupo/${groupId}?date=${formattedDate}`,
+          `/api/asistencia/grupo/${groupId}?date=${formattedDate}`,
           {
             method: 'GET',
             headers: {
@@ -184,7 +184,7 @@ const useGetAttendance = (): UseAttendanceReturn => {
         group_id: groupId
       });
       
-      const response = await fetch('http://localhost:5328/api/asistencia/guardar', {
+      const response = await fetch('/api/asistencia/guardar', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -237,7 +237,7 @@ const useGetAttendance = (): UseAttendanceReturn => {
       setLoading(true);
       
       // Hacer la solicitud al endpoint para descargar el reporte CSV
-      const response = await fetch(`http://localhost:5328/api/asistencia/reporte/${groupId}`, {
+      const response = await fetch(`/api/asistencia/reporte/${groupId}`, {
         method: 'GET',
       });
       

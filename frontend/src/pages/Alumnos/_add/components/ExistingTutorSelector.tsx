@@ -52,7 +52,7 @@ const ExistingTutorSelector: React.FC<ExistingTutorSelectorProps> = ({
   const fetchTutores = async (term: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:5328/api/tutores${term ? `?search=${encodeURIComponent(term)}` : ''}`);
+      const response = await fetch(`/api/tutores${term ? `?search=${encodeURIComponent(term)}` : ''}`);
       if (response.ok) {
         const data = await response.json();
         setTutores(data.tutores || []);

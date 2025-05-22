@@ -105,7 +105,7 @@ const useProfesores = (): UseProfesoresReturn => {
       }
 
       // Construir la URL con los parámetros de paginación y búsqueda
-      const url = `http://localhost:5328/api/usuarios?page=${page}&per_page=${perPage}${search ? `&search=${encodeURIComponent(search)}` : ''}`;
+      const url = `/api/usuarios?page=${page}&per_page=${perPage}${search ? `&search=${encodeURIComponent(search)}` : ''}`;
       
       // Hacer la llamada al API
       const response = await fetch(url, {
@@ -158,7 +158,7 @@ const useProfesores = (): UseProfesoresReturn => {
       }
 
       // Hacer la llamada al API para eliminar
-      const response = await fetch(`http://localhost:5328/api/usuarios/${id}`, {
+      const response = await fetch(`/api/usuarios/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -202,7 +202,7 @@ const useProfesores = (): UseProfesoresReturn => {
       }
 
       // Hacer la llamada al API para guardar
-      const response = await fetch('http://localhost:5328/api/usuarios', {
+      const response = await fetch('/api/usuarios', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -253,7 +253,7 @@ const useProfesores = (): UseProfesoresReturn => {
       }
 
       // Hacer la llamada al API
-      const response = await fetch(`http://localhost:5328/api/usuarios/${id}/materias`, {
+      const response = await fetch(`/api/usuarios/${id}/materias`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -282,7 +282,7 @@ const useProfesores = (): UseProfesoresReturn => {
       }
 
       // Hacer la llamada al API
-      const response = await fetch('http://localhost:5328/api/usuarios/materias-disponibles', {
+      const response = await fetch('/api/usuarios/materias-disponibles', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -319,7 +319,7 @@ const useProfesores = (): UseProfesoresReturn => {
       console.log('Asignando materia al profesor:', profesorId, 'con datos:', requestBody);
 
       // Hacer la llamada al API
-      const response = await fetch(`http://localhost:5328/api/usuarios/${profesorId}/asignar-materia`, {
+      const response = await fetch(`/api/usuarios/${profesorId}/asignar-materia`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -352,7 +352,7 @@ const useProfesores = (): UseProfesoresReturn => {
       console.log('Desasignando materia del profesor:', profesorId, 'con group_id:', groupId);
 
       // Hacer la llamada al API
-      const response = await fetch(`http://localhost:5328/api/usuarios/${profesorId}/desasignar-materia`, {
+      const response = await fetch(`/api/usuarios/${profesorId}/desasignar-materia`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

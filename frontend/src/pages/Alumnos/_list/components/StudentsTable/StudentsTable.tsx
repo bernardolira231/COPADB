@@ -158,7 +158,7 @@ const StudentsTable: React.FC<StudentsTableProps> = ({
     
     // Función para realizar la llamada a la API
     const apiCall = (body: any) => {
-      fetch(`http://localhost:5328/api/estudiantes/${estudianteId}/asignar-grupo`, {
+      fetch(`/api/estudiantes/${estudianteId}/asignar-grupo`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

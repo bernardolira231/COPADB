@@ -112,7 +112,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setRefreshIntervalId(null);
     }
     try {
-      await fetch("http://localhost:5328/api/logout", {
+      await fetch("/api/logout", {
         method: "POST",
         credentials: "include",
       });
@@ -191,7 +191,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       // Obtener el valor del CSRF token desde la cookie
       const csrfToken = getCookie('csrf_refresh_token');
-      const response = await fetch('http://localhost:5328/api/refresh', {
+      const response = await fetch('/api/refresh', {
         method: 'POST',
         credentials: 'include', // Importante: para enviar cookies
         headers: {
