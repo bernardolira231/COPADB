@@ -8,7 +8,6 @@ WORKDIR /app/frontend
 # Copia solo lo necesario primero (cache build más rápido)
 COPY frontend/package*.json ./
 RUN npm install
-RUN npm install dayjs @mui/icons-material@6
 
 # Luego el resto del código
 COPY frontend/ ./
